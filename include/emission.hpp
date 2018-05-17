@@ -28,6 +28,7 @@ namespace singularity {
         const matrix_t::size_type initial_size = 10000;
         void add_block(const std::vector<transaction_t>& transactions);
         double get_activity();
+        void clear();
     private:
         account_id_map_t account_map;
         std::mutex accounts_lock;

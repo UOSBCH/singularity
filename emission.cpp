@@ -111,3 +111,11 @@ uint64_t emission_calculator::calculate(uint64_t total_emission, double activity
     }
 }
 
+
+void activity_period::clear()
+{
+    std::lock_guard<std::mutex> lock(weight_matrix_lock);
+    
+    p_weight_matrix->clear();
+}
+
