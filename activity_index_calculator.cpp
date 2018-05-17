@@ -169,9 +169,9 @@ void activity_index_calculator::save_state_to_file(std::string filename)
     
         boost::archive::binary_oarchive oarch(ofs);
         oarch << BOOST_SERIALIZATION_NVP(*this);
-    } catch (std::ifstream::failure e) {
+    } catch (std::ifstream::failure& e) {
         throw runtime_exception("Failed writing to a file " + filename);
-    } catch ( boost::archive::archive_exception e) {
+    } catch ( boost::archive::archive_exception& e) {
         throw runtime_exception("Failed serialization to a file " + filename);
     }
 }
@@ -184,9 +184,9 @@ void activity_index_calculator::load_state_from_file(std::string filename)
         boost::archive::binary_iarchive iarch(ifs);
 
         iarch >> *this;
-    } catch (std::ifstream::failure e) {
+    } catch (std::ifstream::failure& e) {
         throw runtime_exception("Failed reading from a file " + filename);
-    } catch ( boost::archive::archive_exception e) {
+    } catch ( boost::archive::archive_exception& e) {
         throw runtime_exception("Failed deserialization from a file " + filename);
     }
 }
