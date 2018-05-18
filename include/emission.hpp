@@ -21,6 +21,12 @@ namespace singularity {
         double delay_koefficient = 0.5;
     };
     
+    struct emission_state_t
+    {
+        uint64_t target_emission = 0;
+        double last_activity = 0;
+    };
+    
     class activity_period
     {
     public:
@@ -52,10 +58,15 @@ namespace singularity {
     class emission_calculator
     {
     public:
-        emission_calculator(emission_parameters_t parameters):parameters(parameters) {};
-        uint64_t calculate(uint64_t total_emission, double activity);
+        emission_calculator(emission_parameters_t parameters, emission_state_t emission_state)
+        :parameters(parameters), 
+        emission_state(emission_state) 
+        {};
+        uint64_t calculate(uint64_t total_emission, activity_period& period);
+        emission_state_t get_emission_state();
     private:
         emission_parameters_t parameters;
+        emission_state_t emission_state;
     };
 }
 

@@ -54,17 +54,32 @@ BOOST_AUTO_TEST_CASE( test1 )
     double activity = ap.get_activity();
 
     BOOST_CHECK_CLOSE(activity, 3, 1e-3);
-}
-
-BOOST_AUTO_TEST_CASE( test2 )
-{
+    
     emission_parameters_t params;
-
-    emission_calculator em(params);
     
-    uint64_t emission = em.calculate(200000000000, 5000);
+    params.initial_supply = 100000000;
+    params.emission_event_count_per_year = 12;
+    params.emission_scale = 1000000;
+    params.year_emission_limit = 10;
     
-    BOOST_CHECK_EQUAL(emission, 148262316574);
+    emission_state_t state;
+    
+    emission_calculator ec(params, state);
+    
+    uint64_t emission = ec.calculate(0, ap);
+    
+    BOOST_CHECK_EQUAL(emission, 761201);
 }
+
+// BOOST_AUTO_TEST_CASE( test2 )
+// {
+//     emission_parameters_t params;
+// 
+//     emission_calculator em(params);
+//     
+//     uint64_t emission = em.calculate(200000000000, 5000);
+//     
+//     BOOST_CHECK_EQUAL(emission, 148262316574);
+// }
 
 BOOST_AUTO_TEST_SUITE_END()

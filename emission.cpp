@@ -96,21 +96,28 @@ double activity_period::get_activity()
     return (double) n.nnz();
 }
 
-uint64_t emission_calculator::calculate(uint64_t total_emission, double activity)
+uint64_t emission_calculator::calculate(uint64_t total_emission, activity_period& period)
 {
     uint64_t current_supply = parameters.initial_supply + total_emission;
 
     double emission_limit = pow((1 + (double) parameters.year_emission_limit / 100), 1.0 / parameters.emission_event_count_per_year) - 1;
-
-    double argument = (parameters.emission_scale * activity - total_emission) / current_supply;
     
-    if (argument <= 0) {
-        return 0;
-    } else {
+    double new_activity = period.get_activity();
+    
+    if (new_activity > emission_state.last_activity) {
+        emission_state.target_emission += parameters.emission_scale * (new_activity - emission_state.last_activity);
+        double argument = (double) (emission_state.target_emission - total_emission) / current_supply;
+        
         return current_supply * emission_limit * tanh(parameters.delay_koefficient * argument / emission_limit);
+    } else {
+        return 0;
     }
 }
 
+singularity::emission_state_t singularity::emission_calculator::get_emission_state()
+{
+    return emission_state;
+}
 
 void activity_period::clear()
 {
