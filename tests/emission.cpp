@@ -65,21 +65,83 @@ BOOST_AUTO_TEST_CASE( test1 )
     emission_state_t state;
     
     emission_calculator ec(params, state);
+    uint64_t total_emission = 0;
     
-    uint64_t emission = ec.calculate(0, ap);
+    uint64_t emission = ec.calculate(total_emission, ap);
+    
+    total_emission += emission;
     
     BOOST_CHECK_EQUAL(emission, 761201);
+    
+    ap.clear();
+    
+    ap.add_block(get_transactions2());
+    activity = ap.get_activity();
+
+    BOOST_CHECK_CLOSE(activity, 5, 1e-3);
+
+    emission = ec.calculate(total_emission, ap);
+
+    total_emission += emission;
+    
+    BOOST_CHECK_EQUAL(emission, 795305);
+
+    ap.clear();
+    
+    ap.add_block(get_transactions1());
+    activity = ap.get_activity();
+
+    BOOST_CHECK_CLOSE(activity, 3, 1e-3);
+
+    emission = ec.calculate(total_emission, ap);
+
+    total_emission += emission;
+    
+    BOOST_CHECK_EQUAL(emission, 0);
 }
 
-// BOOST_AUTO_TEST_CASE( test2 )
-// {
-//     emission_parameters_t params;
-// 
-//     emission_calculator em(params);
-//     
-//     uint64_t emission = em.calculate(200000000000, 5000);
-//     
-//     BOOST_CHECK_EQUAL(emission, 148262316574);
-// }
+BOOST_AUTO_TEST_CASE( test2 )
+{
+    std::vector<transaction_t> transactions = get_transactions1();
+    
+    activity_period ap;
+    
+    ap.add_block(transactions);
+    
+    double activity = ap.get_activity();
+
+    BOOST_CHECK_CLOSE(activity, 3, 1e-3);
+    
+    emission_parameters_t params;
+    
+    params.initial_supply = 100000000;
+    params.emission_event_count_per_year = 12;
+    params.emission_scale = 100000;
+    params.year_emission_limit = 10;
+    
+    emission_state_t state;
+    
+    emission_calculator ec(params, state);
+    uint64_t total_emission = 0;
+    
+    uint64_t emission = ec.calculate(total_emission, ap);
+    
+    total_emission += emission;
+    
+    BOOST_CHECK_EQUAL(emission, 148255);
+    
+    ap.clear();
+    
+    ap.add_block(get_transactions2());
+    activity = ap.get_activity();
+
+    BOOST_CHECK_CLOSE(activity, 5, 1e-3);
+
+    emission = ec.calculate(total_emission, ap);
+
+    total_emission += emission;
+    
+    BOOST_CHECK_EQUAL(emission, 173083);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

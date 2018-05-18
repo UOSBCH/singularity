@@ -106,10 +106,13 @@ uint64_t emission_calculator::calculate(uint64_t total_emission, activity_period
     
     if (new_activity > emission_state.last_activity) {
         emission_state.target_emission += parameters.emission_scale * (new_activity - emission_state.last_activity);
+        
+        emission_state.last_activity = new_activity;
         double argument = (double) (emission_state.target_emission - total_emission) / current_supply;
         
         return current_supply * emission_limit * tanh(parameters.delay_koefficient * argument / emission_limit);
     } else {
+        
         return 0;
     }
 }
@@ -125,4 +128,3 @@ void activity_period::clear()
     
     p_weight_matrix->clear();
 }
-
