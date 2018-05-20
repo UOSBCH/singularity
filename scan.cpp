@@ -189,7 +189,7 @@ void scan::find_clusters(Graph& g)
                 Graph::vertex_descriptor x = target(*current_edge, g);
                 if (vertex_status_map[x] == node_status_member) {
                     if (!cluster_is_found) {
-                        cluster_is_found = 1;
+                        cluster_is_found = true;
                         found_cluster_id = vertex_cluster_id_map[x];
                     } else {
                         if (found_cluster_id != vertex_cluster_id_map[x]) {
