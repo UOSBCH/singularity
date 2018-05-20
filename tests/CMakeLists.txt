@@ -12,7 +12,7 @@ target_link_libraries(test_emission singularity )
 
 add_test(NAME test_gravity_index_calculator COMMAND test_gravity_index_calculator)
 add_test(NAME test_activity_index_calculator COMMAND test_activity_index_calculator)
-add_test(NAME test_scan COMMAND test_poi)
-add_test(NAME test_utils COMMAND test_poi)
-add_test(NAME test_emission COMMAND test_poi)
+add_test(NAME test_scan COMMAND test_scan)
+add_test(NAME test_utils COMMAND test_utils)
+add_test(NAME test_emission COMMAND test_emission)
 

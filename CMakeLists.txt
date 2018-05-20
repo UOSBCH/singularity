@@ -30,3 +30,5 @@ install( FILES ${HEADERS} DESTINATION "include" )
 add_subdirectory( tests )
 
 target_link_libraries( singularity boost_serialization pthread )
+
+enable_testing ()
