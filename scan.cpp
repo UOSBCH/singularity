@@ -87,14 +87,14 @@ void scan::calculate_similarity(Graph &g, Graph::edge_descriptor link)
     v_2_N = out_degree(v2, g) + 1;
     v_12_N = 2;
     
-    Graph::adjacency_iterator currentIt, endIt;
+    Graph::adjacency_iterator current_it, end_it;
     
-    tie(currentIt, endIt) = adjacent_vertices(v1, g);
+    tie( current_it, end_it ) = adjacent_vertices(v1, g);
     
-    for (;currentIt < endIt; currentIt++) {
+    for (; current_it < end_it; current_it++) {
         bool found;
         Graph::edge_descriptor link2x;
-        Graph::vertex_descriptor vx = *currentIt;
+        Graph::vertex_descriptor vx = *current_it;
         tie(link2x, found) = edge(v2, vx, g);
         if (found) {
             v_12_N++;
