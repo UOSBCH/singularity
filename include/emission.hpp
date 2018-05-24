@@ -64,6 +64,8 @@ namespace singularity {
         {};
         uint64_t calculate(uint64_t total_emission, activity_period& period);
         emission_state_t get_emission_state();
+        emission_parameters_t get_parameters();
+        void set_parameters(emission_parameters_t emission_parameters);
     private:
         emission_parameters_t parameters;
         emission_state_t emission_state;

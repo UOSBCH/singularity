@@ -98,19 +98,21 @@ double activity_period::get_activity()
 
 uint64_t emission_calculator::calculate(uint64_t total_emission, activity_period& period)
 {
-    uint64_t current_supply = parameters.initial_supply + total_emission;
+    emission_parameters_t current_parameters = parameters;
+    
+    uint64_t current_supply = current_parameters.initial_supply + total_emission;
 
-    double emission_limit = pow((1 + (double) parameters.year_emission_limit / 100), 1.0 / parameters.emission_event_count_per_year) - 1;
+    double emission_limit = pow((1 + (double) current_parameters.year_emission_limit / 100), 1.0 / current_parameters.emission_event_count_per_year) - 1;
     
     double new_activity = period.get_activity();
     
     if (new_activity > emission_state.last_activity) {
-        emission_state.target_emission += parameters.emission_scale * (new_activity - emission_state.last_activity);
+        emission_state.target_emission += current_parameters.emission_scale * (new_activity - emission_state.last_activity);
         
         emission_state.last_activity = new_activity;
         double argument = (double) (emission_state.target_emission - total_emission) / current_supply;
         
-        return current_supply * emission_limit * tanh(parameters.delay_koefficient * argument / emission_limit);
+        return current_supply * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit);
     } else {
         
         return 0;
@@ -127,4 +129,14 @@ void activity_period::clear()
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
     
     p_weight_matrix->clear();
+}
+
+singularity::emission_parameters_t singularity::emission_calculator::get_parameters()
+{
+    return parameters;
+}
+
+void singularity::emission_calculator::set_parameters(singularity::emission_parameters_t emission_parameters)
+{
+    this->parameters = emission_parameters;
 }
