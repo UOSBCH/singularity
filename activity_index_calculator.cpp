@@ -218,3 +218,14 @@ unsigned int activity_index_calculator::get_total_handled_block_count()
     return total_handled_blocks_count;
 }
 
+singularity::parameters_t singularity::activity_index_calculator::get_parameters()
+{
+    return parameters;
+}
+
+void singularity::activity_index_calculator::set_parameters(singularity::parameters_t params)
+{
+    parameters = params;
+}
+
+

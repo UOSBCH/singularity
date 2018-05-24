@@ -57,6 +57,8 @@ namespace singularity {
         void load_state_from_file(std::string filename);
         unsigned int get_total_handled_block_count();
         std::vector<transaction_t> filter_block(const std::vector<transaction_t>& block);
+        void set_parameters(parameters_t params);
+        parameters_t get_parameters();
     private:
         friend class boost::serialization::access;
         parameters_t parameters;
