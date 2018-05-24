@@ -10,6 +10,8 @@ target_link_libraries(test_scan singularity )
 target_link_libraries(test_utils singularity )
 target_link_libraries(test_emission singularity )
 
+enable_testing ()
+
 add_test(NAME test_gravity_index_calculator COMMAND test_gravity_index_calculator)
 add_test(NAME test_activity_index_calculator COMMAND test_activity_index_calculator)
 add_test(NAME test_scan COMMAND test_scan)
