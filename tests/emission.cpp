@@ -15,11 +15,11 @@ std::vector<transaction_t> get_transactions1()
 
     time_t now = time(nullptr);
     
-    transactions.push_back( transaction_t (200, 0, "account-0", "account-1", now));
-    transactions.push_back( transaction_t (100, 0, "account-1", "account-0", now));
-    transactions.push_back( transaction_t (300, 0, "account-0", "account-2", now));
-    transactions.push_back( transaction_t (500, 0, "account-2", "account-1", now));
-    transactions.push_back( transaction_t (700, 0, "account-1", "account-2", now));
+    transactions.push_back( transaction_t (200, 0, "account-0", "account-1", now, 0, 0));
+    transactions.push_back( transaction_t (100, 0, "account-1", "account-0", now, 0, 0));
+    transactions.push_back( transaction_t (300, 0, "account-0", "account-2", now, 0, 0));
+    transactions.push_back( transaction_t (500, 0, "account-2", "account-1", now, 0, 0));
+    transactions.push_back( transaction_t (700, 0, "account-1", "account-2", now, 0, 0));
     
     return transactions;
 }
@@ -30,13 +30,13 @@ std::vector<transaction_t> get_transactions2()
 
     time_t now = time(nullptr);
     
-    transactions.push_back( transaction_t (200, 0, "account-0", "account-1", now));
-    transactions.push_back( transaction_t (100, 0, "account-1", "account-0", now));
-    transactions.push_back( transaction_t (300, 0, "account-0", "account-2", now));
-    transactions.push_back( transaction_t (500, 0, "account-2", "account-1", now));
-    transactions.push_back( transaction_t (700, 0, "account-1", "account-2", now));
-    transactions.push_back( transaction_t (800, 0, "account-1", "account-3", now));
-    transactions.push_back( transaction_t (100, 0, "account-2", "account-3", now));
+    transactions.push_back( transaction_t (200, 0, "account-0", "account-1", now, 0, 0));
+    transactions.push_back( transaction_t (100, 0, "account-1", "account-0", now, 0, 0));
+    transactions.push_back( transaction_t (300, 0, "account-0", "account-2", now, 0, 0));
+    transactions.push_back( transaction_t (500, 0, "account-2", "account-1", now, 0, 0));
+    transactions.push_back( transaction_t (700, 0, "account-1", "account-2", now, 0, 0));
+    transactions.push_back( transaction_t (800, 0, "account-1", "account-3", now, 0, 0));
+    transactions.push_back( transaction_t (100, 0, "account-2", "account-3", now, 0, 0));
     
     return transactions;
 }

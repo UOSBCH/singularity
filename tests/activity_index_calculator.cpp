@@ -18,11 +18,11 @@ std::vector<transaction_t> get_transactions()
     
     time_t now = time(nullptr);
     
-    transactions.push_back( transaction_t (200, 0, "account-0", "account-1", now));
-    transactions.push_back( transaction_t (100, 0, "account-1", "account-0", now));
-    transactions.push_back( transaction_t (300, 0, "account-0", "account-2", now));
-    transactions.push_back( transaction_t (500, 0, "account-2", "account-1", now));
-    transactions.push_back( transaction_t (700, 0, "account-1", "account-2", now));
+    transactions.push_back( transaction_t (200, 0, "account-0", "account-1", now, 100000, 100000));
+    transactions.push_back( transaction_t (100, 0, "account-1", "account-0", now, 100000, 100000));
+    transactions.push_back( transaction_t (300, 0, "account-0", "account-2", now, 100000, 100000));
+    transactions.push_back( transaction_t (500, 0, "account-2", "account-1", now, 100000, 100000));
+    transactions.push_back( transaction_t (700, 0, "account-1", "account-2", now, 100000, 100000));
     
     return transactions;
 }
@@ -39,10 +39,10 @@ void add_random_transactions(activity_index_calculator& ic, uint32_t num_account
             std::string src_account  = "A" + std::to_string((int)std::floor(num_accounts * drand48()));
             std::string target_account  = "A" + std::to_string((int)std::floor(num_accounts * drand48()));
             double amount = std::floor(max_amount * drand48());
-            if (src_account == target_account || amount < 1) {
+            if (src_account == target_account || amount < 10) {
                 continue;
             }
-            transactions.push_back( transaction_t (amount, 0, src_account, target_account, now));
+            transactions.push_back( transaction_t (amount, 0, src_account, target_account, now, 100000, 100000));
         }
         ic.add_block(transactions);
     }
@@ -53,6 +53,8 @@ BOOST_AUTO_TEST_SUITE( activity_index_calculator_test)
 BOOST_AUTO_TEST_CASE( test1 )
 {
     parameters_t params;
+    
+    params.transaction_amount_threshold = 10;
 
     activity_index_calculator calculator(params);
 
@@ -71,6 +73,8 @@ BOOST_AUTO_TEST_CASE( test1 )
 BOOST_AUTO_TEST_CASE( test2 )
 {
     parameters_t params;
+
+    params.transaction_amount_threshold = 10;
 
     activity_index_calculator calculator(params);
 

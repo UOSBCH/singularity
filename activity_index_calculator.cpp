@@ -36,8 +36,9 @@ void activity_index_calculator::collect_accounts(
 }
 
 void activity_index_calculator::add_block(const std::vector<transaction_t>& transactions) {
+    std::vector<transaction_t> filtered_transactions = filter_block(transactions);
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
-    collect_accounts(account_map, transactions);
+    collect_accounts(account_map, filtered_transactions);
     
     total_handled_blocks_count++;
     handled_blocks_count++;
@@ -54,7 +55,20 @@ void activity_index_calculator::add_block(const std::vector<transaction_t>& tran
         p_weight_matrix = matrix_tools::resize(*p_weight_matrix, new_size, new_size);
     }
 
-    update_weight_matrix(*p_weight_matrix, account_map, transactions);
+    update_weight_matrix(*p_weight_matrix, account_map, filtered_transactions);
+}
+
+std::vector<transaction_t> singularity::activity_index_calculator::filter_block(const std::vector<transaction_t>& block)
+{
+    std::vector<transaction_t> filtered_block;
+    
+    for (auto transaction: block) {
+        if (check_transaction(transaction)) {
+            filtered_block.push_back(transaction);
+        }
+    }
+    
+    return filtered_block;
 }
 
 void activity_index_calculator::skip_blocks(unsigned int blocks_count)
@@ -84,9 +98,9 @@ account_activity_index_map_t activity_index_calculator::calculate()
     return calculate_score(account_map, *rank);
 }
 
-bool activity_index_calculator::check_account( account_t account) 
+bool activity_index_calculator::check_account( account_t account ) 
 {
-    if (account.amount < parameters.account_amount_threshold) {
+    if (account.amount < parameters.account_amount_threshold * parameters.token_usd_rate) {
         return false;
     }
     
@@ -95,7 +109,15 @@ bool activity_index_calculator::check_account( account_t account)
 
 bool activity_index_calculator::check_transaction( transaction_t transaction) 
 {
-    if (transaction.amount < parameters.transaction_amount_threshold) {
+    if (transaction.amount < parameters.transaction_amount_threshold * parameters.token_usd_rate) {
+        return false;
+    }
+
+    if (transaction.source_account_balance < parameters.account_amount_threshold * parameters.token_usd_rate) {
+        return false;
+    }
+
+    if (transaction.target_account_balance < parameters.account_amount_threshold * parameters.token_usd_rate) {
         return false;
     }
     

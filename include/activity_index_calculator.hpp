@@ -21,9 +21,26 @@ namespace singularity {
         double comission;
         std::string source_account;
         std::string target_account;
+        double source_account_balance;
+        double target_account_balance;
         time_t timestamp;
-        transaction_t (double amount, double comission, std::string source_account, std::string target_account, time_t timestamp) :
-            amount(amount), comission(comission), source_account(source_account), target_account(target_account), timestamp(timestamp) { }
+        transaction_t (
+            double amount, 
+            double comission, 
+            std::string source_account, 
+            std::string target_account, 
+            time_t timestamp, 
+            double source_account_balance,
+            double target_account_balance
+        ) :
+        amount(amount), 
+        comission(comission), 
+        source_account(source_account), 
+        target_account(target_account), 
+        source_account_balance(source_account_balance),
+        target_account_balance(target_account_balance),
+        timestamp(timestamp)
+        { }
     };
     
     class activity_index_calculator 
@@ -39,6 +56,7 @@ namespace singularity {
         void save_state_to_file(std::string filename);
         void load_state_from_file(std::string filename);
         unsigned int get_total_handled_block_count();
+        std::vector<transaction_t> filter_block(const std::vector<transaction_t>& block);
     private:
         friend class boost::serialization::access;
         parameters_t parameters;

@@ -30,6 +30,7 @@ namespace singularity {
         uint decay_period = 86400; // 24h = 86400 1s-blocks
         double decay_koefficient = 0.9;
         unsigned int num_threads = 1;
+        double token_usd_rate = 1;
     };
     
     namespace matrix_tools
