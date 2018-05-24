@@ -51,12 +51,9 @@ namespace singularity {
         void add_block(const std::vector<transaction_t>& transactions);
         void skip_blocks(unsigned int blocks_count);
         account_activity_index_map_t calculate();
-        bool check_account( account_t account);
-        bool check_transaction( transaction_t transaction);
         void save_state_to_file(std::string filename);
         void load_state_from_file(std::string filename);
         unsigned int get_total_handled_block_count();
-        std::vector<transaction_t> filter_block(const std::vector<transaction_t>& block);
         void set_parameters(parameters_t params);
         parameters_t get_parameters();
     private:
@@ -69,6 +66,12 @@ namespace singularity {
         account_id_map_t account_map;
         std::mutex accounts_lock;
         std::mutex weight_matrix_lock;
+
+        bool check_account( account_t account);
+        
+        bool check_transaction( transaction_t transaction);
+        
+        std::vector<transaction_t> filter_block(const std::vector<transaction_t>& block);
                 
         account_activity_index_map_t calculate_score(
             const account_id_map_t& account_id_map,
