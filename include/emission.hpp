@@ -16,7 +16,7 @@ namespace singularity {
         // Emission value koefficient
         uint64_t emission_scale = 100000000;
         // Emission event quantity per a year
-        uint16_t emission_event_count_per_year = 12;
+        uint32_t emission_event_count_per_year = 12;
         // Delay emission koefficient, 0 < delay_koefficient < 1
         double delay_koefficient = 0.5;
     };
