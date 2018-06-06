@@ -41,7 +41,10 @@ BOOST_AUTO_TEST_CASE( resize )
     m2(1,1) = -2;
     
     std::shared_ptr<matrix_t> p_m1_resized = matrix_tools::resize(m1, 4, 4);
+    matrix_t m1_resized = m1;
+    m1_resized.resize(4, 4, true);
     
+    BOOST_CHECK(boost::numeric::ublas::detail::equals(m1_resized, m2, 0.001, 0.001));
     BOOST_CHECK(boost::numeric::ublas::detail::equals(*p_m1_resized, m2, 0.001, 0.001));
 }
 

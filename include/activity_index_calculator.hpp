@@ -46,7 +46,7 @@ namespace singularity {
     class activity_index_calculator 
     {
     public:
-        const matrix_t::size_type initial_size = 1000000;
+        const matrix_t::size_type initial_size = 10000;
         activity_index_calculator(parameters_t parameters);
         void add_block(const std::vector<transaction_t>& transactions);
         void skip_blocks(unsigned int blocks_count);

@@ -52,7 +52,7 @@ void activity_index_calculator::add_block(const std::vector<transaction_t>& tran
         while (new_size < account_map.size()) {
             new_size *= 2;
         }
-        p_weight_matrix = matrix_tools::resize(*p_weight_matrix, new_size, new_size);
+        p_weight_matrix->resize(new_size, new_size);
     }
 
     update_weight_matrix(*p_weight_matrix, account_map, filtered_transactions);

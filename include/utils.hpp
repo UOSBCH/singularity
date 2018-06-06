@@ -9,16 +9,17 @@
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/exception/all.hpp>
+#include "mapped_matrix_resizable.hpp"
 
 namespace singularity {
-    typedef boost::numeric::ublas::mapped_matrix<double, boost::numeric::ublas::row_major> matrix_t;
+    typedef boost::numeric::ublas::mapped_matrix_resizable<double, boost::numeric::ublas::row_major> matrix_t;
     typedef boost::numeric::ublas::vector<double> vector_t;
     typedef boost::numeric::ublas::mapped_vector<double> sparce_vector_t;
     typedef unsigned long int index_t;
     typedef boost::numeric::ublas::matrix_range<matrix_t> matrix_range_t;
     typedef boost::numeric::ublas::vector_range<vector_t> vector_range_t;
     typedef boost::numeric::ublas::range range_t;
-    typedef boost::numeric::ublas::mapped_matrix<uint8_t, boost::numeric::ublas::row_major> byte_matrix_t;
+    typedef boost::numeric::ublas::mapped_matrix_resizable<uint8_t, boost::numeric::ublas::row_major> byte_matrix_t;
 
     struct parameters_t {
         uint account_amount_threshold = 10000;
