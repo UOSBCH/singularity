@@ -144,4 +144,28 @@ BOOST_AUTO_TEST_CASE( test2 )
     BOOST_CHECK_EQUAL(emission, 173083);
 }
 
+BOOST_AUTO_TEST_CASE( test3 )
+{
+    activity_period ap;
+
+    ap.add_block(get_transactions1());
+    
+    char buffer[] = "/tmp/grv_apXXXXXX\0";
+    
+    mkstemp(buffer);
+    std::string filename(buffer);
+    
+    ap.save_state_to_file(filename);
+    
+    activity_period ap2;
+    
+    ap2.load_state_from_file(filename);
+    
+    remove(filename.c_str());
+
+    BOOST_CHECK_EQUAL(ap.get_handled_block_count(), ap2.get_handled_block_count());
+
+    BOOST_CHECK_EQUAL(ap.get_activity(), ap2.get_activity());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

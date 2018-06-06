@@ -1,4 +1,7 @@
 #include "include/emission.hpp"
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <fstream>
 
 using namespace singularity;
 
@@ -29,6 +32,9 @@ void activity_period::collect_accounts(
 void activity_period::add_block(const std::vector<transaction_t>& transactions)
 {
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
+    
+    handled_blocks_count ++;
+    
     collect_accounts(account_map, transactions);
     
     if (p_weight_matrix->size1() < account_map.size()) {
@@ -128,6 +134,8 @@ void activity_period::clear()
 {
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
     
+    handled_blocks_count = 0;
+    
     p_weight_matrix->clear();
 }
 
@@ -139,4 +147,39 @@ singularity::emission_parameters_t singularity::emission_calculator::get_paramet
 void singularity::emission_calculator::set_parameters(singularity::emission_parameters_t emission_parameters)
 {
     this->parameters = emission_parameters;
+}
+
+void activity_period::save_state_to_file(std::string filename) 
+{
+    std::lock_guard<std::mutex> lock(weight_matrix_lock);
+    try {
+        std::ofstream ofs(filename, std::ofstream::out);
+    
+        boost::archive::binary_oarchive oarch(ofs);
+        oarch << BOOST_SERIALIZATION_NVP(*this);
+    } catch (std::ifstream::failure& e) {
+        throw runtime_exception("Failed writing to a file " + filename);
+    } catch ( boost::archive::archive_exception& e) {
+        throw runtime_exception("Failed serialization to a file " + filename);
+    }
+}
+
+void activity_period::load_state_from_file(std::string filename) 
+{
+    std::lock_guard<std::mutex> lock(weight_matrix_lock);
+    try {
+        std::ifstream ifs(filename, std::istream::in);
+        boost::archive::binary_iarchive iarch(ifs);
+
+        iarch >> *this;
+    } catch (std::ifstream::failure& e) {
+        throw runtime_exception("Failed reading from a file " + filename);
+    } catch ( boost::archive::archive_exception& e) {
+        throw runtime_exception("Failed deserialization from a file " + filename);
+    }
+}
+
+unsigned int singularity::activity_period::get_handled_block_count()
+{
+    return handled_blocks_count;
 }

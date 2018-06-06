@@ -35,7 +35,12 @@ namespace singularity {
         void add_block(const std::vector<transaction_t>& transactions);
         double get_activity();
         void clear();
+        unsigned int get_handled_block_count();
+        void save_state_to_file(std::string filename);
+        void load_state_from_file(std::string filename);
     private:
+        friend class boost::serialization::access;
+        unsigned int handled_blocks_count = 0;
         account_id_map_t account_map;
         std::mutex accounts_lock;
         std::mutex weight_matrix_lock;
@@ -53,6 +58,12 @@ namespace singularity {
             account_id_map_t& account_id_map,
             const std::vector<transaction_t>& transactions
         );
+        template<class Archive>
+        void serialize(Archive& ar, const unsigned int version) {
+            ar & BOOST_SERIALIZATION_NVP(handled_blocks_count);
+            ar & BOOST_SERIALIZATION_NVP(account_map);
+            ar & BOOST_SERIALIZATION_NVP(*p_weight_matrix);
+        }
     };
 
     class emission_calculator
