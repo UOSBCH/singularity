@@ -11,6 +11,9 @@ class mapped_matrix_resizable:
     public mapped_matrix<T, L, A>
     {
     public:
+        typedef L layout_type;
+        typedef mapped_matrix<T, L, A> parent_type;
+        
         // Construction and destruction
         BOOST_UBLAS_INLINE
         mapped_matrix_resizable ():
@@ -29,17 +32,17 @@ class mapped_matrix_resizable:
             
         void resize (typename A::size_type size1, typename A::size_type size2, bool preserve = true) {
             if (preserve) {
-                typename A::size_type old_size1 = mapped_matrix<T, L, A>::size1();
-                typename A::size_type old_size2 = mapped_matrix<T, L, A>::size2();
-                A old_data = mapped_matrix<T, L, A>::data();
-                mapped_matrix<T, L, A>::resize(size1, size2, false);
+                typename A::size_type old_size1 = parent_type::size1();
+                typename A::size_type old_size2 = parent_type::size2();
+                A old_data = parent_type::data();
+                parent_type::resize(size1, size2, false);
                 for (auto it=old_data.cbegin(); it != old_data.cend(); it++) {
                     typename A::size_type i = L::index_i(it->first, old_size1, old_size2);
                     typename A::size_type j = L::index_j(it->first, old_size1, old_size2);
                     (*this)(i, j) = it->second;
                 }
             } else {
-                mapped_matrix<T, L, A>::resize(size1, size2, false);
+                parent_type::resize(size1, size2, false);
             }
         }
     };
