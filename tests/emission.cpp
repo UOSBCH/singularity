@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( test1 )
     
     ap.add_block(transactions);
     
-    double activity = ap.get_activity();
+    double_type activity = ap.get_activity();
 
     BOOST_CHECK_CLOSE(activity, 3, 1e-3);
     
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( test2 )
     
     ap.add_block(transactions);
     
-    double activity = ap.get_activity();
+    double_type activity = ap.get_activity();
 
     BOOST_CHECK_CLOSE(activity, 3, 1e-3);
     

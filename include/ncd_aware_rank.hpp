@@ -15,7 +15,7 @@ namespace singularity {
         );
     private:
         parameters_t parameters;
-        double const precision = 0.01;
+        double_type const precision = 0.01;
         std::shared_ptr<vector_t> calculate_ncd_aware_rank(
             const matrix_t& outlink_matrix, 
             const sparce_vector_t& outlink_vector, 

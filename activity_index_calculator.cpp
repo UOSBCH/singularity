@@ -80,7 +80,7 @@ void activity_index_calculator::skip_blocks(unsigned int blocks_count)
     if (handled_blocks_count >= parameters.decay_period) {
         unsigned int decay_period_count = handled_blocks_count / parameters.decay_period;
         handled_blocks_count = handled_blocks_count - decay_period_count * parameters.decay_period;
-        double decay_value = std::pow(parameters.decay_koefficient, decay_period_count);
+        double_type decay_value = boost::multiprecision::pow(parameters.decay_koefficient, decay_period_count);
         *p_weight_matrix *= decay_value;
     }
 }

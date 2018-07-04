@@ -53,7 +53,7 @@ std::shared_ptr<vector_t> ncd_aware_rank::calculate_ncd_aware_rank(
         const matrix_t& interlevel_matrix_l
 ) {
     unsigned int num_accounts = outlink_matrix.size2();
-    double initialValue = 1.0/num_accounts;
+    double_type initialValue = 1.0/num_accounts;
     std::shared_ptr<vector_t> next;
     std::shared_ptr<vector_t> previous(new vector_t(num_accounts, initialValue));
     vector_t teleportation = (*previous) * (1.0 - parameters.outlink_weight - parameters.interlevel_weight) ;
@@ -64,7 +64,7 @@ std::shared_ptr<vector_t> ncd_aware_rank::calculate_ncd_aware_rank(
     
     for (uint i = 0; i < MAX_ITERATIONS; i++) {
         next  = iterate(outlink_matrix_weighted, outlink_vector_weighted, interlevel_matrix_s_weighted, interlevel_matrix_l, *previous, teleportation);
-        double norm = norm_1(*next - *previous);
+        double_type norm = norm_1(*next - *previous);
         if (norm <= precision) {
             return next;
         } else {

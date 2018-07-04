@@ -95,11 +95,11 @@ void activity_period::update_weight_matrix(matrix_t& weight_matrix, account_id_m
     }
 }
 
-double activity_period::get_activity()
+double_type activity_period::get_activity()
 {
     byte_matrix_t n = calculate_link_matrix(account_map.size(), *p_weight_matrix);
     
-    return (double) n.nnz();
+    return double_type(n.nnz());
 }
 
 uint64_t emission_calculator::calculate(uint64_t total_emission, activity_period& period)
@@ -108,17 +108,17 @@ uint64_t emission_calculator::calculate(uint64_t total_emission, activity_period
     
     uint64_t current_supply = current_parameters.initial_supply + total_emission;
 
-    double emission_limit = pow((1 + (double) current_parameters.year_emission_limit / 100), 1.0 / current_parameters.emission_event_count_per_year) - 1;
+    double_type emission_limit = boost::multiprecision::pow((1 + double_type(current_parameters.year_emission_limit) / 100), 1.0 / current_parameters.emission_event_count_per_year) - 1;
     
-    double new_activity = period.get_activity();
+    double_type new_activity = period.get_activity();
     
     if (new_activity > emission_state.last_activity) {
-        emission_state.target_emission += current_parameters.emission_scale * (new_activity - emission_state.last_activity);
+        emission_state.target_emission += (uint64_t) (current_parameters.emission_scale * (new_activity - emission_state.last_activity));
         
         emission_state.last_activity = new_activity;
-        double argument = (double) (emission_state.target_emission - total_emission) / current_supply;
+        double_type argument = (double_type(emission_state.target_emission - total_emission)) / current_supply;
         
-        return current_supply * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit);
+        return (uint64_t) (current_supply * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit));
     } else {
         
         return 0;

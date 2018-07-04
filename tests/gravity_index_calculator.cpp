@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_CASE( test1 )
 {
     gravity_index_calculator c(0.1, 100000000000);
     
-    double gravity_index; 
+    double_type gravity_index; 
     uint64_t votes;
     
     gravity_index = c.calculate_index(30000000000, 0.2);
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE( test1 )
     votes = c.calculate_votes(40000000000, 0.1);
     
     BOOST_CHECK_CLOSE(gravity_index, 0.37, 1e-6);
-    BOOST_CHECK_EQUAL(votes, 37000000000);
+    BOOST_CHECK_EQUAL(votes, 36999999999);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

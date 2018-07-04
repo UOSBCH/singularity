@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE( normalize_columns )
     
     matrix_tools::normalize_columns(m1);
     
-    BOOST_CHECK(boost::numeric::ublas::detail::equals(m1,m2, 0.001, 0.001));
+    BOOST_CHECK(boost::numeric::ublas::detail::equals(m1,m2, double_type(0.001), double_type(0.001)));
 }
 
 BOOST_AUTO_TEST_CASE( resize )
@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE( resize )
     matrix_t m1_resized = m1;
     m1_resized.resize(4, 4, true);
     
-    BOOST_CHECK(boost::numeric::ublas::detail::equals(m1_resized, m2, 0.001, 0.001));
-    BOOST_CHECK(boost::numeric::ublas::detail::equals(*p_m1_resized, m2, 0.001, 0.001));
+    BOOST_CHECK(boost::numeric::ublas::detail::equals(m1_resized, m2, double_type(0.001), double_type(0.001)));
+    BOOST_CHECK(boost::numeric::ublas::detail::equals(*p_m1_resized, m2, double_type(0.001), double_type(0.001)));
 }
 
 BOOST_AUTO_TEST_CASE( split_range_1 )

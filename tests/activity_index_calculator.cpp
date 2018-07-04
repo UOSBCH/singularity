@@ -28,7 +28,7 @@ std::vector<transaction_t> get_transactions()
 }
 
 
-void add_random_transactions(activity_index_calculator& ic, uint32_t num_accounts, uint32_t num_blocks, uint32_t block_size, double max_amount)
+void add_random_transactions(activity_index_calculator& ic, uint32_t num_accounts, uint32_t num_blocks, uint32_t block_size, double_type max_amount)
 {
     time_t now = time(nullptr);
     
@@ -38,7 +38,7 @@ void add_random_transactions(activity_index_calculator& ic, uint32_t num_account
         for (uint32_t j = 0; j < block_size; j++) {
             std::string src_account  = "A" + std::to_string((int)std::floor(num_accounts * drand48()));
             std::string target_account  = "A" + std::to_string((int)std::floor(num_accounts * drand48()));
-            double amount = std::floor(max_amount * drand48());
+            double_type amount = boost::multiprecision::floor(max_amount * drand48());
             if (src_account == target_account || amount < 10) {
                 continue;
             }
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( test2 )
 
     account_activity_index_map_t r = calculator.calculate();
     
-    double r_sum = 0;
+    double_type r_sum = 0;
     
     for (auto it: r) {
         r_sum += it.second;

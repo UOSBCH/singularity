@@ -18,13 +18,13 @@ namespace singularity {
         // Emission event quantity per a year
         uint32_t emission_event_count_per_year = 12;
         // Delay emission koefficient, 0 < delay_koefficient < 1
-        double delay_koefficient = 0.5;
+        double_type delay_koefficient = 0.5;
     };
     
     struct emission_state_t
     {
         uint64_t target_emission = 0;
-        double last_activity = 0;
+        double_type last_activity = 0;
     };
     
     class activity_period
@@ -33,7 +33,7 @@ namespace singularity {
         activity_period();
         const matrix_t::size_type initial_size = 10000;
         void add_block(const std::vector<transaction_t>& transactions);
-        double get_activity();
+        double_type get_activity();
         void clear();
         unsigned int get_handled_block_count();
         void save_state_to_file(std::string filename);

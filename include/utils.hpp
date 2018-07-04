@@ -10,11 +10,13 @@
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/exception/all.hpp>
 #include "mapped_matrix_resizable.hpp"
+#include <boost/multiprecision/cpp_dec_float.hpp>
 
 namespace singularity {
-    typedef boost::numeric::ublas::mapped_matrix_resizable<double, boost::numeric::ublas::row_major> matrix_t;
-    typedef boost::numeric::ublas::vector<double> vector_t;
-    typedef boost::numeric::ublas::mapped_vector<double> sparce_vector_t;
+    typedef boost::multiprecision::number< boost::multiprecision::cpp_dec_float<10> > double_type;
+    typedef boost::numeric::ublas::mapped_matrix_resizable<double_type, boost::numeric::ublas::row_major> matrix_t;
+    typedef boost::numeric::ublas::vector<double_type> vector_t;
+    typedef boost::numeric::ublas::mapped_vector<double_type> sparce_vector_t;
     typedef unsigned long int index_t;
     typedef boost::numeric::ublas::matrix_range<matrix_t> matrix_range_t;
     typedef boost::numeric::ublas::vector_range<vector_t> vector_range_t;
@@ -24,14 +26,14 @@ namespace singularity {
     struct parameters_t {
         uint account_amount_threshold = 10000;
         uint transaction_amount_threshold = 100;
-        double outlink_weight = 0.7;
-        double interlevel_weight = 0.1;
+        double_type outlink_weight = 0.7;
+        double_type interlevel_weight = 0.1;
         uint clustering_m = 4;
-        double clustering_e = 0.3;
+        double_type clustering_e = 0.3;
         uint decay_period = 86400; // 24h = 86400 1s-blocks
-        double decay_koefficient = 0.9;
+        double_type decay_koefficient = 0.9;
         unsigned int num_threads = 1;
-        double token_usd_rate = 1;
+        double_type token_usd_rate = 1;
     };
     
     namespace matrix_tools
