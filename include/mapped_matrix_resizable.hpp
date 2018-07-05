@@ -45,6 +45,46 @@ class mapped_matrix_resizable:
                 parent_type::resize(size1, size2, false);
             }
         }
+        
+        template<class AT>
+        BOOST_UBLAS_INLINE
+        mapped_matrix_resizable& operator += (const AT &at) {
+            A& data = parent_type::data();
+            for (auto it=data.begin(); it != data.end(); it++) {
+                it->second += at;
+            }
+            return *this;
+        }
+        
+        template<class AT>
+        BOOST_UBLAS_INLINE
+        mapped_matrix_resizable& operator -= (const AT &at) {
+            A& data = parent_type::data();
+            for (auto it=data.begin(); it != data.end(); it++) {
+                it->second -= at;
+            }
+            return *this;
+        }
+        
+        template<class AT>
+        BOOST_UBLAS_INLINE
+        mapped_matrix_resizable& operator *= (const AT &at) {
+            A& data = parent_type::data();
+            for (auto it=data.begin(); it != data.end(); it++) {
+                it->second *= at;
+            }
+            return *this;
+        }
+        
+        template<class AT>
+        BOOST_UBLAS_INLINE
+        mapped_matrix_resizable& operator /= (const AT &at) {
+            A& data = parent_type::data();
+            for (auto it=data.begin(); it != data.end(); it++) {
+                it->second /= at;
+            }
+            return *this;
+        }
     };
 }}}
 
