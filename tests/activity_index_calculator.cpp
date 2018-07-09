@@ -12,17 +12,19 @@ using namespace singularity;
 using namespace boost;
 using namespace boost::numeric::ublas;
 
-std::vector<transaction_t> get_transactions()
+std::vector<transaction_t> get_transactions(parameters_t params)
 {
     std::vector<transaction_t> transactions;
+
+    money_t account_balance = 100000 * params.precision;
     
     time_t now = time(nullptr);
     
-    transactions.push_back( transaction_t (200, 0, "account-0", "account-1", now, 100000, 100000));
-    transactions.push_back( transaction_t (100, 0, "account-1", "account-0", now, 100000, 100000));
-    transactions.push_back( transaction_t (300, 0, "account-0", "account-2", now, 100000, 100000));
-    transactions.push_back( transaction_t (500, 0, "account-2", "account-1", now, 100000, 100000));
-    transactions.push_back( transaction_t (700, 0, "account-1", "account-2", now, 100000, 100000));
+    transactions.push_back( transaction_t (2000000000, 0, "account-0", "account-1", now, account_balance, account_balance));
+    transactions.push_back( transaction_t (1000000000, 0, "account-1", "account-0", now, account_balance, account_balance));
+    transactions.push_back( transaction_t (3000000000, 0, "account-0", "account-2", now, account_balance, account_balance));
+    transactions.push_back( transaction_t (5000000000, 0, "account-2", "account-1", now, account_balance, account_balance));
+    transactions.push_back( transaction_t (7000000000, 0, "account-1", "account-2", now, account_balance, account_balance));
     
     return transactions;
 }
@@ -32,17 +34,27 @@ void add_random_transactions(activity_index_calculator& ic, uint32_t num_account
 {
     time_t now = time(nullptr);
     
+    money_t account_balance = 100000 * ic.get_parameters().precision;
+    
     for (uint32_t i = 0; i < num_blocks; i++) {
         std::vector<transaction_t> transactions;
         
         for (uint32_t j = 0; j < block_size; j++) {
             std::string src_account  = "A" + std::to_string((int)std::floor(num_accounts * drand48()));
             std::string target_account  = "A" + std::to_string((int)std::floor(num_accounts * drand48()));
-            double_type amount = boost::multiprecision::floor(max_amount * drand48());
+            money_t amount = money_t ( boost::multiprecision::floor(max_amount * drand48() * ic.get_parameters().precision) );
             if (src_account == target_account || amount < 10) {
                 continue;
             }
-            transactions.push_back( transaction_t (amount, 0, src_account, target_account, now, 100000, 100000));
+            transactions.push_back( transaction_t ( 
+                amount, 
+                0, 
+                src_account, 
+                target_account, 
+                now, 
+                account_balance,
+                account_balance
+            ));
         }
         ic.add_block(transactions);
     }
@@ -58,7 +70,7 @@ BOOST_AUTO_TEST_CASE( test1 )
 
     activity_index_calculator calculator(params);
 
-    std::vector<transaction_t> transactions = get_transactions();
+    std::vector<transaction_t> transactions = get_transactions(params);
     
     calculator.add_block(transactions);
     account_activity_index_map_t r = calculator.calculate();

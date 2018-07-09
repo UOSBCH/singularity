@@ -10,11 +10,11 @@ namespace singularity {
     struct emission_parameters_t
     {
         // Initial token supply
-        uint64_t initial_supply = 100000000000000;
+        money_t initial_supply = 100000000000000;
         // Maximal supply increment per year, in percents
         uint16_t year_emission_limit = 10;
         // Emission value koefficient
-        uint64_t emission_scale = 100000000;
+        money_t emission_scale = 100000000;
         // Emission event quantity per a year
         uint32_t emission_event_count_per_year = 12;
         // Delay emission koefficient, 0 < delay_koefficient < 1
@@ -23,7 +23,7 @@ namespace singularity {
     
     struct emission_state_t
     {
-        uint64_t target_emission = 0;
+        money_t target_emission = 0;
         double_type last_activity = 0;
     };
     
@@ -73,7 +73,7 @@ namespace singularity {
         :parameters(parameters), 
         emission_state(emission_state) 
         {};
-        uint64_t calculate(uint64_t total_emission, activity_period& period);
+        money_t calculate(money_t total_emission, activity_period& period);
         emission_state_t get_emission_state();
         emission_parameters_t get_parameters();
         void set_parameters(emission_parameters_t emission_parameters);

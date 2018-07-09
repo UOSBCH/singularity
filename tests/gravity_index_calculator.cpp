@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE( test1 )
     gravity_index_calculator c(0.1, 100000000000);
     
     double_type gravity_index; 
-    uint64_t votes;
+    money_t votes;
     
     gravity_index = c.calculate_index(30000000000, 0.2);
     votes = c.calculate_votes(30000000000, 0.2);

@@ -102,23 +102,23 @@ double_type activity_period::get_activity()
     return double_type(n.nnz());
 }
 
-uint64_t emission_calculator::calculate(uint64_t total_emission, activity_period& period)
+money_t emission_calculator::calculate(money_t total_emission, activity_period& period)
 {
     emission_parameters_t current_parameters = parameters;
     
-    uint64_t current_supply = current_parameters.initial_supply + total_emission;
+    money_t current_supply = current_parameters.initial_supply + total_emission;
 
     double_type emission_limit = boost::multiprecision::pow((1 + double_type(current_parameters.year_emission_limit) / 100), 1.0 / current_parameters.emission_event_count_per_year) - 1;
     
     double_type new_activity = period.get_activity();
     
     if (new_activity > emission_state.last_activity) {
-        emission_state.target_emission += (uint64_t) (current_parameters.emission_scale * (new_activity - emission_state.last_activity));
+        emission_state.target_emission += (money_t) (current_parameters.emission_scale * (new_activity - emission_state.last_activity));
         
         emission_state.last_activity = new_activity;
         double_type argument = (double_type(emission_state.target_emission - total_emission)) / current_supply;
         
-        return (uint64_t) (current_supply * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit));
+        return (money_t) (current_supply * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit));
     } else {
         
         return 0;

@@ -65,9 +65,9 @@ BOOST_AUTO_TEST_CASE( test1 )
     emission_state_t state;
     
     emission_calculator ec(params, state);
-    uint64_t total_emission = 0;
+    money_t total_emission = 0;
     
-    uint64_t emission = ec.calculate(total_emission, ap);
+    money_t emission = ec.calculate(total_emission, ap);
     
     total_emission += emission;
     
@@ -122,9 +122,9 @@ BOOST_AUTO_TEST_CASE( test2 )
     emission_state_t state;
     
     emission_calculator ec(params, state);
-    uint64_t total_emission = 0;
+    money_t total_emission = 0;
     
-    uint64_t emission = ec.calculate(total_emission, ap);
+    money_t emission = ec.calculate(total_emission, ap);
     
     total_emission += emission;
     

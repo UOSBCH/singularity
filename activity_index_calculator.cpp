@@ -92,7 +92,10 @@ account_activity_index_map_t activity_index_calculator::calculate()
     }
     ncd_aware_rank nar(parameters);
     matrix_t outlink_matrix(account_map.size(), account_map.size());
+
     calculate_outlink_matrix(outlink_matrix, *p_weight_matrix);
+    
+    
     std::shared_ptr<vector_t> rank = nar.process(outlink_matrix);
     
     return calculate_score(account_map, *rank);
@@ -100,7 +103,7 @@ account_activity_index_map_t activity_index_calculator::calculate()
 
 bool activity_index_calculator::check_account( account_t account ) 
 {
-    if (account.amount < parameters.account_amount_threshold * parameters.token_usd_rate) {
+    if (account.amount < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
         return false;
     }
     
@@ -109,15 +112,15 @@ bool activity_index_calculator::check_account( account_t account )
 
 bool activity_index_calculator::check_transaction( transaction_t transaction) 
 {
-    if (transaction.amount < parameters.transaction_amount_threshold * parameters.token_usd_rate) {
+    if (transaction.amount < parameters.token_usd_rate * parameters.transaction_amount_threshold * parameters.precision) {
         return false;
     }
 
-    if (transaction.source_account_balance < parameters.account_amount_threshold * parameters.token_usd_rate) {
+    if (transaction.source_account_balance < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
         return false;
     }
 
-    if (transaction.target_account_balance < parameters.account_amount_threshold * parameters.token_usd_rate) {
+    if (transaction.target_account_balance < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
         return false;
     }
     

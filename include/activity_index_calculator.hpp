@@ -12,26 +12,26 @@ namespace singularity {
     typedef std::map<std::string, double_type> account_activity_index_map_t;
     
     struct account_t {
-        double_type amount;
+        money_t amount;
         int height;
     };
 
     struct transaction_t {
-        double_type amount;
-        double_type comission;
+        money_t amount;
+        money_t comission;
         std::string source_account;
         std::string target_account;
-        double_type source_account_balance;
-        double_type target_account_balance;
+        money_t source_account_balance;
+        money_t target_account_balance;
         time_t timestamp;
         transaction_t (
-            double_type amount, 
-            double_type comission, 
+            money_t amount, 
+            money_t comission, 
             std::string source_account, 
             std::string target_account, 
             time_t timestamp, 
-            double_type source_account_balance,
-            double_type target_account_balance
+            money_t source_account_balance,
+            money_t target_account_balance
         ) :
         amount(amount), 
         comission(comission), 

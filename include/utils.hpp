@@ -13,6 +13,7 @@
 #include <boost/multiprecision/cpp_dec_float.hpp>
 
 namespace singularity {
+    typedef uint64_t money_t;
     typedef boost::multiprecision::number< boost::multiprecision::cpp_dec_float<10> > double_type;
     typedef boost::numeric::ublas::mapped_matrix_resizable<double_type, boost::numeric::ublas::row_major> matrix_t;
     typedef boost::numeric::ublas::vector<double_type> vector_t;
@@ -24,8 +25,9 @@ namespace singularity {
     typedef boost::numeric::ublas::mapped_matrix_resizable<uint8_t, boost::numeric::ublas::row_major> byte_matrix_t;
 
     struct parameters_t {
-        uint account_amount_threshold = 10000;
-        uint transaction_amount_threshold = 100;
+        uint64_t precision = 10000000;
+        uint64_t account_amount_threshold = 10000;
+        uint64_t transaction_amount_threshold = 100;
         double_type outlink_weight = 0.7;
         double_type interlevel_weight = 0.1;
         uint clustering_m = 4;
