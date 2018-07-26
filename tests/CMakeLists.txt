@@ -4,6 +4,7 @@ add_executable(test_scan "scan.cpp")
 add_executable(test_utils "utils.cpp")
 add_executable(test_emission "emission.cpp")
 add_executable(test_mapped_matrix_resizable "mapped_matrix_resizable.cpp")
+add_executable(test_social_index_calculator "social_index_calculator.cpp")
 
 target_link_libraries(test_gravity_index_calculator singularity )
 target_link_libraries(test_activity_index_calculator singularity )
@@ -11,6 +12,7 @@ target_link_libraries(test_scan singularity )
 target_link_libraries(test_utils singularity )
 target_link_libraries(test_emission singularity )
 target_link_libraries(test_mapped_matrix_resizable singularity )
+target_link_libraries(test_social_index_calculator singularity )
 
 enable_testing ()
 
@@ -20,4 +22,5 @@ add_test(NAME test_scan COMMAND test_scan)
 add_test(NAME test_utils COMMAND test_utils)
 add_test(NAME test_emission COMMAND test_emission)
 add_test(NAME test_mapped_matrix_resizable COMMAND test_mapped_matrix_resizable)
+add_test(NAME test_social_index_calculator COMMAND test_social_index_calculator)
 

@@ -12,6 +12,7 @@ set(SOURCES ncd_aware_rank.cpp
             utils.cpp
             emission.cpp
             gravity_index_calculator.cpp
+            social_index_calculator.cpp
    )
 
 set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -Wall" )
@@ -28,6 +29,7 @@ install( TARGETS
 install( FILES ${HEADERS} DESTINATION "include" )
 
 add_subdirectory( tests )
+# add_subdirectory( benchmarks )
 
 target_link_libraries( singularity boost_serialization pthread )
 
