@@ -38,9 +38,9 @@ BOOST_AUTO_TEST_CASE( test1 )
     calculator.add_block(relations);
     account_activity_index_map_t r = calculator.calculate();
     
-    BOOST_CHECK_CLOSE(r["account-0"], 0.1281639, 1e-3);
-    BOOST_CHECK_CLOSE(r["account-1"], 0.4451742, 1e-3);
-    BOOST_CHECK_CLOSE(r["account-2"], 0.4266618, 1e-3);
+    BOOST_CHECK_CLOSE(double(r["account-0"]), 0.1281639, 1e-3);
+    BOOST_CHECK_CLOSE(double(r["account-1"]), 0.4451742, 1e-3);
+    BOOST_CHECK_CLOSE(double(r["account-2"]), 0.4266618, 1e-3);
     
     BOOST_CHECK_EQUAL(calculator.get_total_handled_block_count(), 1);
 }

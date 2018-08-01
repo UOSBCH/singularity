@@ -42,7 +42,7 @@ void add_random_transactions(activity_index_calculator& ic, uint32_t num_account
         for (uint32_t j = 0; j < block_size; j++) {
             std::string src_account  = "A" + std::to_string((int)std::floor(num_accounts * drand48()));
             std::string target_account  = "A" + std::to_string((int)std::floor(num_accounts * drand48()));
-            money_t amount = money_t ( boost::multiprecision::floor(max_amount * drand48() * ic.get_parameters().precision) );
+            money_t amount = (money_t)(double_type) ( boost::multiprecision::floor(max_amount * drand48() * ic.get_parameters().precision) );
             if (src_account == target_account || amount < 10) {
                 continue;
             }
@@ -75,9 +75,9 @@ BOOST_AUTO_TEST_CASE( test1 )
     calculator.add_block(transactions);
     account_activity_index_map_t r = calculator.calculate();
     
-    BOOST_CHECK_CLOSE(r["account-0"], 0.201253 /*0.220436*/, 1e-3);
-    BOOST_CHECK_CLOSE(r["account-1"], 0.249181 /*0.259471*/, 1e-3);
-    BOOST_CHECK_CLOSE(r["account-2"], 0.549566 /*0.520092*/, 1e-3);
+    BOOST_CHECK_CLOSE(double(r["account-0"]), 0.201253 /*0.220436*/, 1e-3);
+    BOOST_CHECK_CLOSE(double(r["account-1"]), 0.249181 /*0.259471*/, 1e-3);
+    BOOST_CHECK_CLOSE(double(r["account-2"]), 0.549566 /*0.520092*/, 1e-3);
     
     BOOST_CHECK_EQUAL(calculator.get_total_handled_block_count(), 1);
 }
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( test2 )
     }
   
     
-    BOOST_CHECK_CLOSE(r_sum, 1, 1e-6);
+    BOOST_CHECK_CLOSE(double(r_sum), 1, 1e-6);
     
     BOOST_CHECK_EQUAL(calculator.get_total_handled_block_count(), 100);
 }

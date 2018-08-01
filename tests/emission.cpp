@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE( test1 )
     
     double_type activity = ap.get_activity();
 
-    BOOST_CHECK_CLOSE(activity, 3, 1e-3);
+    BOOST_CHECK_CLOSE(double(activity), 3, 1e-3);
     
     emission_parameters_t params;
     
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( test1 )
     ap.add_block(get_transactions2());
     activity = ap.get_activity();
 
-    BOOST_CHECK_CLOSE(activity, 5, 1e-3);
+    BOOST_CHECK_CLOSE(double(activity), 5, 1e-3);
 
     emission = ec.calculate(total_emission, ap);
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( test1 )
     ap.add_block(get_transactions1());
     activity = ap.get_activity();
 
-    BOOST_CHECK_CLOSE(activity, 3, 1e-3);
+    BOOST_CHECK_CLOSE(double(activity), 3, 1e-3);
 
     emission = ec.calculate(total_emission, ap);
 
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( test2 )
     
     double_type activity = ap.get_activity();
 
-    BOOST_CHECK_CLOSE(activity, 3, 1e-3);
+    BOOST_CHECK_CLOSE(double(activity), 3, 1e-3);
     
     emission_parameters_t params;
     
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( test2 )
     ap.add_block(get_transactions2());
     activity = ap.get_activity();
 
-    BOOST_CHECK_CLOSE(activity, 5, 1e-3);
+    BOOST_CHECK_CLOSE(double(activity), 5, 1e-3);
 
     emission = ec.calculate(total_emission, ap);
 

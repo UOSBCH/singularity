@@ -100,13 +100,12 @@ void matrix_tools::prod( vector_t& out, const matrix_t& m, const vector_t& v, un
     
     std::vector<range_t> ranges = split_range(range_t(0, m.size1()), num_threads);
     
-    
-    for (unsigned int i=0; i<ranges.size(); i++) {
-        threads.push_back(std::thread(partial_prod, std::ref(out), std::ref(m), std::ref(v), ranges[i]));
+    for(auto range : ranges){
+        threads.push_back(std::thread(partial_prod, std::ref(out), std::ref(m), std::ref(v), range));
     }
 
-    for (unsigned int i=0; i<threads.size(); i++) {
-        threads[i].join();
+    for(auto &thread : threads){
+        thread.join();
     }
 }
 

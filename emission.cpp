@@ -15,17 +15,9 @@ void activity_period::collect_accounts(
     const std::vector<transaction_t>& transactions
 ) {
     std::lock_guard<std::mutex> lock(accounts_lock);
-    unsigned int account_id = account_id_map.size();
-    for (unsigned int i=0; i<transactions.size(); i++) {
-        transaction_t transaction = transactions[i];
-        account_id_map_t::iterator found_source = account_id_map.find(transaction.source_account);
-        account_id_map_t::iterator found_target = account_id_map.find(transaction.target_account);
-        if (found_source == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(transaction.source_account, account_id++));
-        }
-        if (found_target == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(transaction.target_account, account_id++));
-        }
+    for(auto transaction : transactions){
+        account_id_map.insert({transaction.source_account,account_id_map.size()});
+        account_id_map.insert({transaction.target_account,account_id_map.size()});
     }
 }
 
@@ -74,6 +66,7 @@ byte_matrix_t activity_period::calculate_link_matrix(
     }
     
     byte_matrix_t result(size, size);
+
     
     for (matrix_t::iterator1 i = l.begin1(); i != l.end1(); i++)
     {
@@ -89,8 +82,7 @@ byte_matrix_t activity_period::calculate_link_matrix(
 }
 
 void activity_period::update_weight_matrix(matrix_t& weight_matrix, account_id_map_t& account_id_map, const std::vector<transaction_t>& transactions) {
-    for (unsigned int i=0; i<transactions.size(); i++) {
-        transaction_t t = transactions[i];
+    for(auto t: transactions){
         weight_matrix(account_id_map[t.source_account], account_id_map[t.target_account]) += t.amount;
     }
 }
@@ -113,12 +105,12 @@ money_t emission_calculator::calculate(money_t total_emission, activity_period& 
     double_type new_activity = period.get_activity();
     
     if (new_activity > emission_state.last_activity) {
-        emission_state.target_emission += (money_t) (current_parameters.emission_scale * (new_activity - emission_state.last_activity));
+        emission_state.target_emission += (money_t)(double_type) (current_parameters.emission_scale * (new_activity - emission_state.last_activity));
         
         emission_state.last_activity = new_activity;
         double_type argument = (double_type(emission_state.target_emission - total_emission)) / current_supply;
         
-        return (money_t) (current_supply * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit));
+        return (money_t)(double_type) (current_supply * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit));
     } else {
         
         return 0;
