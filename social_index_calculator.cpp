@@ -21,17 +21,9 @@ void social_index_calculator::collect_accounts(
     const std::vector<std::shared_ptr<relation_t> >& relations
 ) {
     std::lock_guard<std::mutex> lock(accounts_lock);
-    unsigned int account_id = account_id_map.size();
-    for (unsigned int i=0; i<relations.size(); i++) {
-        std::shared_ptr<relation_t> relation = relations[i];
-        account_id_map_t::iterator found_source = account_id_map.find(relation->get_source_account());
-        account_id_map_t::iterator found_target = account_id_map.find(relation->get_target_account());
-        if (found_source == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(relation->get_source_account(), account_id++));
-        }
-        if (found_target == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(relation->get_target_account(), account_id++));
-        }
+    for(auto relation: relations){
+        account_id_map.insert({relation->get_source_account(),account_id_map.size()});
+        account_id_map.insert({relation->get_target_account(),account_id_map.size()});
     }
 }
 
@@ -126,9 +118,7 @@ void social_index_calculator::calculate_outlink_matrix(
 }
 
 void social_index_calculator::update_weight_matrix(matrix_t& weight_matrix, account_id_map_t& account_id_map, const std::vector<std::shared_ptr<relation_t> >& relations) {
-    for (unsigned int i=0; i<relations.size(); i++) {
-        std::shared_ptr<relation_t> t = relations[i];
-        
+    for(auto t: relations){
         weight_matrix(account_id_map[t->get_source_account()], account_id_map[t->get_target_account()]) += t->get_weight();
     }
 }

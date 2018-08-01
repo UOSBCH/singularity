@@ -21,17 +21,9 @@ void activity_index_calculator::collect_accounts(
     const std::vector<transaction_t>& transactions
 ) {
     std::lock_guard<std::mutex> lock(accounts_lock);
-    unsigned int account_id = account_id_map.size();
-    for (unsigned int i=0; i<transactions.size(); i++) {
-        transaction_t transaction = transactions[i];
-        account_id_map_t::iterator found_source = account_id_map.find(transaction.source_account);
-        account_id_map_t::iterator found_target = account_id_map.find(transaction.target_account);
-        if (found_source == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(transaction.source_account, account_id++));
-        }
-        if (found_target == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(transaction.target_account, account_id++));
-        }
+    for(auto transaction: transactions){
+        account_id_map.insert({transaction.source_account, account_id_map.size()});
+        account_id_map.insert({transaction.target_account, account_id_map.size()});
     }
 }
 
@@ -166,8 +158,7 @@ void activity_index_calculator::calculate_outlink_matrix(
 }
 
 void activity_index_calculator::update_weight_matrix(matrix_t& weight_matrix, account_id_map_t& account_id_map, const std::vector<transaction_t>& transactions) {
-    for (unsigned int i=0; i<transactions.size(); i++) {
-        transaction_t t = transactions[i];
+    for (auto t: transactions) {
         weight_matrix(account_id_map[t.source_account], account_id_map[t.target_account]) += t.amount;
     }
 }
