@@ -25,6 +25,9 @@ install( TARGETS
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
+
+target_include_directories( singularity PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+
 install( FILES ${HEADERS} DESTINATION "include" )
 
 add_subdirectory( tests )
