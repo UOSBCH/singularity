@@ -18,13 +18,13 @@ void activity_period::collect_accounts(
     unsigned int account_id = account_id_map.size();
     for (unsigned int i=0; i<transactions.size(); i++) {
         transaction_t transaction = transactions[i];
-        account_id_map_t::iterator found_source = account_id_map.find(transaction.source_account);
-        account_id_map_t::iterator found_target = account_id_map.find(transaction.target_account);
+        account_id_map_t::iterator found_source = account_id_map.find(transaction.get_source());
+        account_id_map_t::iterator found_target = account_id_map.find(transaction.get_target());
         if (found_source == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(transaction.source_account, account_id++));
+            account_id_map.insert(account_id_map_t::value_type(transaction.get_source(), account_id++));
         }
         if (found_target == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(transaction.target_account, account_id++));
+            account_id_map.insert(account_id_map_t::value_type(transaction.get_target(), account_id++));
         }
     }
 }
@@ -91,7 +91,7 @@ byte_matrix_t activity_period::calculate_link_matrix(
 void activity_period::update_weight_matrix(matrix_t& weight_matrix, account_id_map_t& account_id_map, const std::vector<transaction_t>& transactions) {
     for (unsigned int i=0; i<transactions.size(); i++) {
         transaction_t t = transactions[i];
-        weight_matrix(account_id_map[t.source_account], account_id_map[t.target_account]) += t.amount;
+        weight_matrix(account_id_map[t.get_source()], account_id_map[t.get_target()]) += t.get_amount();
     }
 }
 

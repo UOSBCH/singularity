@@ -5,87 +5,13 @@
 #include <mutex>
 #include <ctime>
 #include "utils.hpp"
+#include "relations.hpp"
 
 namespace singularity {
     
     typedef std::map<std::string, unsigned int> account_id_map_t;
     typedef std::map<std::string, double_type> account_activity_index_map_t;
     
-    class relation_t {
-    private:
-        std::string source_account;
-        std::string target_account;
-    public:
-        relation_t(std::string source_account, std::string target_account):
-            source_account(source_account),
-            target_account(target_account) 
-            {};
-        virtual int16_t get_weight() {
-            return 0;
-        };
-        virtual std::string get_name() {
-            return "UNDEFINED";
-        };
-        virtual std::string get_source_account() {
-            return source_account;
-        };
-        virtual std::string get_target_account() {
-            return target_account;
-        };
-    };
-    
-    class like_t: public relation_t {
-        public:
-            like_t (std::string source_account, std::string target_account):
-                relation_t(source_account, target_account) 
-                {};
-            virtual int16_t get_weight() {
-                return 1;
-            };
-            virtual std::string get_name() {
-                return "LIKE";
-            };
-    };
-
-    class dislike_t: public relation_t {
-        public:
-            dislike_t (std::string source_account, std::string target_account):
-                relation_t(source_account, target_account) 
-                {};
-            virtual int16_t get_weight() {
-                return -1;
-            };
-            virtual std::string get_name() {
-                return "DISLIKE";
-            };
-    };
-
-    class follow_t: public relation_t {
-        public:
-            follow_t (std::string source_account, std::string target_account):
-                relation_t(source_account, target_account) 
-                {};
-            virtual int16_t get_weight() {
-                return 2;
-            };
-            virtual std::string get_name() {
-                return "FOLLOW";
-            };
-    };
-
-    class trust_t: public relation_t {
-        public:
-            trust_t (std::string source_account, std::string target_account):
-                relation_t(source_account, target_account) 
-                {};
-            virtual int16_t get_weight() {
-                return 10;
-            };
-            virtual std::string get_name() {
-                return "TRUST";
-            };
-    };
-
     
     class social_index_calculator 
     {

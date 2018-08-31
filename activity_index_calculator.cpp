@@ -6,6 +6,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <fstream>
 #include <thread>
+#include "include/page_rank.hpp"
 
 using namespace boost::numeric::ublas;
 using namespace boost;
@@ -17,35 +18,55 @@ activity_index_calculator::activity_index_calculator(parameters_t parameters) {
 }
 
 void activity_index_calculator::collect_accounts(
-    account_id_map_t& account_id_map,
-    const std::vector<transaction_t>& transactions
+    const std::vector<std::shared_ptr<relation_t> >& transactions
 ) {
     std::lock_guard<std::mutex> lock(accounts_lock);
-    unsigned int account_id = account_id_map.size();
     for (unsigned int i=0; i<transactions.size(); i++) {
-        transaction_t transaction = transactions[i];
-        account_id_map_t::iterator found_source = account_id_map.find(transaction.source_account);
-        account_id_map_t::iterator found_target = account_id_map.find(transaction.target_account);
-        if (found_source == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(transaction.source_account, account_id++));
+        std::shared_ptr<relation_t> transaction = transactions[i];
+        
+        std::shared_ptr<account_id_map_t> source_map, target_map;
+        
+        auto source_map_iterator = node_maps.find(transaction->get_source_type());
+        
+        if (source_map_iterator == node_maps.end()) {
+            source_map = std::make_shared<account_id_map_t>();
+            node_maps[transaction->get_source_type()] = source_map;
+        } else {
+            source_map = source_map_iterator->second;
         }
-        if (found_target == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(transaction.target_account, account_id++));
+
+        auto target_map_iterator = node_maps.find(transaction->get_target_type());
+
+        if (target_map_iterator == node_maps.end()) {
+            target_map = std::make_shared<account_id_map_t>();
+            node_maps[transaction->get_target_type()] = target_map;
+        } else {
+            target_map = target_map_iterator->second;
+        }
+        
+        
+        account_id_map_t::iterator found_source = source_map->find(transaction->get_source());
+        account_id_map_t::iterator found_target = target_map->find(transaction->get_target());
+        if (found_source == source_map->end()) {
+            source_map->insert(account_id_map_t::value_type(transaction->get_source(), nodes_count++));
+        }
+        if (found_target == target_map->end()) {
+            target_map->insert(account_id_map_t::value_type(transaction->get_target(), nodes_count++));
         }
     }
 }
 
-void activity_index_calculator::add_block(const std::vector<transaction_t>& transactions) {
-    std::vector<transaction_t> filtered_transactions = filter_block(transactions);
+void activity_index_calculator::add_block(const std::vector<std::shared_ptr<relation_t> >& transactions) {
+    std::vector<std::shared_ptr<relation_t> > filtered_transactions = filter_block(transactions);
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
-    collect_accounts(account_map, filtered_transactions);
+    collect_accounts(filtered_transactions);
     
     total_handled_blocks_count++;
     handled_blocks_count++;
-    if (handled_blocks_count >= parameters.decay_period) {
-        handled_blocks_count -= parameters.decay_period;
-        *p_weight_matrix *= parameters.decay_koefficient;
-    }
+//     if (handled_blocks_count >= parameters.decay_period) {
+//         handled_blocks_count -= parameters.decay_period;
+//         *p_weight_matrix *= parameters.decay_koefficient;
+//     }
     
     if (p_weight_matrix->size1() < account_map.size()) {
         matrix_t::size_type new_size = p_weight_matrix->size1();
@@ -58,9 +79,9 @@ void activity_index_calculator::add_block(const std::vector<transaction_t>& tran
     update_weight_matrix(*p_weight_matrix, account_map, filtered_transactions);
 }
 
-std::vector<transaction_t> singularity::activity_index_calculator::filter_block(const std::vector<transaction_t>& block)
+std::vector<std::shared_ptr<relation_t> > singularity::activity_index_calculator::filter_block(const std::vector<std::shared_ptr<relation_t> >& block)
 {
-    std::vector<transaction_t> filtered_block;
+    std::vector<std::shared_ptr<relation_t> > filtered_block;
     
     for (auto transaction: block) {
         if (check_transaction(transaction)) {
@@ -85,20 +106,21 @@ void activity_index_calculator::skip_blocks(unsigned int blocks_count)
     }
 }
 
-account_activity_index_map_t activity_index_calculator::calculate()
+std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_index_calculator::calculate()
 {
     if (account_map.size() == 0) {
-        return account_activity_index_map_t();
+        return std::map<node_type, std::shared_ptr<account_activity_index_map_t> >();
     }
-    ncd_aware_rank nar(parameters);
+//     ncd_aware_rank nar(parameters);
+    page_rank pr(parameters);
     matrix_t outlink_matrix(account_map.size(), account_map.size());
 
     calculate_outlink_matrix(outlink_matrix, *p_weight_matrix);
     
     
-    std::shared_ptr<vector_t> rank = nar.process(outlink_matrix);
+    std::shared_ptr<vector_t> rank = pr.process(outlink_matrix, create_initial_vector());
     
-    return calculate_score(account_map, *rank);
+    return calculate_score(*rank);
 }
 
 bool activity_index_calculator::check_account( account_t account ) 
@@ -110,19 +132,26 @@ bool activity_index_calculator::check_account( account_t account )
     return true;
 }
 
-bool activity_index_calculator::check_transaction( transaction_t transaction) 
+bool activity_index_calculator::check_transaction( std::shared_ptr<relation_t> relation) 
 {
-    if (transaction.amount < parameters.token_usd_rate * parameters.transaction_amount_threshold * parameters.precision) {
-        return false;
-    }
+     auto transaction = std::dynamic_pointer_cast<transaction_t>(relation);
+    
+    if (!transaction) {
+        return true;
+    } else {
+        if (transaction->get_amount() < parameters.token_usd_rate * parameters.transaction_amount_threshold * parameters.precision) {
+            return false;
+        }
 
-    if (transaction.source_account_balance < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
-        return false;
-    }
+        if (transaction->get_source_account_balance() < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
+            return false;
+        }
 
-    if (transaction.target_account_balance < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
-        return false;
+        if (transaction->get_target_account_balance() < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
+            return false;
+        }
     }
+    
     
     return true;
 }
@@ -165,25 +194,28 @@ void activity_index_calculator::calculate_outlink_matrix(
     matrix_tools::normalize_columns(o);
 }
 
-void activity_index_calculator::update_weight_matrix(matrix_t& weight_matrix, account_id_map_t& account_id_map, const std::vector<transaction_t>& transactions) {
+void activity_index_calculator::update_weight_matrix(matrix_t& weight_matrix, account_id_map_t& account_id_map, const std::vector<std::shared_ptr<relation_t> >& transactions) {
     for (unsigned int i=0; i<transactions.size(); i++) {
-        transaction_t t = transactions[i];
-        weight_matrix(account_id_map[t.source_account], account_id_map[t.target_account]) += t.amount;
+        std::shared_ptr<relation_t> t = transactions[i];
+        weight_matrix(account_id_map[t->get_source()], account_id_map[t->get_target()]) += t->get_weight();
     }
 }
 
-account_activity_index_map_t activity_index_calculator::calculate_score(
-        const account_id_map_t& account_id_map,
+std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_index_calculator::calculate_score(
         const vector_t& rank
 )
 {
-    account_activity_index_map_t v;
-    
-    for (auto i: account_id_map) {
-        v[i.first] = rank[i.second];
+    std::map<node_type, std::shared_ptr<account_activity_index_map_t> > result;
+
+    for (auto node_map_it: node_maps) {
+        result[node_map_it.first] = std::make_shared<account_activity_index_map_t>();
+        std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
+        for (auto node_it: *node_map) {
+            (*result[node_map_it.first])[node_it.first] = rank[node_it.second];
+        }
     }
 
-    return v;
+    return result;
 }
 
 void activity_index_calculator::save_state_to_file(std::string filename) 
@@ -230,5 +262,71 @@ void singularity::activity_index_calculator::set_parameters(singularity::paramet
 {
     parameters = params;
 }
+
+void activity_index_calculator::normalize_columns(matrix_t &m)
+{
+    auto node_type_count = node_maps.size();
+    
+    for (auto node_map_it: node_maps) {
+        std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
+//         auto node_count = node_map->size();
+        std::set<uint32_t> id_set;
+        for (auto node_it: *node_map) {
+            id_set.emplace(node_it.second);
+        }
+
+        mapped_vector<double_type> f (m.size2());
+        mapped_vector<double_type> s (m.size2());
+        
+        for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
+        {
+            if (id_set.find(i.index1()) == id_set.end()) {
+                continue;
+            }
+            
+            for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
+            {
+                if (*j != double_type (0) ) {
+                    s[j.index2()] += *j;
+                }
+            }
+        }
+        for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
+        {
+            if (id_set.find(i.index1()) == id_set.end()) {
+                continue;
+            }
+            
+            for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
+            {
+                double_type norm = s[j.index2()];
+                if (norm != 0) {
+                    *j /= norm * node_type_count;
+                }
+            }
+        }
+        
+    }
+    
+}
+
+vector_t activity_index_calculator::create_initial_vector()
+{
+    std::lock_guard<std::mutex> lock(accounts_lock);
+
+    vector_t result(nodes_count, 0);
+    
+    for (auto node_map_it: node_maps) {
+        std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
+        auto node_count = node_map->size();
+        double_type init_value = 1 / node_count;
+        for (auto node_it: *node_map) {
+            result[node_it.second] = init_value;
+        }
+    }
+    
+    return result;
+}
+
 
 

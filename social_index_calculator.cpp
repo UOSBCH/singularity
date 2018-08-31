@@ -24,13 +24,13 @@ void social_index_calculator::collect_accounts(
     unsigned int account_id = account_id_map.size();
     for (unsigned int i=0; i<relations.size(); i++) {
         std::shared_ptr<relation_t> relation = relations[i];
-        account_id_map_t::iterator found_source = account_id_map.find(relation->get_source_account());
-        account_id_map_t::iterator found_target = account_id_map.find(relation->get_target_account());
+        account_id_map_t::iterator found_source = account_id_map.find(relation->get_source());
+        account_id_map_t::iterator found_target = account_id_map.find(relation->get_target());
         if (found_source == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(relation->get_source_account(), account_id++));
+            account_id_map.insert(account_id_map_t::value_type(relation->get_source(), account_id++));
         }
         if (found_target == account_id_map.end()) {
-            account_id_map.insert(account_id_map_t::value_type(relation->get_target_account(), account_id++));
+            account_id_map.insert(account_id_map_t::value_type(relation->get_target(), account_id++));
         }
     }
 }
@@ -129,7 +129,7 @@ void social_index_calculator::update_weight_matrix(matrix_t& weight_matrix, acco
     for (unsigned int i=0; i<relations.size(); i++) {
         std::shared_ptr<relation_t> t = relations[i];
         
-        weight_matrix(account_id_map[t->get_source_account()], account_id_map[t->get_target_account()]) += t->get_weight();
+        weight_matrix(account_id_map[t->get_source()], account_id_map[t->get_target()]) += t->get_weight();
     }
 }
 
