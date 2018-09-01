@@ -6,6 +6,7 @@
 #include <ctime>
 #include "utils.hpp"
 #include "relations.hpp"
+#include "rank_interface.hpp"
 
 namespace singularity {
     
@@ -21,7 +22,13 @@ namespace singularity {
     {
     public:
         const matrix_t::size_type initial_size = 10000;
-        activity_index_calculator(parameters_t parameters);
+        activity_index_calculator(
+            parameters_t parameters, 
+            bool is_transfer,
+            std::shared_ptr<rank_interface> p_rank_calculator
+        ): parameters(parameters), is_transfer(is_transfer), p_rank_calculator(p_rank_calculator) {
+            p_weight_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
+        }
         void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions);
         void skip_blocks(unsigned int blocks_count);
         std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate();
@@ -33,6 +40,7 @@ namespace singularity {
     private:
         friend class boost::serialization::access;
         parameters_t parameters;
+        bool is_transfer;
         
         unsigned int total_handled_blocks_count = 0;
         unsigned int handled_blocks_count = 0;
@@ -42,6 +50,8 @@ namespace singularity {
         uint64_t nodes_count = 0;
         std::mutex accounts_lock;
         std::mutex weight_matrix_lock;
+        
+        std::shared_ptr<rank_interface> p_rank_calculator;
 
         bool check_account( account_t account);
         

@@ -12,11 +12,6 @@ using namespace boost::numeric::ublas;
 using namespace boost;
 using namespace singularity;
 
-activity_index_calculator::activity_index_calculator(parameters_t parameters) {
-    this->parameters = parameters;
-    p_weight_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
-}
-
 void activity_index_calculator::collect_accounts(
     const std::vector<std::shared_ptr<relation_t> >& transactions
 ) {
@@ -98,12 +93,12 @@ void activity_index_calculator::skip_blocks(unsigned int blocks_count)
     total_handled_blocks_count += blocks_count;
     handled_blocks_count += blocks_count;
     
-    if (handled_blocks_count >= parameters.decay_period) {
-        unsigned int decay_period_count = handled_blocks_count / parameters.decay_period;
-        handled_blocks_count = handled_blocks_count - decay_period_count * parameters.decay_period;
-        double_type decay_value = boost::multiprecision::pow(parameters.decay_koefficient, decay_period_count);
-        *p_weight_matrix *= decay_value;
-    }
+//     if (handled_blocks_count >= parameters.decay_period) {
+//         unsigned int decay_period_count = handled_blocks_count / parameters.decay_period;
+//         handled_blocks_count = handled_blocks_count - decay_period_count * parameters.decay_period;
+//         double_type decay_value = boost::multiprecision::pow(parameters.decay_koefficient, decay_period_count);
+//         *p_weight_matrix *= decay_value;
+//     }
 }
 
 std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_index_calculator::calculate()
@@ -111,14 +106,11 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
     if (account_map.size() == 0) {
         return std::map<node_type, std::shared_ptr<account_activity_index_map_t> >();
     }
-//     ncd_aware_rank nar(parameters);
-    page_rank pr(parameters);
     matrix_t outlink_matrix(account_map.size(), account_map.size());
 
     calculate_outlink_matrix(outlink_matrix, *p_weight_matrix);
     
-    
-    std::shared_ptr<vector_t> rank = pr.process(outlink_matrix, create_initial_vector());
+    std::shared_ptr<vector_t> rank = p_rank_calculator->process(outlink_matrix, create_initial_vector());
     
     return calculate_score(*rank);
 }
@@ -175,8 +167,12 @@ void activity_index_calculator::calculate_outlink_matrix(
                 if (j.index2() >= size) {
                     break;
                 }
-                o(j.index1(), j.index2()) -= *j;
+
                 o(j.index2(), j.index1()) += *j;
+
+                if (is_transfer) {
+                    o(j.index1(), j.index2()) -= *j;
+                }
             }
         }
     }

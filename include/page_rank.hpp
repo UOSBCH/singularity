@@ -2,16 +2,17 @@
 #ifndef PAGE_RANKING_HPP
 #define PAGE_RANKING_HPP
 
+#include "rank_interface.hpp"
 #include "utils.hpp"
 
 namespace singularity {
-    class page_rank
+    class page_rank: public rank_interface
     {
     public:
         const double_type TELEPORTATION_WEIGHT = double_type(0.1);
         page_rank(parameters_t parameters):parameters(parameters) {};
         const uint32_t MAX_ITERATIONS = 1000;
-        std::shared_ptr<vector_t> process(
+        virtual std::shared_ptr<vector_t> process(
             const matrix_t& outlink_matrix,
             const vector_t& initial_vector
         );
