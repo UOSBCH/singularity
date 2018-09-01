@@ -35,8 +35,8 @@ namespace singularity {
     class like_t: public relation_t 
     {
     public:
-        like_t (std::string source_account, std::string target_account):
-        relation_t(source_account, target_account) 
+        like_t (std::string source, std::string target):
+        relation_t(source, target) 
         {};
         virtual int64_t get_weight() {
             return 1;
@@ -58,8 +58,8 @@ namespace singularity {
     class dislike_t: public relation_t 
     {
     public:
-        dislike_t (std::string source_account, std::string target_account):
-        relation_t(source_account, target_account) 
+        dislike_t (std::string source, std::string target):
+        relation_t(source, target) 
         {};
         virtual int64_t get_weight() {
             return -1;
@@ -81,8 +81,8 @@ namespace singularity {
     class follow_t: public relation_t 
     {
     public:
-        follow_t (std::string source_account, std::string target_account):
-        relation_t(source_account, target_account) 
+        follow_t (std::string source, std::string target):
+        relation_t(source, target) 
         {};
         virtual int64_t get_weight() {
             return 2;
@@ -104,8 +104,8 @@ namespace singularity {
     class trust_t: public relation_t 
     {
     public:
-        trust_t (std::string source_account, std::string target_account):
-        relation_t(source_account, target_account) 
+        trust_t (std::string source, std::string target):
+        relation_t(source, target) 
         {};
         virtual int64_t get_weight() {
             return 10;
@@ -121,6 +121,29 @@ namespace singularity {
         };
         virtual node_type get_target_type(){
             return node_type::ACCOUNT;
+        };
+    };
+
+    class ownwership_t: public relation_t 
+    {
+    public:
+        ownwership_t (std::string source, std::string target):
+        relation_t(source, target) 
+        {};
+        virtual int64_t get_weight() {
+            return 10;
+        };
+        virtual std::string get_name() {
+            return "OWNERSHIP";
+        };
+        virtual bool is_decayable() {
+            return false;
+        };
+        virtual node_type get_source_type() {
+            return node_type::ACCOUNT;
+        };
+        virtual node_type get_target_type(){
+            return node_type::CONTENT;
         };
     };
     
