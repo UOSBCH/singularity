@@ -193,7 +193,11 @@ void activity_index_calculator::calculate_outlink_matrix(
 void activity_index_calculator::update_weight_matrix(matrix_t& weight_matrix, account_id_map_t& account_id_map, const std::vector<std::shared_ptr<relation_t> >& transactions) {
     for (unsigned int i=0; i<transactions.size(); i++) {
         std::shared_ptr<relation_t> t = transactions[i];
-        weight_matrix(account_id_map[t->get_source()], account_id_map[t->get_target()]) += t->get_weight();
+        double_type weight = t->get_weight();
+        if (t->is_decayable()) {
+            weight *= p_decay_manager->get_decay_value(t->get_height());
+        }
+        weight_matrix(account_id_map[t->get_source()], account_id_map[t->get_target()]) += weight;
     }
 }
 

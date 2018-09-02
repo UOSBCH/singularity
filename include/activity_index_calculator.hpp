@@ -28,6 +28,7 @@ namespace singularity {
             std::shared_ptr<rank_interface> p_rank_calculator
         ): parameters(parameters), is_transfer(is_transfer), p_rank_calculator(p_rank_calculator) {
             p_weight_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
+            p_decay_manager = std::make_shared<decay_manager_t>(parameters.decay_period, parameters.decay_koefficient);
         }
         void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions);
         void skip_blocks(unsigned int blocks_count);
@@ -52,6 +53,7 @@ namespace singularity {
         std::mutex weight_matrix_lock;
         
         std::shared_ptr<rank_interface> p_rank_calculator;
+        std::shared_ptr<decay_manager_t> p_decay_manager;
 
         bool check_account( account_t account);
         

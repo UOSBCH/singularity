@@ -6,7 +6,7 @@
 
 namespace singularity {
     
-    enum class node_type {ACCOUNT, CONTENT};
+    enum node_type {ACCOUNT, CONTENT};
 
     class relation_t {
     private:
@@ -14,18 +14,26 @@ namespace singularity {
         std::string target;
         node_type source_type;
         node_type target_type;
+        uint64_t height;
     public:
-        relation_t(std::string source, std::string target):
+        relation_t(std::string source, std::string target, uint64_t height):
             source(source),
-            target(target) 
+            target(target),
+            height(height)
             {};
         virtual int64_t get_weight() = 0;
         virtual std::string get_name() = 0;
-        virtual std::string get_source() {
+        virtual std::string get_source() 
+        {
             return source;
         };
-        virtual std::string get_target() {
+        virtual std::string get_target() 
+        {
             return target;
+        };
+        virtual uint64_t get_height() 
+        {
+            return height;
         };
         virtual bool is_decayable() = 0;
         virtual node_type get_source_type() = 0;
@@ -35,8 +43,8 @@ namespace singularity {
     class like_t: public relation_t 
     {
     public:
-        like_t (std::string source, std::string target):
-        relation_t(source, target) 
+        like_t (std::string source, std::string target, uint64_t height):
+        relation_t(source, target, height) 
         {};
         virtual int64_t get_weight() {
             return 1;
@@ -58,8 +66,8 @@ namespace singularity {
     class dislike_t: public relation_t 
     {
     public:
-        dislike_t (std::string source, std::string target):
-        relation_t(source, target) 
+        dislike_t (std::string source, std::string target, uint64_t height):
+        relation_t(source, target, height) 
         {};
         virtual int64_t get_weight() {
             return -1;
@@ -81,8 +89,8 @@ namespace singularity {
     class follow_t: public relation_t 
     {
     public:
-        follow_t (std::string source, std::string target):
-        relation_t(source, target) 
+        follow_t (std::string source, std::string target, uint64_t height):
+        relation_t(source, target, height) 
         {};
         virtual int64_t get_weight() {
             return 2;
@@ -104,8 +112,8 @@ namespace singularity {
     class trust_t: public relation_t 
     {
     public:
-        trust_t (std::string source, std::string target):
-        relation_t(source, target) 
+        trust_t (std::string source, std::string target, uint64_t height):
+        relation_t(source, target, height) 
         {};
         virtual int64_t get_weight() {
             return 10;
@@ -127,8 +135,8 @@ namespace singularity {
     class ownwership_t: public relation_t 
     {
     public:
-        ownwership_t (std::string source, std::string target):
-        relation_t(source, target) 
+        ownwership_t (std::string source, std::string target, uint64_t height):
+        relation_t(source, target, height) 
         {};
         virtual int64_t get_weight() {
             return 10;
@@ -163,9 +171,10 @@ namespace singularity {
             std::string target, 
             time_t timestamp, 
             money_t source_account_balance,
-            money_t target_account_balance
+            money_t target_account_balance,
+            uint64_t height
         ) :
-        relation_t(source, target),
+        relation_t(source, target, height),
         amount(amount), 
         comission(comission), 
         source_account_balance(source_account_balance),

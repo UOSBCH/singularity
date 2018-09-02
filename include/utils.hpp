@@ -49,6 +49,32 @@ namespace singularity {
         std::vector<range_t> split_range(range_t range, unsigned int max);
     };
     
+    class decay_manager_t
+    {
+    public:
+        decay_manager_t(uint decay_period, double_type decay_koefficient):
+            decay_period(decay_period), decay_koefficient(decay_koefficient) 
+            {};
+            double_type get_decay_value (uint64_t height)
+            {
+                uint64_t periods_passed = height / decay_period;
+                
+                double_type result = 1;
+                
+                while (periods_passed > 0) {
+                    result *= decay_koefficient;
+                    periods_passed--;
+                }
+                
+                return result;
+            };
+    private:
+        uint decay_period;
+        double_type decay_koefficient;
+        
+    };
+    
+    
     class runtime_exception: public std::runtime_error
     {
     public:
