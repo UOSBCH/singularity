@@ -7,6 +7,7 @@
 #include "utils.hpp"
 #include "relations.hpp"
 #include "rank_interface.hpp"
+#include "filters.hpp"
 
 namespace singularity {
     
@@ -38,6 +39,10 @@ namespace singularity {
         unsigned int get_total_handled_block_count();
         void set_parameters(parameters_t params);
         parameters_t get_parameters();
+        void set_filter(std::shared_ptr<filter_interface> filter)
+        {
+            p_filter = filter;
+        };
     private:
         friend class boost::serialization::access;
         parameters_t parameters;
@@ -54,11 +59,8 @@ namespace singularity {
         
         std::shared_ptr<rank_interface> p_rank_calculator;
         std::shared_ptr<decay_manager_t> p_decay_manager;
+        std::shared_ptr<filter_interface> p_filter;
 
-        bool check_account( account_t account);
-        
-        bool check_transaction( std::shared_ptr<relation_t> relation);
-        
         std::vector<std::shared_ptr<relation_t> > filter_block(const std::vector<std::shared_ptr<relation_t> >& block);
                 
         std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate_score(

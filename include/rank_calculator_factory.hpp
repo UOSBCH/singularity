@@ -13,11 +13,15 @@ namespace singularity {
     public:
         static std::shared_ptr<activity_index_calculator> create_calculator_for_transfer(parameters_t parameters)
         {
-            return std::make_shared<activity_index_calculator>(
+            auto calculator = std::make_shared<activity_index_calculator>(
                 parameters, 
                 true, 
                 std::make_shared<ncd_aware_rank>(parameters)
             );
+            
+            calculator->set_filter(std::make_shared<transfer_filter>(parameters));
+            
+            return calculator;
         };
         static std::shared_ptr<activity_index_calculator> create_calculator_for_social_network(parameters_t parameters)
         {

@@ -76,15 +76,20 @@ void activity_index_calculator::add_block(const std::vector<std::shared_ptr<rela
 
 std::vector<std::shared_ptr<relation_t> > singularity::activity_index_calculator::filter_block(const std::vector<std::shared_ptr<relation_t> >& block)
 {
-    std::vector<std::shared_ptr<relation_t> > filtered_block;
-    
-    for (auto transaction: block) {
-        if (check_transaction(transaction)) {
-            filtered_block.push_back(transaction);
+    if (!p_filter) {
+        return block;
+    } else {
+        
+        std::vector<std::shared_ptr<relation_t> > filtered_block;
+        
+        for (auto transaction: block) {
+            if (p_filter->check(transaction)) {
+                filtered_block.push_back(transaction);
+            }
         }
+        
+        return filtered_block;
     }
-    
-    return filtered_block;
 }
 
 void activity_index_calculator::skip_blocks(unsigned int blocks_count)
@@ -115,39 +120,6 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
     return calculate_score(*rank);
 }
 
-bool activity_index_calculator::check_account( account_t account ) 
-{
-    if (account.amount < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
-        return false;
-    }
-    
-    return true;
-}
-
-bool activity_index_calculator::check_transaction( std::shared_ptr<relation_t> relation) 
-{
-     auto transaction = std::dynamic_pointer_cast<transaction_t>(relation);
-    
-    if (!transaction) {
-        return true;
-    } else {
-        if (transaction->get_amount() < parameters.token_usd_rate * parameters.transaction_amount_threshold * parameters.precision) {
-            return false;
-        }
-
-        if (transaction->get_source_account_balance() < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
-            return false;
-        }
-
-        if (transaction->get_target_account_balance() < parameters.token_usd_rate * parameters.account_amount_threshold * parameters.precision) {
-            return false;
-        }
-    }
-    
-    
-    return true;
-}
-
 void activity_index_calculator::calculate_outlink_matrix(
     matrix_t& o,
     matrix_t& weight_matrix
@@ -168,11 +140,13 @@ void activity_index_calculator::calculate_outlink_matrix(
                     break;
                 }
 
-                o(j.index2(), j.index1()) += *j;
-
-                if (is_transfer) {
-                    o(j.index1(), j.index2()) -= *j;
-                }
+                o(j.index1(), j.index2()) -= *j;
+                   
+//                 o(j.index2(), j.index1()) += *j;
+// 
+//                 if (is_transfer) {
+//                     o(j.index1(), j.index2()) -= *j;
+//                 }
             }
         }
     }
@@ -193,11 +167,14 @@ void activity_index_calculator::calculate_outlink_matrix(
 void activity_index_calculator::update_weight_matrix(matrix_t& weight_matrix, account_id_map_t& account_id_map, const std::vector<std::shared_ptr<relation_t> >& transactions) {
     for (unsigned int i=0; i<transactions.size(); i++) {
         std::shared_ptr<relation_t> t = transactions[i];
-        double_type weight = t->get_weight();
+        double_type decay_value;
         if (t->is_decayable()) {
-            weight *= p_decay_manager->get_decay_value(t->get_height());
+            decay_value = p_decay_manager->get_decay_value(t->get_height());
+        } else {
+            decay_value = 1;
         }
-        weight_matrix(account_id_map[t->get_source()], account_id_map[t->get_target()]) += weight;
+        weight_matrix(account_id_map[t->get_source()], account_id_map[t->get_target()]) += decay_value * t->get_reverse_weight();
+        weight_matrix(account_id_map[t->get_target()], account_id_map[t->get_source()]) += decay_value * t->get_weight();
     }
 }
 
