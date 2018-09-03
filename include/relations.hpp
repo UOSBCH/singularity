@@ -22,6 +22,7 @@ namespace singularity {
             height(height)
             {};
         virtual int64_t get_weight() = 0;
+        virtual int64_t get_reverse_weight() = 0;
         virtual std::string get_name() = 0;
         virtual std::string get_source() 
         {
@@ -49,6 +50,9 @@ namespace singularity {
         virtual int64_t get_weight() {
             return 1;
         };
+        virtual int64_t get_reverse_weight() {
+            return 0;
+        };
         virtual std::string get_name() {
             return "LIKE";
         };
@@ -71,6 +75,9 @@ namespace singularity {
         {};
         virtual int64_t get_weight() {
             return -1;
+        };
+        virtual int64_t get_reverse_weight() {
+            return 0;
         };
         virtual std::string get_name() {
             return "DISLIKE";
@@ -95,6 +102,9 @@ namespace singularity {
         virtual int64_t get_weight() {
             return 2;
         };
+        virtual int64_t get_reverse_weight() {
+            return 0;
+        };
         virtual std::string get_name() {
             return "FOLLOW";
         };
@@ -118,6 +128,9 @@ namespace singularity {
         virtual int64_t get_weight() {
             return 10;
         };
+        virtual int64_t get_reverse_weight() {
+            return 0;
+        };
         virtual std::string get_name() {
             return "TRUST";
         };
@@ -139,6 +152,9 @@ namespace singularity {
         relation_t(source, target, height) 
         {};
         virtual int64_t get_weight() {
+            return 10;
+        };
+        virtual int64_t get_reverse_weight() {
             return 10;
         };
         virtual std::string get_name() {
@@ -183,6 +199,9 @@ namespace singularity {
         { };
         virtual int64_t get_weight() {
             return (int64_t) amount;
+        };
+        virtual int64_t get_reverse_weight() {
+            return - (int64_t) amount;
         };
         virtual std::string get_name() {
             return "TRANSFER";
