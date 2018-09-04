@@ -7,6 +7,7 @@ find_package( Boost )
 file(GLOB HEADERS "include/*.hpp")
 
 set(SOURCES ncd_aware_rank.cpp
+            page_rank.cpp
             activity_index_calculator.cpp
             scan.cpp
             utils.cpp
@@ -27,7 +28,7 @@ install( TARGETS
 )
 install( FILES ${HEADERS} DESTINATION "include" )
 
-# add_subdirectory( tests )
+add_subdirectory( tests )
 # add_subdirectory( benchmarks )
 
 target_link_libraries( singularity boost_serialization pthread )

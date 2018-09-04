@@ -18,19 +18,19 @@ namespace singularity {
     private:
         parameters_t parameters;
         double_type const precision = 0.01;
-        std::shared_ptr<vector_t> calculate_rank(
+        virtual std::shared_ptr<vector_t> calculate_rank(
             const matrix_t& outlink_matrix, 
             const sparce_vector_t& outlink_vector, 
             const matrix_t& interlevel_matrix_s, 
             const matrix_t& intelevel_matrix_l,
             const vector_t& initial_vector
         );
-        std::shared_ptr<matrix_t> create_interlevel_matrix_s(const Graph& g);
-        std::shared_ptr<matrix_t> create_interlevel_matrix_l(
+        virtual std::shared_ptr<matrix_t> create_interlevel_matrix_s(const Graph& g);
+        virtual std::shared_ptr<matrix_t> create_interlevel_matrix_l(
             const Graph& g, 
             const matrix_t& outlink_matrix
         );
-        std::shared_ptr<vector_t> iterate(
+        virtual std::shared_ptr<vector_t> iterate(
             const matrix_t& outlink_matrix, 
             const sparce_vector_t& outlink_vector, 
             const matrix_t& interlevel_matrix_s, 
@@ -38,7 +38,7 @@ namespace singularity {
             const vector_t& previous,
             const vector_t& teleportation
         );
-        Graph create_graph(const matrix_t& m);
+        virtual Graph create_graph(const matrix_t& m);
     };
 }
 

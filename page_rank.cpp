@@ -39,18 +39,19 @@ std::shared_ptr<vector_t> page_rank::calculate_rank(
         const sparce_vector_t& outlink_vector,
         const vector_t& initial_vector
 ) {
-//     unsigned int num_accounts = outlink_matrix.size2();
+    unsigned int num_accounts = outlink_matrix.size2();
 //     double_type initialValue = 1.0/num_accounts;
     std::shared_ptr<vector_t> next;
     std::shared_ptr<vector_t> previous(new vector_t(initial_vector));
-    vector_t teleportation = (*previous) * TELEPORTATION_WEIGHT;
+    vector_t teleportation(num_accounts, TELEPORTATION_WEIGHT * norm_1(initial_vector) / num_accounts);
     
-    matrix_t outlink_matrix_weighted = outlink_matrix * parameters.outlink_weight;
-    sparce_vector_t outlink_vector_weighted = outlink_vector * parameters.outlink_weight;
+    matrix_t outlink_matrix_weighted = outlink_matrix * (double_type(1) - TELEPORTATION_WEIGHT);
+    sparce_vector_t outlink_vector_weighted = outlink_vector * (double_type(1) - TELEPORTATION_WEIGHT);
     
     for (uint i = 0; i < MAX_ITERATIONS; i++) {
         next  = iterate(outlink_matrix_weighted, outlink_vector_weighted, *previous, teleportation);
         double_type norm = norm_1(*next - *previous);
+
         if (norm <= precision) {
             return next;
         } else {
