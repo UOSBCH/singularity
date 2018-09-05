@@ -11,5 +11,5 @@ double_type gravity_index_calculator::calculate_index(money_t balance, double_ty
 
 money_t gravity_index_calculator::calculate_votes(money_t balance, double_type activity_index, double_type social_index)
 {
-    return  (money_t) (calculate_index(balance, activity_index, social_index) * current_supply);
+    return  (money_t)(double_type) (calculate_index(balance, activity_index, social_index) * current_supply);
 }
