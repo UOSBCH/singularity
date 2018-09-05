@@ -113,12 +113,12 @@ money_t emission_calculator::calculate(money_t total_emission, activity_period& 
     double_type new_activity = period.get_activity();
     
     if (new_activity > emission_state.last_activity) {
-        emission_state.target_emission += money_t( (double_type(current_parameters.emission_scale) * (new_activity - emission_state.last_activity)));
+        emission_state.target_emission += (double_type(current_parameters.emission_scale) * (new_activity - emission_state.last_activity)).convert_to<money_t>();
         
         emission_state.last_activity = new_activity;
         double_type argument = (double_type(emission_state.target_emission - total_emission)) / double_type(current_supply);
         
-        return money_t( double_type(current_supply) * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit));
+        return (double_type(current_supply) * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit)).convert_to<money_t>();
     } else {
         
         return 0;
