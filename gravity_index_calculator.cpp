@@ -13,3 +13,20 @@ money_t gravity_index_calculator::calculate_votes(money_t balance, double_type a
 {
     return  (money_t)(double_type) (calculate_index(balance, activity_index, social_index) * current_supply);
 }
+
+account_activity_index_map_t gravity_index_calculator::scale_activity_index(const account_activity_index_map_t& index_map)
+{
+    account_activity_index_map_t result;
+    
+    auto objects_count = double_type(index_map.size());
+    
+    if (objects_count == 0) {
+        return result;
+    }
+    
+    for (auto index: index_map) {
+        result[index.first] = index.second * objects_count;
+    }
+    
+    return result;
+}
