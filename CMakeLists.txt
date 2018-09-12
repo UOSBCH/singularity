@@ -28,7 +28,7 @@ install( TARGETS
 )
 install( FILES ${HEADERS} DESTINATION "include" )
 
-# add_subdirectory( tests )
+add_subdirectory( tests )
 # add_subdirectory( benchmarks )
 
 target_link_libraries( singularity boost_serialization pthread )

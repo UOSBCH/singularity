@@ -113,16 +113,21 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
     }
     matrix_t outlink_matrix(nodes_count, nodes_count);
 
-    calculate_outlink_matrix(outlink_matrix, *p_weight_matrix);
+    node_type_map<sparce_vector_t> outlink_vectors;
+    node_type_map<sparce_vector_t> mask_vectors;
     
-    std::shared_ptr<vector_t> rank = p_rank_calculator->process(outlink_matrix, create_initial_vector());
+    calculate_outlink_matrix(outlink_matrix, *p_weight_matrix, outlink_vectors, mask_vectors);
+    
+    std::shared_ptr<vector_t> rank = p_rank_calculator->process(outlink_matrix, create_initial_vector(), outlink_vectors, mask_vectors);
     
     return calculate_score(*rank);
 }
 
 void activity_index_calculator::calculate_outlink_matrix(
     matrix_t& o,
-    matrix_t& weight_matrix
+    matrix_t& weight_matrix,
+    node_type_map<sparce_vector_t>& outlink_vectors, 
+    node_type_map<sparce_vector_t>& mask_vectors            
 )
 {
     matrix_t::size_type size = o.size1();
@@ -161,7 +166,7 @@ void activity_index_calculator::calculate_outlink_matrix(
         }
     }
     
-    normalize_columns(o);
+    normalize_columns(o, outlink_vectors, mask_vectors);
 //     matrix_tools::normalize_columns(o);
 }
 
@@ -242,7 +247,7 @@ void singularity::activity_index_calculator::set_parameters(singularity::paramet
     parameters = params;
 }
 
-void activity_index_calculator::normalize_columns(matrix_t &m)
+void activity_index_calculator::normalize_columns(matrix_t &m, node_type_map<sparce_vector_t>& outlink_vectors, node_type_map<sparce_vector_t>& mask_vectors)
 {
     auto node_type_count = node_maps.size();
     
@@ -253,15 +258,20 @@ void activity_index_calculator::normalize_columns(matrix_t &m)
         for (auto node_it: *node_map) {
             id_set.emplace(node_it.second);
         }
+        
+        outlink_vectors[node_map_it.first] = std::make_shared<sparce_vector_t>(m.size2());
+        mask_vectors[node_map_it.first] = std::make_shared<sparce_vector_t>(m.size2());
 
-        mapped_vector<double_type> f (m.size2());
-        mapped_vector<double_type> s (m.size2());
+        sparce_vector_t f (m.size2());
+        sparce_vector_t s (m.size2());
         
         for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
         {
             if (id_set.find(i.index1()) == id_set.end()) {
                 continue;
             }
+            
+            (*mask_vectors[node_map_it.first])[i.index1()] = 1;
             
             for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
             {
@@ -282,6 +292,12 @@ void activity_index_calculator::normalize_columns(matrix_t &m)
                 if (norm != 0) {
                     *j /= norm * node_type_count;
                 }
+            }
+        }
+        
+        for(auto i=0; i < s.size(); i++) {
+            if (s[i] == 0) {
+                (*outlink_vectors[node_map_it.first])[i] = double_type(1) / (node_map->size() * node_type_count);
             }
         }
         

@@ -8,6 +8,9 @@ namespace singularity {
     
     enum node_type {ACCOUNT, CONTENT};
 
+    template <class T>
+        using node_type_map = std::map<node_type, std::shared_ptr<T> >;
+    
     class relation_t {
     private:
         std::string source;
