@@ -25,9 +25,9 @@ namespace singularity {
         const matrix_t::size_type initial_size = 10;
         activity_index_calculator(
             parameters_t parameters, 
-            bool is_transfer,
+            bool disable_negative_weights,
             std::shared_ptr<rank_interface> p_rank_calculator
-        ): parameters(parameters), is_transfer(is_transfer), p_rank_calculator(p_rank_calculator) {
+        ): parameters(parameters), disable_negative_weights(disable_negative_weights), p_rank_calculator(p_rank_calculator) {
             p_weight_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_decay_manager = std::make_shared<decay_manager_t>(parameters.decay_period, parameters.decay_koefficient);
         }
@@ -46,7 +46,7 @@ namespace singularity {
     private:
         friend class boost::serialization::access;
         parameters_t parameters;
-        bool is_transfer;
+        bool disable_negative_weights;
         
         unsigned int total_handled_blocks_count = 0;
         unsigned int handled_blocks_count = 0;

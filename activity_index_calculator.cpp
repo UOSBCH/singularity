@@ -156,7 +156,7 @@ void activity_index_calculator::calculate_outlink_matrix(
         }
     }
 
-    if (is_transfer) {
+    if (disable_negative_weights) {
         for (matrix_t::iterator1 i = o.begin1(); i != o.end1(); i++)
         {
             for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
@@ -281,7 +281,6 @@ void activity_index_calculator::normalize_columns(matrix_t &m, node_type_map<spa
                 if (*j != double_type (0) ) {
                     s(j.index2()) += *j;
                 }
-                std::cout << *j << " : " << double_type(d(j.index2())) << std::endl;
                 if (*j < double_type(d(j.index2()))) {
                     d(j.index2()) = *j;
                 }
