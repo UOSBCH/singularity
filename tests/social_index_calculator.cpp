@@ -99,12 +99,12 @@ BOOST_AUTO_TEST_CASE( test2 )
     auto p_account_index_map = r[node_type::ACCOUNT];
     auto p_content_index_map = r[node_type::CONTENT];
     
-    BOOST_CHECK_CLOSE(p_account_index_map->at("account-0"), 0.1870793, 1e-3);
-    BOOST_CHECK_CLOSE(p_account_index_map->at("account-1"), 0.4050976, 1e-3);
-    BOOST_CHECK_CLOSE(p_account_index_map->at("account-2"), 0.4078230, 1e-3);
-    BOOST_CHECK_CLOSE(p_content_index_map->at("post-0"), 0.2770526, 1e-3);
-    BOOST_CHECK_CLOSE(p_content_index_map->at("post-1"), 0.3563090, 1e-3);
-    BOOST_CHECK_CLOSE(p_content_index_map->at("post-2"), 0.3666383, 1e-3);
+    BOOST_CHECK_CLOSE(p_account_index_map->at("account-0"), 0.1834468, 1e-3);
+    BOOST_CHECK_CLOSE(p_account_index_map->at("account-1"), 0.4080653, 1e-3);
+    BOOST_CHECK_CLOSE(p_account_index_map->at("account-2"), 0.4084877, 1e-3);
+    BOOST_CHECK_CLOSE(p_content_index_map->at("post-0"), 0.2704000, 1e-3);
+    BOOST_CHECK_CLOSE(p_content_index_map->at("post-1"), 0.3624122, 1e-3);
+    BOOST_CHECK_CLOSE(p_content_index_map->at("post-2"), 0.3671877, 1e-3);
     
     double_type account_sum = p_account_index_map->at("account-0") + p_account_index_map->at("account-1") + p_account_index_map->at("account-2");
     

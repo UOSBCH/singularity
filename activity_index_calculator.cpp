@@ -156,12 +156,14 @@ void activity_index_calculator::calculate_outlink_matrix(
         }
     }
 
-    for (matrix_t::iterator1 i = o.begin1(); i != o.end1(); i++)
-    {
-        for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
+    if (is_transfer) {
+        for (matrix_t::iterator1 i = o.begin1(); i != o.end1(); i++)
         {
-            if (*j < 0) {
-                *j = 0;
+            for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
+            {
+                if (*j < 0) {
+                    *j = 0;
+                }
             }
         }
     }
@@ -279,7 +281,8 @@ void activity_index_calculator::normalize_columns(matrix_t &m, node_type_map<spa
                 if (*j != double_type (0) ) {
                     s(j.index2()) += *j;
                 }
-                if (*j < d[j.index2()]) {
+                std::cout << *j << " : " << double_type(d(j.index2())) << std::endl;
+                if (*j < double_type(d(j.index2()))) {
                     d(j.index2()) = *j;
                 }
             }
@@ -294,7 +297,6 @@ void activity_index_calculator::normalize_columns(matrix_t &m, node_type_map<spa
              f(i) = double_type (1) / ( double_type(node_type_count) * (double_type(s(i)) + node_map->size() * c) );
              (*outlink_vectors[node_map_it.first])(i) = c * double_type(f(i));
         }
-        
         
         for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
         {
