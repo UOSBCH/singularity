@@ -264,6 +264,7 @@ void activity_index_calculator::normalize_columns(matrix_t &m, node_type_map<spa
 
         sparce_vector_t f (m.size2());
         sparce_vector_t s (m.size2());
+        sparce_vector_t d (m.size2());
         
         for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
         {
@@ -271,15 +272,30 @@ void activity_index_calculator::normalize_columns(matrix_t &m, node_type_map<spa
                 continue;
             }
             
-            (*mask_vectors[node_map_it.first])[i.index1()] = 1;
+            (*mask_vectors[node_map_it.first])(i.index1()) = 1;
             
             for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
             {
                 if (*j != double_type (0) ) {
-                    s[j.index2()] += *j;
+                    s(j.index2()) += *j;
+                }
+                if (*j < d[j.index2()]) {
+                    d(j.index2()) = *j;
                 }
             }
         }
+        for(sparce_vector_t::size_type i = 0; i < s.size(); i++) {
+            double_type c = 0;
+            if (d(i) < double_type(0) ) {
+                 c = double_type(d(i)) * double_type (-1);
+            } else if (s[i] == 0) {
+                 c = double_type (1);
+            }
+             f(i) = double_type (1) / ( double_type(node_type_count) * (double_type(s(i)) + node_map->size() * c) );
+             (*outlink_vectors[node_map_it.first])(i) = c * double_type(f(i));
+        }
+        
+        
         for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
         {
             if (id_set.find(i.index1()) == id_set.end()) {
@@ -288,18 +304,18 @@ void activity_index_calculator::normalize_columns(matrix_t &m, node_type_map<spa
             
             for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
             {
-                double_type norm = s[j.index2()];
-                if (norm != 0) {
-                    *j /= norm * node_type_count;
+//                 double_type norm = s[j.index2()];
+                if (*j != 0) {
+                     *j *= double_type(f(j.index2()));
                 }
             }
         }
         
-        for(auto i=0; i < s.size(); i++) {
-            if (s[i] == 0) {
-                (*outlink_vectors[node_map_it.first])[i] = double_type(1) / (node_map->size() * node_type_count);
-            }
-        }
+//         for(sparce_vector_t::size_type i=0; i < s.size(); i++) {
+//             if (s[i] == 0) {
+//                 (*outlink_vectors[node_map_it.first])[i] = double_type(1) / (node_map->size() * node_type_count);
+//             }
+//         }
         
     }
     
