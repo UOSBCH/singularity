@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <boost/numeric/ublas/io.hpp>
+#include "../include/vector_based_matrix.hpp"
+#include <boost/numeric/ublas/vector_sparse.hpp>
 
 using namespace singularity;
 
@@ -114,6 +116,33 @@ BOOST_AUTO_TEST_CASE( partial_prod )
     BOOST_CHECK_CLOSE(r[1], 1, 0.001);
     BOOST_CHECK_CLOSE(r[2], -1, 0.001);
     BOOST_CHECK_CLOSE(r[3], 1, 0.001);
+}
+
+BOOST_AUTO_TEST_CASE( derived_matrix )
+{
+    boost::numeric::ublas::mapped_vector<int16_t> left(5), right(4);
+        
+    left(0) = 1;
+    left(4) = -1;
+    
+    right(0) = 1;
+    right(1) = 2;
+    right(2) = 3;
+    right(3) = 4;
+
+    boost::numeric::ublas::vector_based_matrix<int16_t> m(left, right);
+    
+    std::cout << m << std::endl;
+    
+    m *= 2;
+    
+    std::cout << m << std::endl;
+
+    boost::numeric::ublas::vector<int16_t> v(4, 1);
+    
+    auto r = boost::numeric::ublas::prod(m, v);
+    
+    std::cout << r << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

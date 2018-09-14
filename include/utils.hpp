@@ -11,6 +11,7 @@
 #include <boost/exception/all.hpp>
 #include "mapped_matrix_resizable.hpp"
 #include <boost/multiprecision/cpp_dec_float.hpp>
+#include "vector_based_matrix.hpp"
 
 namespace singularity {
     typedef uint64_t money_t;
@@ -23,6 +24,7 @@ namespace singularity {
     typedef boost::numeric::ublas::vector_range<vector_t> vector_range_t;
     typedef boost::numeric::ublas::range range_t;
     typedef boost::numeric::ublas::mapped_matrix_resizable<uint8_t, boost::numeric::ublas::row_major> byte_matrix_t;
+    typedef std::vector<std::shared_ptr<boost::numeric::ublas::vector_based_matrix<double_type> > > additional_matrices_vector;
 
     struct parameters_t {
         uint64_t precision = 10000000;

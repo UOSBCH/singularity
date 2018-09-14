@@ -14,16 +14,14 @@ namespace singularity {
         virtual std::shared_ptr<vector_t> process(
             const matrix_t& outlink_matrix,
             const vector_t& initial_vector,
-            const node_type_map<sparce_vector_t>& outlink_vectors, 
-            const node_type_map<sparce_vector_t>& mask_vectors            
+            const additional_matrices_vector& additional_matrices
         );
     private:
         parameters_t parameters;
         double_type const precision = 0.01;
         virtual std::shared_ptr<vector_t> calculate_rank(
             const matrix_t& outlink_matrix, 
-            const node_type_map<sparce_vector_t>& outlink_vectors, 
-            const node_type_map<sparce_vector_t>& mask_vectors,            
+            const additional_matrices_vector& additional_matrices,
             const matrix_t& interlevel_matrix_s, 
             const matrix_t& intelevel_matrix_l,
             const vector_t& initial_vector
@@ -35,8 +33,7 @@ namespace singularity {
         );
         virtual std::shared_ptr<vector_t> iterate(
             const matrix_t& outlink_matrix, 
-            const node_type_map<sparce_vector_t>& outlink_vectors, 
-            const node_type_map<sparce_vector_t>& mask_vectors,            
+            const additional_matrices_vector& additional_matrices,
             const matrix_t& interlevel_matrix_s, 
             const matrix_t& interlevel_matrix_l, 
             const vector_t& previous,

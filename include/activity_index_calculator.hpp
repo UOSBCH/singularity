@@ -72,8 +72,7 @@ namespace singularity {
         void calculate_outlink_matrix(
             matrix_t& o,
             matrix_t& weight_matrix,
-            node_type_map<sparce_vector_t>& outlink_vectors, 
-            node_type_map<sparce_vector_t>& mask_vectors            
+            additional_matrices_vector& additional_matrices
         );
         void update_weight_matrix(
             matrix_t& weight_matrix,
@@ -86,7 +85,7 @@ namespace singularity {
 //             ar & BOOST_SERIALIZATION_NVP(node_maps);
             ar & BOOST_SERIALIZATION_NVP(*p_weight_matrix);
         }
-        void normalize_columns(matrix_t &m, node_type_map<sparce_vector_t>& outlink_vectors, node_type_map<sparce_vector_t>& mask_vectors);
+        void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices);
         vector_t create_initial_vector();
     };
 }

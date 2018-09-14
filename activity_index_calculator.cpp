@@ -7,6 +7,7 @@
 #include <fstream>
 #include <thread>
 #include "include/page_rank.hpp"
+#include "include/vector_based_matrix.hpp"
 
 using namespace boost::numeric::ublas;
 using namespace boost;
@@ -113,12 +114,11 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
     }
     matrix_t outlink_matrix(nodes_count, nodes_count);
 
-    node_type_map<sparce_vector_t> outlink_vectors;
-    node_type_map<sparce_vector_t> mask_vectors;
+    additional_matrices_vector additional_matrices;
     
-    calculate_outlink_matrix(outlink_matrix, *p_weight_matrix, outlink_vectors, mask_vectors);
+    calculate_outlink_matrix(outlink_matrix, *p_weight_matrix, additional_matrices);
     
-    std::shared_ptr<vector_t> rank = p_rank_calculator->process(outlink_matrix, create_initial_vector(), outlink_vectors, mask_vectors);
+    std::shared_ptr<vector_t> rank = p_rank_calculator->process(outlink_matrix, create_initial_vector(), additional_matrices);
     
     return calculate_score(*rank);
 }
@@ -126,8 +126,7 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
 void activity_index_calculator::calculate_outlink_matrix(
     matrix_t& o,
     matrix_t& weight_matrix,
-    node_type_map<sparce_vector_t>& outlink_vectors, 
-    node_type_map<sparce_vector_t>& mask_vectors            
+    additional_matrices_vector& additional_matrices
 )
 {
     matrix_t::size_type size = o.size1();
@@ -168,7 +167,7 @@ void activity_index_calculator::calculate_outlink_matrix(
         }
     }
     
-    normalize_columns(o, outlink_vectors, mask_vectors);
+    normalize_columns(o, additional_matrices);
 //     matrix_tools::normalize_columns(o);
 }
 
@@ -249,9 +248,12 @@ void singularity::activity_index_calculator::set_parameters(singularity::paramet
     parameters = params;
 }
 
-void activity_index_calculator::normalize_columns(matrix_t &m, node_type_map<sparce_vector_t>& outlink_vectors, node_type_map<sparce_vector_t>& mask_vectors)
+void activity_index_calculator::normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices)
 {
     auto node_type_count = node_maps.size();
+    node_type_map<sparce_vector_t> outlink_vectors; 
+    node_type_map<sparce_vector_t> mask_vectors;
+    
     
     for (auto node_map_it: node_maps) {
         std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
@@ -311,6 +313,8 @@ void activity_index_calculator::normalize_columns(matrix_t &m, node_type_map<spa
                 }
             }
         }
+        
+        additional_matrices.push_back(std::make_shared<vector_based_matrix<double_type> >(*(mask_vectors[node_map_it.first]), *(outlink_vectors[node_map_it.first])));
         
 //         for(sparce_vector_t::size_type i=0; i < s.size(); i++) {
 //             if (s[i] == 0) {

@@ -8,8 +8,7 @@ using namespace singularity;
 std::shared_ptr<vector_t> ncd_aware_rank::process(
         const matrix_t& outlink_matrix,
         const vector_t& initial_vector,
-        const node_type_map<sparce_vector_t>& outlink_vectors, 
-        const node_type_map<sparce_vector_t>& mask_vectors            
+        const additional_matrices_vector& additional_matrices
 ) {
 //     sparce_vector_t v = matrix_tools::calculate_correction_vector(outlink_matrix);
     Graph g = create_graph(outlink_matrix);
@@ -18,13 +17,12 @@ std::shared_ptr<vector_t> ncd_aware_rank::process(
     std::shared_ptr<matrix_t> ms = create_interlevel_matrix_s(g);
     std::shared_ptr<matrix_t> ml = create_interlevel_matrix_l(g, outlink_matrix);
     
-    return calculate_rank(outlink_matrix, outlink_vectors, mask_vectors, *ms, *ml, initial_vector);
+    return calculate_rank(outlink_matrix, additional_matrices, *ms, *ml, initial_vector);
 }
 
 std::shared_ptr<vector_t> ncd_aware_rank::iterate(
         const matrix_t& outlink_matrix, 
-        const node_type_map<sparce_vector_t>& outlink_vectors, 
-        const node_type_map<sparce_vector_t>& mask_vectors,            
+        const additional_matrices_vector& additional_matrices,
         const matrix_t& interlevel_matrix_s, 
         const matrix_t& interlevel_matrix_l, 
         const vector_t& previous,
@@ -41,13 +39,9 @@ std::shared_ptr<vector_t> ncd_aware_rank::iterate(
     matrix_tools::prod(tmp2, interlevel_matrix_s, tmp, parameters.num_threads);
     
     *next += tmp2;
-    
-    for (auto outlink_vector_it: outlink_vectors) {
-        auto node_type_id = outlink_vector_it.first;
-        auto p_outlink_vector = outlink_vector_it.second;
-        auto p_mask_vector = mask_vectors.at(node_type_id);
-        
-        *next += *p_mask_vector * ((parameters.outlink_weight) * inner_prod(*p_outlink_vector, previous));
+
+    for (auto additional_matrix: additional_matrices) {
+        *next += prod(*additional_matrix, previous) * parameters.outlink_weight;
     }
     
 //     vector_t correction_vector(num_accounts, inner_prod(outlink_vector, previous));
@@ -60,8 +54,7 @@ std::shared_ptr<vector_t> ncd_aware_rank::iterate(
 
 std::shared_ptr<vector_t> ncd_aware_rank::calculate_rank(
         const matrix_t& outlink_matrix, 
-        const node_type_map<sparce_vector_t>& outlink_vectors, 
-        const node_type_map<sparce_vector_t>& mask_vectors,            
+        const additional_matrices_vector& additional_matrices,
         const matrix_t& interlevel_matrix_s, 
         const matrix_t& interlevel_matrix_l,
         const vector_t& initial_vector
@@ -77,7 +70,7 @@ std::shared_ptr<vector_t> ncd_aware_rank::calculate_rank(
 //     sparce_vector_t outlink_vector_weighted = outlink_vector * parameters.outlink_weight;
     
     for (uint i = 0; i < MAX_ITERATIONS; i++) {
-        next  = iterate(outlink_matrix_weighted, outlink_vectors, mask_vectors, interlevel_matrix_s_weighted, interlevel_matrix_l, *previous, teleportation);
+        next  = iterate(outlink_matrix_weighted, additional_matrices, interlevel_matrix_s_weighted, interlevel_matrix_l, *previous, teleportation);
         double_type norm = norm_1(*next - *previous);
         if (norm <= precision) {
             return next;

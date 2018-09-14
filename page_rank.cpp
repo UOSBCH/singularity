@@ -8,18 +8,16 @@ using namespace singularity;
 std::shared_ptr<vector_t> page_rank::process(
         const matrix_t& outlink_matrix,
         const vector_t& initial_vector,
-        const node_type_map<sparce_vector_t>& outlink_vectors, 
-        const node_type_map<sparce_vector_t>& mask_vectors            
+        const additional_matrices_vector& additional_matrices
 ) {
 //     sparce_vector_t v = matrix_tools::calculate_correction_vector(outlink_matrix);
     
-    return calculate_rank(outlink_matrix, outlink_vectors, mask_vectors, initial_vector);
+    return calculate_rank(outlink_matrix, additional_matrices, initial_vector);
 }
 
 std::shared_ptr<vector_t> page_rank::iterate(
         const matrix_t& outlink_matrix, 
-        const node_type_map<sparce_vector_t>& outlink_vectors, 
-        const node_type_map<sparce_vector_t>& mask_vectors,            
+        const additional_matrices_vector& additional_matrices,
         const vector_t& previous,
         const vector_t& teleportation
 ) {
@@ -31,12 +29,8 @@ std::shared_ptr<vector_t> page_rank::iterate(
     
 //     vector_t masked_previous(num_accounts);
     
-    for (auto outlink_vector_it: outlink_vectors) {
-        auto node_type_id = outlink_vector_it.first;
-        auto p_outlink_vector = outlink_vector_it.second;
-        auto p_mask_vector = mask_vectors.at(node_type_id);
-        
-        *next += *p_mask_vector * ((1 - TELEPORTATION_WEIGHT) * inner_prod(*p_outlink_vector, previous));
+    for (auto additional_matrix: additional_matrices) {
+        *next += prod(*additional_matrix, previous) * (1 - TELEPORTATION_WEIGHT);
     }
     
 //     vector_t correction_vector(num_accounts, (1 - TELEPORTATION_WEIGHT) * inner_prod(outlink_vector, previous));
@@ -49,8 +43,7 @@ std::shared_ptr<vector_t> page_rank::iterate(
 
 std::shared_ptr<vector_t> page_rank::calculate_rank(
         const matrix_t& outlink_matrix, 
-        const node_type_map<sparce_vector_t>& outlink_vectors, 
-        const node_type_map<sparce_vector_t>& mask_vectors,            
+        const additional_matrices_vector& additional_matrices,
         const vector_t& initial_vector
 ) {
     unsigned int num_accounts = outlink_matrix.size2();
@@ -63,7 +56,7 @@ std::shared_ptr<vector_t> page_rank::calculate_rank(
 //     sparce_vector_t outlink_vector_weighted = outlink_vector * (double_type(1) - TELEPORTATION_WEIGHT);
     
     for (uint i = 0; i < MAX_ITERATIONS; i++) {
-        next  = iterate(outlink_matrix_weighted, outlink_vectors, mask_vectors, *previous, teleportation);
+        next  = iterate(outlink_matrix_weighted, additional_matrices, *previous, teleportation);
         double_type norm = norm_1(*next - *previous);
 
         if (norm <= precision) {

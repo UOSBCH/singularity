@@ -57,12 +57,12 @@ class vector_based_matrix:
             return *this;
         }
         
-        const basic_vector_type get_left_generator() const {
+        const basic_vector_type& get_left_generator() const {
             
             return left_generator;
         }
 
-        const basic_vector_type get_right_generator() const {
+        const basic_vector_type& get_right_generator() const {
             
             return right_generator;
         }
@@ -73,12 +73,12 @@ class vector_based_matrix:
     };
     
    
-    template<typename T, typename E2>
+    template<typename T1, class E2>
     BOOST_UBLAS_INLINE
-    typename vector_based_matrix<T>::basic_vector_type prod (const vector_based_matrix<T> &e1,  const vector_expression<E2> &e2) 
+    typename vector_based_matrix<T1>::basic_vector_type prod (const vector_based_matrix<T1> &e1,  const vector_expression<E2> &e2) 
     {
-        typename vector_based_matrix<T>::basic_vector_type left = e1.get_left_generator();
-        typename vector_based_matrix<T>::basic_vector_type right = e1.get_right_generator();
+        typename vector_based_matrix<T1>::basic_vector_type left = e1.get_left_generator();
+        typename vector_based_matrix<T1>::basic_vector_type right = e1.get_right_generator();
     
         left *= inner_prod(right, e2);
         
