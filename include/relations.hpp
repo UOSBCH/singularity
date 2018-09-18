@@ -173,6 +173,32 @@ namespace singularity {
             return node_type::CONTENT;
         };
     };
+
+    class comment_t: public relation_t 
+    {
+    public:
+        comment_t (std::string source, std::string target, uint64_t height):
+        relation_t(source, target, height) 
+        {};
+        virtual int64_t get_weight() {
+            return 1;
+        };
+        virtual int64_t get_reverse_weight() {
+            return 0;
+        };
+        virtual std::string get_name() {
+            return "COMMENT";
+        };
+        virtual bool is_decayable() {
+            return true;
+        };
+        virtual node_type get_source_type() {
+            return node_type::CONTENT;
+        };
+        virtual node_type get_target_type(){
+            return node_type::CONTENT;
+        };
+    };
     
     class transaction_t: public relation_t 
     {
