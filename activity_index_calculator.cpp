@@ -251,77 +251,86 @@ void singularity::activity_index_calculator::set_parameters(singularity::paramet
 void activity_index_calculator::normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices)
 {
     auto node_type_count = node_maps.size();
+    std::vector<node_type> reverse_map(nodes_count);
     node_type_map<sparce_vector_t> outlink_vectors; 
     node_type_map<sparce_vector_t> mask_vectors;
+    node_type_map<sparce_vector_t> fv;
+    node_type_map<sparce_vector_t> sv;
+    node_type_map<sparce_vector_t> dv;
     
     
     for (auto node_map_it: node_maps) {
         std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
-//         auto node_count = node_map->size();
-        std::set<uint32_t> id_set;
+        node_type current_node_type = node_map_it.first;
+        
+        outlink_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
+        mask_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
+        fv[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
+        sv[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
+        dv[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
         for (auto node_it: *node_map) {
-            id_set.emplace(node_it.second);
+            reverse_map[node_it.second] = current_node_type;
+            (*mask_vectors[current_node_type])(node_it.second) = 1;
         }
+    }
+    
+    for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
+    {
         
-        outlink_vectors[node_map_it.first] = std::make_shared<sparce_vector_t>(m.size2());
-        mask_vectors[node_map_it.first] = std::make_shared<sparce_vector_t>(m.size2());
-
-        sparce_vector_t f (m.size2());
-        sparce_vector_t s (m.size2());
-        sparce_vector_t d (m.size2());
+        node_type current_node_type = reverse_map[i.index1()];
         
-        for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
+        sparce_vector_t& s = *sv[current_node_type];
+        sparce_vector_t& d = *dv[current_node_type];
+        
+        for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
         {
-            if (id_set.find(i.index1()) == id_set.end()) {
-                continue;
+            if (*j != double_type (0) ) {
+                s(j.index2()) += *j;
             }
-            
-            (*mask_vectors[node_map_it.first])(i.index1()) = 1;
-            
-            for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
-            {
-                if (*j != double_type (0) ) {
-                    s(j.index2()) += *j;
-                }
-                if (*j < double_type(d(j.index2()))) {
-                    d(j.index2()) = *j;
-                }
+            if (*j < double_type(d(j.index2()))) {
+                d(j.index2()) = *j;
             }
         }
+    }
+    
+    for (auto node_map_it: node_maps) {
+        std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
+        
+        node_type current_node_type = node_map_it.first;
+        
+        sparce_vector_t& f = *fv[current_node_type];
+        sparce_vector_t& s = *sv[current_node_type];
+        sparce_vector_t& d = *dv[current_node_type];
+        
         for(sparce_vector_t::size_type i = 0; i < s.size(); i++) {
             double_type c = 0;
             if (d(i) < double_type(0) ) {
-                 c = double_type(d(i)) * double_type (-1);
-            } else if (s[i] == 0) {
-                 c = double_type (1);
+                c = double_type(d(i)) * double_type (-1);
+            } else if (s(i) == 0) {
+                c = double_type (1);
             }
-             f(i) = double_type (1) / ( double_type(node_type_count) * (double_type(s(i)) + node_map->size() * c) );
-             (*outlink_vectors[node_map_it.first])(i) = c * double_type(f(i));
+            f(i) = double_type (1) / ( double_type(node_type_count) * (double_type(s(i)) + node_map->size() * c) );
+            (*outlink_vectors[current_node_type])(i) = c * double_type(f(i));
         }
+    }
+    
+    for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
+    {
+        node_type current_node_type = reverse_map[i.index1()];
+        sparce_vector_t& f = *fv[current_node_type];
         
-        for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
+        for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
         {
-            if (id_set.find(i.index1()) == id_set.end()) {
-                continue;
-            }
-            
-            for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
-            {
-//                 double_type norm = s[j.index2()];
-                if (*j != 0) {
-                     *j *= double_type(f(j.index2()));
-                }
+            if (*j != 0) {
+                *j *= double_type(f(j.index2()));
             }
         }
-        
-        additional_matrices.push_back(std::make_shared<vector_based_matrix<double_type> >(*(mask_vectors[node_map_it.first]), *(outlink_vectors[node_map_it.first])));
-        
-//         for(sparce_vector_t::size_type i=0; i < s.size(); i++) {
-//             if (s[i] == 0) {
-//                 (*outlink_vectors[node_map_it.first])[i] = double_type(1) / (node_map->size() * node_type_count);
-//             }
-//         }
-        
+    }
+    
+    for (auto node_map_it: node_maps) {
+        std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
+        node_type current_node_type = node_map_it.first;
+        additional_matrices.push_back(std::make_shared<vector_based_matrix<double_type> >(*(mask_vectors[current_node_type]), *(outlink_vectors[current_node_type])));
     }
     
 }
