@@ -112,10 +112,10 @@ BOOST_AUTO_TEST_CASE( partial_prod )
     
     matrix_tools::partial_prod(r,m,v, range_t(0,2));
     
-    BOOST_CHECK_CLOSE(r[0], 2, 0.001);
-    BOOST_CHECK_CLOSE(r[1], 1, 0.001);
-    BOOST_CHECK_CLOSE(r[2], -1, 0.001);
-    BOOST_CHECK_CLOSE(r[3], 1, 0.001);
+    BOOST_CHECK_CLOSE((double) r[0], 2, 0.001);
+    BOOST_CHECK_CLOSE((double) r[1], 1, 0.001);
+    BOOST_CHECK_CLOSE((double) r[2], -1, 0.001);
+    BOOST_CHECK_CLOSE((double) r[3], 1, 0.001);
 }
 
 BOOST_AUTO_TEST_CASE( derived_matrix )
