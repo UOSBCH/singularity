@@ -254,9 +254,9 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
     std::vector<node_type> reverse_map(nodes_count);
     node_type_map<sparce_vector_t> outlink_vectors; 
     node_type_map<sparce_vector_t> mask_vectors;
-    node_type_map<sparce_vector_t> fv;
-    node_type_map<sparce_vector_t> sv;
-    node_type_map<sparce_vector_t> dv;
+    node_type_map<sparce_vector_t> scale_vectors;
+    node_type_map<sparce_vector_t> sum_vectors;
+    node_type_map<sparce_vector_t> min_vectors;
     
     
     for (auto node_map_it: node_maps) {
@@ -265,12 +265,13 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
         
         outlink_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
         mask_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
-        fv[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
-        sv[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
-        dv[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
+        scale_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
+        sum_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
+        min_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
         for (auto node_it: *node_map) {
             reverse_map[node_it.second] = current_node_type;
-            (*mask_vectors[current_node_type])(node_it.second) = 1;
+            sparce_vector_t& mask_vector = *mask_vectors[current_node_type];
+            mask_vector(node_it.second) = 1;
         }
     }
     
@@ -279,16 +280,16 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
         
         node_type current_node_type = reverse_map[i.index1()];
         
-        sparce_vector_t& s = *sv[current_node_type];
-        sparce_vector_t& d = *dv[current_node_type];
+        sparce_vector_t& scale_vector = *sum_vectors[current_node_type];
+        sparce_vector_t& min_vector = *min_vectors[current_node_type];
         
         for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
         {
             if (*j != double_type (0) ) {
-                s(j.index2()) += *j;
+                scale_vector(j.index2()) += *j;
             }
-            if (*j < double_type(d(j.index2()))) {
-                d(j.index2()) = *j;
+            if (*j < double_type(min_vector(j.index2()))) {
+                min_vector(j.index2()) = *j;
             }
         }
     }
@@ -298,37 +299,37 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
         
         node_type current_node_type = node_map_it.first;
         
-        sparce_vector_t& f = *fv[current_node_type];
-        sparce_vector_t& s = *sv[current_node_type];
-        sparce_vector_t& d = *dv[current_node_type];
+        sparce_vector_t& scale_vector = *scale_vectors[current_node_type];
+        sparce_vector_t& sum_vector = *sum_vectors[current_node_type];
+        sparce_vector_t& min_vector = *min_vectors[current_node_type];
+        sparce_vector_t& outlink_vector = *outlink_vectors[current_node_type];
         
-        for(sparce_vector_t::size_type i = 0; i < s.size(); i++) {
+        for(sparce_vector_t::size_type i = 0; i < sum_vector.size(); i++) {
             double_type c = 0;
-            if (d(i) < double_type(0) ) {
-                c = double_type(d(i)) * double_type (-1);
-            } else if (s(i) == 0) {
+            if (min_vector(i) < double_type(0) ) {
+                c = double_type(min_vector(i)) * double_type (-1);
+            } else if (sum_vector(i) == 0) {
                 c = double_type (1);
             }
-            f(i) = double_type (1) / ( double_type(node_type_count) * (double_type(s(i)) + node_map->size() * c) );
-            (*outlink_vectors[current_node_type])(i) = c * double_type(f(i));
+            scale_vector(i) = double_type (1) / ( double_type(node_type_count) * (double_type(sum_vector(i)) + node_map->size() * c) );
+            outlink_vector(i) = c * double_type(scale_vector(i));
         }
     }
     
     for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
     {
         node_type current_node_type = reverse_map[i.index1()];
-        sparce_vector_t& f = *fv[current_node_type];
+        sparce_vector_t& scale_vector = *scale_vectors[current_node_type];
         
         for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
         {
             if (*j != 0) {
-                *j *= double_type(f(j.index2()));
+                *j *= double_type(scale_vector(j.index2()));
             }
         }
     }
     
     for (auto node_map_it: node_maps) {
-        std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
         node_type current_node_type = node_map_it.first;
         additional_matrices.push_back(std::make_shared<vector_based_matrix<double_type> >(*(mask_vectors[current_node_type]), *(outlink_vectors[current_node_type])));
     }
