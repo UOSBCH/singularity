@@ -6,7 +6,7 @@
 
 namespace singularity {
     
-    enum node_type {ACCOUNT, CONTENT};
+    enum node_type {ACCOUNT, CONTENT, COMPANY};
 
     template <class T>
         using node_type_map = std::map<node_type, std::shared_ptr<T> >;
@@ -197,6 +197,32 @@ namespace singularity {
         };
         virtual node_type get_target_type(){
             return node_type::CONTENT;
+        };
+    };
+
+    class membership_t: public relation_t 
+    {
+    public:
+        membership_t (std::string source, std::string target, uint64_t height):
+        relation_t(source, target, height) 
+        {};
+        virtual int64_t get_weight() {
+            return 10;
+        };
+        virtual int64_t get_reverse_weight() {
+            return 10;
+        };
+        virtual std::string get_name() {
+            return "MEMBERSHIP";
+        };
+        virtual bool is_decayable() {
+            return true;
+        };
+        virtual node_type get_source_type() {
+            return node_type::ACCOUNT;
+        };
+        virtual node_type get_target_type(){
+            return node_type::COMPANY;
         };
     };
     
