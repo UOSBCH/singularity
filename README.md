@@ -1,10 +1,12 @@
-### Activity index and dinamic emission calculation library for Gravity project ###
+### Activity index and dinamic emission calculation library for UOS project ###
 
 Getting the project:  
-    git clone https://github.com/GravityProtocol/singularity.git
+```
+    git clone git@github.com:UOSnetwork/singularity.git
+```
 
 Building the project:  
 ```
-	cmake .  
-	make   
+    cmake .  
+    make   
 ```
