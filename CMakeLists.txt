@@ -2,11 +2,12 @@ project( singularity )
 
 cmake_minimum_required( VERSION 2.8 )
 
-find_package( Boost )
+find_package( Boost 1.58 EXACT REQUIRED)
 
 file(GLOB HEADERS "include/*.hpp")
 
 set(SOURCES ncd_aware_rank.cpp
+            page_rank.cpp
             activity_index_calculator.cpp
             scan.cpp
             utils.cpp
@@ -31,6 +32,7 @@ target_include_directories( singularity PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/incl
 install( FILES ${HEADERS} DESTINATION "include" )
 
 add_subdirectory( tests )
+# add_subdirectory( benchmarks )
 
 target_link_libraries( singularity boost_serialization pthread )
 

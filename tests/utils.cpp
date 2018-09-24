@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <boost/numeric/ublas/io.hpp>
+#include "../include/vector_based_matrix.hpp"
+#include <boost/numeric/ublas/vector_sparse.hpp>
 
 using namespace singularity;
 
@@ -23,7 +25,7 @@ BOOST_AUTO_TEST_CASE( normalize_columns )
     
     matrix_tools::normalize_columns(m1);
     
-    BOOST_CHECK(boost::numeric::ublas::detail::equals(m1,m2, 0.001, 0.001));
+    BOOST_CHECK(boost::numeric::ublas::detail::equals(m1,m2, double_type(0.001), double_type(0.001)));
 }
 
 BOOST_AUTO_TEST_CASE( resize )
@@ -44,8 +46,8 @@ BOOST_AUTO_TEST_CASE( resize )
     matrix_t m1_resized = m1;
     m1_resized.resize(4, 4, true);
     
-    BOOST_CHECK(boost::numeric::ublas::detail::equals(m1_resized, m2, 0.001, 0.001));
-    BOOST_CHECK(boost::numeric::ublas::detail::equals(*p_m1_resized, m2, 0.001, 0.001));
+    BOOST_CHECK(boost::numeric::ublas::detail::equals(m1_resized, m2, double_type(0.001), double_type(0.001)));
+    BOOST_CHECK(boost::numeric::ublas::detail::equals(*p_m1_resized, m2, double_type(0.001), double_type(0.001)));
 }
 
 BOOST_AUTO_TEST_CASE( split_range_1 )
@@ -110,10 +112,37 @@ BOOST_AUTO_TEST_CASE( partial_prod )
     
     matrix_tools::partial_prod(r,m,v, range_t(0,2));
     
-    BOOST_CHECK_CLOSE(r[0], 2, 0.001);
-    BOOST_CHECK_CLOSE(r[1], 1, 0.001);
-    BOOST_CHECK_CLOSE(r[2], -1, 0.001);
-    BOOST_CHECK_CLOSE(r[3], 1, 0.001);
+    BOOST_CHECK_CLOSE((double) r[0], 2, 0.001);
+    BOOST_CHECK_CLOSE((double) r[1], 1, 0.001);
+    BOOST_CHECK_CLOSE((double) r[2], -1, 0.001);
+    BOOST_CHECK_CLOSE((double) r[3], 1, 0.001);
+}
+
+BOOST_AUTO_TEST_CASE( derived_matrix )
+{
+    boost::numeric::ublas::mapped_vector<int16_t> left(5), right(4);
+        
+    left(0) = 1;
+    left(4) = -1;
+    
+    right(0) = 1;
+    right(1) = 2;
+    right(2) = 3;
+    right(3) = 4;
+
+    boost::numeric::ublas::vector_based_matrix<int16_t> m(left, right);
+    
+    std::cout << m << std::endl;
+    
+    m *= 2;
+    
+    std::cout << m << std::endl;
+
+    boost::numeric::ublas::vector<int16_t> v(4, 1);
+    
+    auto r = boost::numeric::ublas::prod(m, v);
+    
+    std::cout << r << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

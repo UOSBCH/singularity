@@ -41,7 +41,7 @@ namespace singularity {
         graph_num_clusters
     };
 
-    typedef boost::property< edge_similarity_t, double, 
+    typedef boost::property< edge_similarity_t, double_type, 
             boost::property< boost::edge_index_t, unsigned int,
             boost::property< edge_similarity_is_high_t, bool > > >
     EdgeProperties;
@@ -77,11 +77,11 @@ namespace singularity {
     class scan
     {
     public:
-        scan(double parameter_e, uint parameter_m);
+        scan(double_type parameter_e, uint parameter_m);
         void process(Graph &g);
         void print_graph(Graph& g);
     private:
-        double parameter_e;
+        double_type parameter_e;
         uint parameter_m;
         void calculate_neighbours(Graph &g);
         void calculate_neighbours_partial(Graph &g, range_t r);

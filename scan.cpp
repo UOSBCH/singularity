@@ -6,7 +6,7 @@ using namespace boost;
 using namespace boost::numeric::ublas;
 using namespace singularity;
 
-scan::scan(double parameter_e, uint parameter_m) {
+scan::scan(double_type parameter_e, uint parameter_m) {
     this->parameter_e = parameter_e;
     this->parameter_m = parameter_m;
 }
@@ -77,7 +77,7 @@ void scan::calculate_similarity_partial(Graph& g, range_t r)
 
 void scan::calculate_similarity(Graph &g, Graph::edge_descriptor link)
 {
-    double parameter_e_sq = parameter_e * parameter_e;
+    double_type parameter_e_sq = parameter_e * parameter_e;
     
     Graph::vertex_descriptor v1 = source(link, g), v2 = target(link, g);
     
@@ -101,7 +101,7 @@ void scan::calculate_similarity(Graph &g, Graph::edge_descriptor link)
         }
     }
     
-    double similarity = (double) (v_12_N * v_12_N) / (v_1_N * v_2_N);
+    double_type similarity = (double_type(v_12_N * v_12_N)) / (double_type(v_1_N * v_2_N));
 
     put(edge_similarity, g, link, similarity);
     put(edge_similarity_is_high, g, link, similarity >= parameter_e_sq);

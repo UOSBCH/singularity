@@ -6,27 +6,29 @@ using namespace boost::numeric::ublas;
 using namespace singularity;
 
 std::shared_ptr<vector_t> ncd_aware_rank::process(
-        const matrix_t& outlink_matrix
+        const matrix_t& outlink_matrix,
+        const vector_t& initial_vector,
+        const additional_matrices_vector& additional_matrices
 ) {
-    sparce_vector_t v = matrix_tools::calculate_correction_vector(outlink_matrix);
+//     sparce_vector_t v = matrix_tools::calculate_correction_vector(outlink_matrix);
     Graph g = create_graph(outlink_matrix);
     scan scan(parameters.clustering_e, parameters.clustering_m);
     scan.process(g);
     std::shared_ptr<matrix_t> ms = create_interlevel_matrix_s(g);
     std::shared_ptr<matrix_t> ml = create_interlevel_matrix_l(g, outlink_matrix);
     
-    return calculate_ncd_aware_rank(outlink_matrix, v, *ms, *ml);
+    return calculate_rank(outlink_matrix, additional_matrices, *ms, *ml, initial_vector);
 }
 
 std::shared_ptr<vector_t> ncd_aware_rank::iterate(
         const matrix_t& outlink_matrix, 
-        const sparce_vector_t& outlink_vector, 
+        const additional_matrices_vector& additional_matrices,
         const matrix_t& interlevel_matrix_s, 
         const matrix_t& interlevel_matrix_l, 
         const vector_t& previous,
         const vector_t& teleportation
 ) {
-    unsigned int num_accounts = outlink_matrix.size2();
+//     unsigned int num_accounts = outlink_matrix.size2();
     vector_t tmp(interlevel_matrix_l.size1(), 0); 
     matrix_tools::prod(tmp, interlevel_matrix_l, previous, parameters.num_threads);
     
@@ -37,34 +39,39 @@ std::shared_ptr<vector_t> ncd_aware_rank::iterate(
     matrix_tools::prod(tmp2, interlevel_matrix_s, tmp, parameters.num_threads);
     
     *next += tmp2;
+
+    for (auto additional_matrix: additional_matrices) {
+        *next += prod(*additional_matrix, previous) * parameters.outlink_weight;
+    }
     
-    vector_t correction_vector(num_accounts, inner_prod(outlink_vector, previous));
+//     vector_t correction_vector(num_accounts, inner_prod(outlink_vector, previous));
     
-    *next += correction_vector;
+//     *next += correction_vector;
     *next += teleportation;
     
     return next;
 }
 
-std::shared_ptr<vector_t> ncd_aware_rank::calculate_ncd_aware_rank(
+std::shared_ptr<vector_t> ncd_aware_rank::calculate_rank(
         const matrix_t& outlink_matrix, 
-        const sparce_vector_t& outlink_vector, 
+        const additional_matrices_vector& additional_matrices,
         const matrix_t& interlevel_matrix_s, 
-        const matrix_t& interlevel_matrix_l
+        const matrix_t& interlevel_matrix_l,
+        const vector_t& initial_vector
 ) {
-    unsigned int num_accounts = outlink_matrix.size2();
-    double initialValue = 1.0/num_accounts;
+//     unsigned int num_accounts = outlink_matrix.size2();
+//     double_type initialValue = 1.0/num_accounts;
     std::shared_ptr<vector_t> next;
-    std::shared_ptr<vector_t> previous(new vector_t(num_accounts, initialValue));
+    std::shared_ptr<vector_t> previous = std::make_shared<vector_t>(initial_vector);
     vector_t teleportation = (*previous) * (1.0 - parameters.outlink_weight - parameters.interlevel_weight) ;
     
     matrix_t outlink_matrix_weighted = outlink_matrix * parameters.outlink_weight;
     matrix_t interlevel_matrix_s_weighted = interlevel_matrix_s * parameters.interlevel_weight;
-    sparce_vector_t outlink_vector_weighted = outlink_vector * parameters.outlink_weight;
+//     sparce_vector_t outlink_vector_weighted = outlink_vector * parameters.outlink_weight;
     
     for (uint i = 0; i < MAX_ITERATIONS; i++) {
-        next  = iterate(outlink_matrix_weighted, outlink_vector_weighted, interlevel_matrix_s_weighted, interlevel_matrix_l, *previous, teleportation);
-        double norm = norm_1(*next - *previous);
+        next  = iterate(outlink_matrix_weighted, additional_matrices, interlevel_matrix_s_weighted, interlevel_matrix_l, *previous, teleportation);
+        double_type norm = norm_1(*next - *previous);
         if (norm <= precision) {
             return next;
         } else {

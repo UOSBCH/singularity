@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( test1 )
     
     ap.add_block(transactions);
     
-    double activity = ap.get_activity();
+    double_type activity = ap.get_activity();
 
     BOOST_CHECK_CLOSE(activity, 3, 1e-3);
     
@@ -65,9 +65,9 @@ BOOST_AUTO_TEST_CASE( test1 )
     emission_state_t state;
     
     emission_calculator ec(params, state);
-    uint64_t total_emission = 0;
+    money_t total_emission = 0;
     
-    uint64_t emission = ec.calculate(total_emission, ap);
+    money_t emission = ec.calculate(total_emission, ap);
     
     total_emission += emission;
     
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( test2 )
     
     ap.add_block(transactions);
     
-    double activity = ap.get_activity();
+    double_type activity = ap.get_activity();
 
     BOOST_CHECK_CLOSE(activity, 3, 1e-3);
     
@@ -122,9 +122,9 @@ BOOST_AUTO_TEST_CASE( test2 )
     emission_state_t state;
     
     emission_calculator ec(params, state);
-    uint64_t total_emission = 0;
+    money_t total_emission = 0;
     
-    uint64_t emission = ec.calculate(total_emission, ap);
+    money_t emission = ec.calculate(total_emission, ap);
     
     total_emission += emission;
     

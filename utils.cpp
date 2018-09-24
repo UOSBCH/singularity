@@ -7,13 +7,13 @@ using namespace singularity;
 
 void matrix_tools::normalize_columns(matrix_t &m)
 {
-    mapped_vector<double> a (m.size2());
+    mapped_vector<double_type> a (m.size2());
     
     for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
     {
         for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
         {
-            if (*j != 0) {
+            if (*j != double_type (0) ) {
                 a[j.index2()] += *j;
             }
         }
@@ -22,7 +22,7 @@ void matrix_tools::normalize_columns(matrix_t &m)
     {
         for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
         {
-            double norm = a[j.index2()];
+            double_type norm = a[j.index2()];
             if (norm != 0) {
                 *j /= norm;
             }
@@ -34,7 +34,7 @@ void matrix_tools::normalize_rows(matrix_t &m)
 {
     for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
     {
-        double norm = 0;
+        double_type norm = 0;
         for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
         {
             norm += *j;
@@ -52,7 +52,7 @@ sparce_vector_t matrix_tools::calculate_correction_vector(const matrix_t& o) {
     
     sparce_vector_t v(o.size2()), a(o.size2());
     
-    double correction_value = 1.0/o.size2();
+    double_type correction_value = 1.0/o.size2();
     
     for (matrix_t::const_iterator1 j = o.begin1(); j != o.end1(); j++)
     {
@@ -115,7 +115,7 @@ void matrix_tools::partial_prod( vector_t& out, const matrix_t& m, const vector_
 {
     for (matrix_t::const_iterator1 i = m.begin1(); i != m.end1(); i++) {
         if (i.index1() >= range.start() && i.index1() < range.start() + range.size()) {
-            double x = 0;
+            double_type x = 0;
             for (matrix_t::const_iterator2 j = i.begin(); j != i.end(); j++) {
                 x += (*j) * v(j.index2());
             }
