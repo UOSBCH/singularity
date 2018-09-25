@@ -6,7 +6,7 @@
 
 namespace singularity {
     
-    enum node_type {ACCOUNT, CONTENT, COMPANY};
+    enum node_type {ACCOUNT, CONTENT, ORGANIZATION};
 
     template <class T>
         using node_type_map = std::map<node_type, std::shared_ptr<T> >;
@@ -222,7 +222,7 @@ namespace singularity {
             return node_type::ACCOUNT;
         };
         virtual node_type get_target_type(){
-            return node_type::COMPANY;
+            return node_type::ORGANIZATION;
         };
     };
     
