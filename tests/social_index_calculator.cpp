@@ -17,9 +17,9 @@ std::vector<std::shared_ptr<relation_t> > get_relations(parameters_t params)
 {
     std::vector<std::shared_ptr<relation_t> > relations;
 
-    relations.push_back( std::make_shared<like_t>("account-0", "post-1", 0));
-    relations.push_back( std::make_shared<like_t>("account-1", "post-0", 0));
-    relations.push_back( std::make_shared<like_t>("account-0", "post-2", 0));
+    relations.push_back( std::make_shared<upvote_t>("account-0", "post-1", 0));
+    relations.push_back( std::make_shared<upvote_t>("account-1", "post-0", 0));
+    relations.push_back( std::make_shared<upvote_t>("account-0", "post-2", 0));
     relations.push_back( std::make_shared<follow_t>("account-2", "account-1", 0));
     relations.push_back( std::make_shared<trust_t>("account-1", "account-2", 0));
     relations.push_back( std::make_shared<ownwership_t>("account-0", "post-0", 0));
@@ -33,9 +33,9 @@ std::vector<std::shared_ptr<relation_t> > get_relations_2(parameters_t params)
 {
     std::vector<std::shared_ptr<relation_t> > relations;
 
-    relations.push_back( std::make_shared<like_t>("account-0", "post-1", 0));
-    relations.push_back( std::make_shared<like_t>("account-1", "post-0", 0));
-    relations.push_back( std::make_shared<dislike_t>("account-0", "post-2", 0));
+    relations.push_back( std::make_shared<upvote_t>("account-0", "post-1", 0));
+    relations.push_back( std::make_shared<upvote_t>("account-1", "post-0", 0));
+    relations.push_back( std::make_shared<downvote_t>("account-0", "post-2", 0));
     relations.push_back( std::make_shared<follow_t>("account-2", "account-1", 0));
     relations.push_back( std::make_shared<trust_t>("account-1", "account-2", 0));
     relations.push_back( std::make_shared<ownwership_t>("account-0", "post-0", 0));

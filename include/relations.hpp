@@ -15,8 +15,6 @@ namespace singularity {
     private:
         std::string source;
         std::string target;
-        node_type source_type;
-        node_type target_type;
         uint64_t height;
     public:
         relation_t(std::string source, std::string target, uint64_t height):
@@ -44,10 +42,51 @@ namespace singularity {
         virtual node_type get_target_type() = 0;
     };
     
-    class like_t: public relation_t 
+    class custom_relation_t: public relation_t
+    {
+    private:
+        node_type source_type;
+        node_type target_type;
+        int64_t weight;
+        int64_t reverse_weight;
+        bool decayable;
+    public:
+        custom_relation_t(
+            std::string source, 
+            std::string target, 
+            node_type source_type, 
+            node_type target_type, 
+            uint64_t height, 
+            int64_t weight,
+            int64_t reverse_weight,
+            bool decayable
+        ): relation_t(source, target, height), source_type(source_type), target_type(target_type), weight(weight), reverse_weight(reverse_weight), decayable(decayable) 
+        {};
+        virtual int64_t get_weight() {
+            return weight;
+        };
+        virtual int64_t get_reverse_weight() {
+            return reverse_weight;
+        };
+        virtual std::string get_name() {
+            return "CUSTOM";
+        }
+        virtual bool is_decayable() {
+            return decayable;
+        };
+        virtual node_type get_source_type() {
+            return source_type;
+        };
+        virtual node_type get_target_type() {
+            return target_type;
+        };
+        
+    };
+    
+    class upvote_t: public relation_t 
     {
     public:
-        like_t (std::string source, std::string target, uint64_t height):
+        upvote_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {};
         virtual int64_t get_weight() {
@@ -70,10 +109,10 @@ namespace singularity {
         };
     };
     
-    class dislike_t: public relation_t 
+    class downvote_t: public relation_t 
     {
     public:
-        dislike_t (std::string source, std::string target, uint64_t height):
+        downvote_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {};
         virtual int64_t get_weight() {
