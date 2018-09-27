@@ -2,7 +2,7 @@ project( singularity )
 
 cmake_minimum_required( VERSION 2.8 )
 
-find_package( Boost 1.58 EXACT REQUIRED)
+find_package( Boost 1.58 REQUIRED)
 
 file(GLOB HEADERS "include/*.hpp")
 
