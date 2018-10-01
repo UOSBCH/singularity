@@ -4,6 +4,10 @@ cmake_minimum_required( VERSION 2.8 )
 
 find_package( Boost 1.58 REQUIRED)
 
+if(Boost_FOUND)
+   include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 file(GLOB HEADERS "include/*.hpp")
 
 set(SOURCES ncd_aware_rank.cpp
