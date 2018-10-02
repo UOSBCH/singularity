@@ -41,3 +41,25 @@ add_subdirectory( tests )
 target_link_libraries( singularity boost_serialization pthread )
 
 enable_testing ()
+
+execute_process(
+  COMMAND git rev-parse --abbrev-ref HEAD
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_BRANCH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+execute_process(
+  COMMAND git log -1 --format=%h
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_COMMIT_HASH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+include_directories(${CMAKE_BINARY_DIR}/generated)
+
+configure_file(
+  ${CMAKE_SOURCE_DIR}/include/version.hpp.in
+  ${CMAKE_BINARY_DIR}/generated/version.hpp
+)
+
