@@ -57,8 +57,8 @@ execute_process(
 )
 
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/version.hpp.in
-  ${CMAKE_CURRENT_SOURCE_DIR}/generated/version.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/git_version.hpp.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/generated/git_version.hpp
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/generated)
