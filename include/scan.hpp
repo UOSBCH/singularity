@@ -79,7 +79,7 @@ namespace singularity {
     public:
         scan(double_type parameter_e, uint parameter_m);
         void process(Graph &g);
-        void print_graph(Graph& g);
+        void print_graph(std::ostream& output, Graph& g);
     private:
         double_type parameter_e;
         uint parameter_m;

@@ -220,57 +220,40 @@ unsigned int id_generator::get_next_id() {
     return current_id ++;
 }
 
-void scan::print_graph(Graph& g) {
-    
-//    
-//    dynamic_properties dp;
-//    
-//    
-//    Graph::vertex_iterator current, end;
-//    
-//    tie (current, end) = vertices(g);
-//    for (; current != end; current++) {
-//        unsigned int index = get(vertex_index, g, *current);
-//        unsigned int cluster_id = get(vertex_cluster_id, g, *current);
-//        node_status_t status = get(vertex_status, g, *current);
-//        std::string name; 
-//        switch (status) {
-//            case node_status_member:
-//                name = std::string("member");
-//                break;
-//            case node_status_hub:
-//                name = std::string("hub");
-//                break;
-//            case node_status_outlier:
-//                name = std::string("outlier");
-//                break;
-//            default:
-//                name = std::string("?");
-//        }
-//        
-//        std::string format = std::string("%d (%d) %s");
-//        put(vertex_name, g, *current, name);
-//    } 
-//    
-//    dp.property("similarity", boost::get(edge_similarity, g));
-//    dp.property("neighbours", boost::get(vertex_neighbour_count, g));
-//    dp.property("node_id", boost::get(vertex_index, g));
-//    dp.property("is_core", boost::get(vertex_is_core, g));
-//    dp.property("cluster_id", boost::get(vertex_cluster_id, g));
-//    dp.property("status", boost::get(vertex_name, g));
-//    
-//    write_graphviz_dp(std::cout, g, dp);
-    
-    property_map<Graph, vertex_cluster_id_t>::type vertex_cluster_id_map = get(vertex_cluster_id, g);
-    property_map<Graph, vertex_index_t>::type vertex_id_map = get(vertex_index, g);
-    property_map<Graph, edge_similarity_t>::type edge_similarity_map = get(edge_similarity, g);
+void scan::print_graph(std::ostream& output, Graph& g) {
     
     dynamic_properties dp;
     
-    dp.property("cluster_id", vertex_cluster_id_map);
-    dp.property("id", vertex_id_map);
-    dp.property("similarity", edge_similarity_map);
+    Graph::vertex_iterator current, end;
     
-    write_graphviz_dp(std::cout, g, dp, "id");
+    tie (current, end) = boost::vertices(g);
+    for (; current != end; current++) {
+        node_status_t status = boost::get(vertex_status, g, *current);
+        std::string name; 
+        switch (status) {
+            case node_status_member:
+                name = std::string("member");
+                break;
+            case node_status_hub:
+                name = std::string("hub");
+                break;
+            case node_status_outlier:
+                name = std::string("outlier");
+                break;
+            default:
+                name = std::string("?");
+        }
+        
+        put(vertex_name, g, *current, name);
+    } 
+    
+    dp.property("cluster_id", get(vertex_cluster_id, g));
+    dp.property("id", get(vertex_index, g));
+    dp.property("similarity", get(edge_similarity, g));
+    dp.property("neighbours_count", get(vertex_neighbour_count, g));
+    dp.property("is_core", get(vertex_is_core, g));
+    dp.property("similarity_is_high", get(edge_similarity_is_high, g));
+    dp.property("status", get(vertex_name, g));
+    
+    write_graphviz_dp(output, g, dp, "id");
 }
-

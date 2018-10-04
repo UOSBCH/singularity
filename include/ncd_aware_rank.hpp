@@ -16,6 +16,7 @@ namespace singularity {
             const vector_t& initial_vector,
             const additional_matrices_vector& additional_matrices
         );
+        virtual Graph create_graph(const matrix_t& m);
     private:
         parameters_t parameters;
         double_type const precision = 0.01;
@@ -39,7 +40,6 @@ namespace singularity {
             const vector_t& previous,
             const vector_t& teleportation
         );
-        virtual Graph create_graph(const matrix_t& m);
     };
 }
 
