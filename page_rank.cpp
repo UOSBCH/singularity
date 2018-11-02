@@ -50,7 +50,7 @@ std::shared_ptr<vector_t> page_rank::calculate_rank(
 //     double_type initialValue = 1.0/num_accounts;
     std::shared_ptr<vector_t> next;
     std::shared_ptr<vector_t> previous(new vector_t(initial_vector));
-    vector_t teleportation(num_accounts, TELEPORTATION_WEIGHT * norm_1(initial_vector) / num_accounts);
+    vector_t teleportation(initial_vector*TELEPORTATION_WEIGHT);
     
     matrix_t outlink_matrix_weighted = outlink_matrix * (double_type(1) - TELEPORTATION_WEIGHT);
 //     sparce_vector_t outlink_vector_weighted = outlink_vector * (double_type(1) - TELEPORTATION_WEIGHT);
