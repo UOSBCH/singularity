@@ -2,10 +2,24 @@ project( singularity )
 
 cmake_minimum_required( VERSION 2.8 )
 
-find_package( Boost 1.58 REQUIRED)
+if ( Boost_INCLUDE_DIR )
+MESSAGE("BOOST ROOT SET")
+set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
+set(BOOST_COMPONENTS)
+list(APPEND BOOST_COMPONENTS thread
+                             date_time
+                             filesystem
+                             system
+                             chrono
+                             program_options
+                             unit_test_framework
+                             locale
+			     serialization)
 
-if(Boost_FOUND)
-   include_directories(${Boost_INCLUDE_DIRS})
+find_package(Boost 1.67 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+set( Boost_USE_STATIC_LIBS ON CACHE STRING "ON or OFF" )
+else()
+find_package( Boost 1.58 REQUIRED )
 endif()
 
 file(GLOB HEADERS "include/*.hpp")
@@ -31,15 +45,21 @@ install( TARGETS
    ARCHIVE DESTINATION lib
 )
 
+if ( Boost_INCLUDE_DIR )
+target_include_directories( singularity PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" ${Boost_INCLUDE_DIR} )
+else()
 target_include_directories( singularity PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+endif()
 
 install( FILES ${HEADERS} DESTINATION "include" )
 
 add_subdirectory( tests )
 # add_subdirectory( benchmarks )
-
+if ( Boost_INCLUDE_DIR )
+target_link_libraries( singularity pthread ${Boost_LIBRARIES} )
+else()
 target_link_libraries( singularity boost_serialization pthread )
-
+endif()
 enable_testing ()
 
 execute_process(
