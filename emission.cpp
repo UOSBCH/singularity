@@ -183,3 +183,32 @@ unsigned int singularity::activity_period::get_handled_block_count()
 {
     return handled_blocks_count;
 }
+
+double_type emission_calculator_new::get_emission_limit(double_type current_total_supply, double_type yearly_emission_percent, double_type emission_period_seconds)
+{
+    double_type emission_event_count_per_year = double_type(31536000) / emission_period_seconds;
+    
+    return current_total_supply * boost::multiprecision::pow((1 + yearly_emission_percent / 100), 1.0 / emission_event_count_per_year) - 1;
+}
+
+double_type emission_calculator_new::get_target_emission(double_type current_activity, double_type max_activity, double_type activity_monetary_value)
+{
+    if (current_activity > max_activity) {
+        return activity_monetary_value * (current_activity - max_activity);
+    } else {
+        return 0;
+    }
+}
+
+double_type emission_calculator_new::get_resulting_emission(double_type target_emission, double_type emission_limit, double_type delay_koefficient, double_type current_total_supply)
+{
+    if (target_emission > 0) {
+        double_type argument = target_emission / current_total_supply;
+        return emission_limit * tanh(delay_koefficient * argument / emission_limit);
+    } else {
+        return 0;
+    }
+    
+}
+
+
