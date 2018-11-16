@@ -89,7 +89,7 @@ namespace singularity {
         
         double_type get_target_emission(double_type current_activity, double_type max_activity, double_type activity_monetary_value);
         
-        double_type get_resulting_emission(double_type target_emission, double_type emission_limit, double_type delay_koefficient, double_type current_total_supply);
+        double_type get_resulting_emission(double_type target_emission, double_type emission_limit, double_type delay_koefficient);
     };
     
 }

@@ -200,11 +200,10 @@ double_type emission_calculator_new::get_target_emission(double_type current_act
     }
 }
 
-double_type emission_calculator_new::get_resulting_emission(double_type target_emission, double_type emission_limit, double_type delay_koefficient, double_type current_total_supply)
+double_type emission_calculator_new::get_resulting_emission(double_type target_emission, double_type emission_limit, double_type delay_koefficient)
 {
     if (target_emission > 0) {
-        double_type argument = target_emission / current_total_supply;
-        return emission_limit * tanh(delay_koefficient * argument / emission_limit);
+        return emission_limit * tanh(delay_koefficient * target_emission / emission_limit);
     } else {
         return 0;
     }
