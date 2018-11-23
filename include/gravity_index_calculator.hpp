@@ -17,7 +17,9 @@ namespace singularity {
         {};
         double_type calculate_index(money_t balance, double_type activity_index, double_type social_index);
         money_t calculate_votes(money_t balance, double_type activity_index, double_type social_index);
-        account_activity_index_map_t scale_activity_index(const account_activity_index_map_t& index_map); 
+        static account_activity_index_map_t scale_activity_index_to_node_count(const account_activity_index_map_t& index_map); 
+        static account_activity_index_map_t scale_activity_index_to_1(const account_activity_index_map_t& index_map); 
+        static account_activity_index_map_t scale_activity_index(const account_activity_index_map_t& index_map, double_type new_norm);
         
     private: 
         double_type activity_weight;

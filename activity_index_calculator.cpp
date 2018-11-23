@@ -116,9 +116,11 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
 
     additional_matrices_vector additional_matrices;
     
-    calculate_outlink_matrix(outlink_matrix, *p_weight_matrix, additional_matrices);
+    vector_t initial_vector = create_initial_vector();
     
-    std::shared_ptr<vector_t> rank = p_rank_calculator->process(outlink_matrix, create_initial_vector(), additional_matrices);
+    calculate_outlink_matrix(outlink_matrix, *p_weight_matrix, additional_matrices, initial_vector);
+    
+    std::shared_ptr<vector_t> rank = p_rank_calculator->process(outlink_matrix, initial_vector, additional_matrices);
     
     return calculate_score(*rank);
 }
@@ -126,7 +128,8 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
 void activity_index_calculator::calculate_outlink_matrix(
     matrix_t& o,
     matrix_t& weight_matrix,
-    additional_matrices_vector& additional_matrices
+    additional_matrices_vector& additional_matrices,
+    const vector_t& initial_vector
 )
 {
     matrix_t::size_type size = o.size1();
@@ -167,7 +170,7 @@ void activity_index_calculator::calculate_outlink_matrix(
         }
     }
     
-    normalize_columns(o, additional_matrices);
+    normalize_columns(o, additional_matrices, initial_vector);
 //     matrix_tools::normalize_columns(o);
 }
 
@@ -248,7 +251,7 @@ void singularity::activity_index_calculator::set_parameters(singularity::paramet
     parameters = params;
 }
 
-void activity_index_calculator::normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices)
+void activity_index_calculator::normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices, const vector_t& initial_vector)
 {
     auto node_type_count = node_maps.size();
     std::vector<node_type> reverse_map(nodes_count);
@@ -257,6 +260,9 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
     node_type_map<sparce_vector_t> scale_vectors;
     node_type_map<sparce_vector_t> sum_vectors;
     node_type_map<sparce_vector_t> min_vectors;
+    
+    std::map<node_type, double_type> partial_norms;
+    double_type norm(0);
     
     
     for (auto node_map_it: node_maps) {
@@ -268,12 +274,24 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
         scale_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
         sum_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
         min_vectors[current_node_type] = std::make_shared<sparce_vector_t>(m.size2());
+        
+        partial_norms[current_node_type] = 0;
+        
         for (auto node_it: *node_map) {
             reverse_map[node_it.second] = current_node_type;
             sparce_vector_t& mask_vector = *mask_vectors[current_node_type];
             mask_vector(node_it.second) = 1;
+            partial_norms[current_node_type] += initial_vector[node_it.second];
+            norm += initial_vector[node_it.second];
+            
         }
+//         std::cout << "NP=" << partial_norms[current_node_type] << std::endl;
     }
+//     std::cout << "N=" << norm << std::endl;
+
+//     for(auto node_it: *(node_maps[node_type::CONTENT])) {
+//         m(node_it.second, node_it.second) = 1;
+//     }
     
     for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
     {
@@ -311,7 +329,7 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
             } else if (sum_vector(i) == 0) {
                 c = double_type (1);
             }
-            scale_vector(i) = double_type (1) / ( double_type(node_type_count) * (double_type(sum_vector(i)) + node_map->size() * c) );
+            scale_vector(i) = partial_norms[current_node_type] / ( norm * (double_type(sum_vector(i)) + node_map->size() * c) );
             outlink_vector(i) = c * double_type(scale_vector(i));
         }
     }
@@ -338,18 +356,88 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
 
 vector_t activity_index_calculator::create_initial_vector()
 {
-    std::lock_guard<std::mutex> lock(accounts_lock);
-
+    std::lock_guard<std::mutex> ac_lock(accounts_lock);
+    std::lock_guard<std::mutex> wm_lock(weight_matrix_lock);
+    
     vector_t result(nodes_count, 0);
     
     for (auto node_map_it: node_maps) {
-        std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
-        auto node_count = node_map->size();
-        double_type init_value = double_type(1) / double_type(node_count);
-        for (auto node_it: *node_map) {
-            result[node_it.second] = init_value;
-        }
+        
+        if (node_map_it.first == node_type::CONTENT) {
+
+            std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
+            auto account_node_map = node_maps[node_type::ACCOUNT];
+            vector<uint8_t> content_mask_vector(nodes_count, 0);
+            vector<uint8_t> account_mask_vector(nodes_count, 0);
+            for (auto node_it: *node_map) {
+                content_mask_vector[node_it.second] = 1;
+            }
+            for (auto node_it: *account_node_map) {
+                account_mask_vector[node_it.second] = 1;
+            }
+            matrix_t::size_type size = nodes_count;
+            
+//             std::cout << content_mask_vector << std::endl;
+//             std::cout << account_mask_vector << std::endl;
+
+            for (matrix_t::iterator1 i = p_weight_matrix->begin1(); i != p_weight_matrix->end1(); i++)
+            {
+//                 std::cout << i.index1() << std::endl;
+                
+                if (i.index1() >= size) {
+                    break;
+                }
+                
+                if(account_mask_vector[i.index1()] == 0) {
+                    continue;
+                }
+                
+                uint64_t posts_per_account = 0;
+                
+                for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
+                {
+                    if (j.index2() >= size) {
+                        break;
+                    }
+                    if(content_mask_vector[j.index2()] == 0) {
+                        continue;
+                    }
+                    
+                    posts_per_account ++;
+                }
+                
+                if (posts_per_account > 0) {
+                    
+                    double_type post_initial_rating = double_type(1) / (double_type(account_node_map->size()) * double_type(posts_per_account));
+                    
+//                     std::cout << i.index1() << "; " << post_initial_rating << "; " << posts_per_account << std::endl;
+                    
+                    for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
+                    {
+                        if (j.index2() >= size) {
+                            break;
+                        }
+                        if(content_mask_vector[j.index2()] == 0) {
+                            continue;
+                        }
+                        
+                        result[j.index2()] = post_initial_rating;
+                    }
+                }
+            }
+            
+        } else {
+            std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
+            auto node_count = node_map->size();
+            double_type init_value = double_type(1) / double_type(node_count);
+            for (auto node_it: *node_map) {
+                result[node_it.second] = init_value;
+            }
+         }
+        
     }
+
+//     std::cout << result << std::endl;
     
     return result;
 }
