@@ -289,9 +289,9 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
     }
 //     std::cout << "N=" << norm << std::endl;
 
-//     for(auto node_it: *(node_maps[node_type::CONTENT])) {
-//         m(node_it.second, node_it.second) = 1;
-//     }
+    for(auto node_it: *(node_maps[node_type::CONTENT])) {
+        m(node_it.second, node_it.second) = 1;
+    }
     
     for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
     {

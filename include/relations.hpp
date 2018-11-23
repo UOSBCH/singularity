@@ -196,10 +196,10 @@ namespace singularity {
         relation_t(source, target, height) 
         {};
         virtual int64_t get_weight() {
-            return 10;
+            return 1;
         };
         virtual int64_t get_reverse_weight() {
-            return 10;
+            return 1;
         };
         virtual std::string get_name() {
             return "OWNERSHIP";
