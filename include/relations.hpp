@@ -45,6 +45,7 @@ namespace singularity {
     class custom_relation_t: public relation_t
     {
     private:
+        std::string name;
         node_type source_type;
         node_type target_type;
         int64_t weight;
@@ -52,6 +53,7 @@ namespace singularity {
         bool decayable;
     public:
         custom_relation_t(
+            std::string name,
             std::string source, 
             std::string target, 
             node_type source_type, 
@@ -60,7 +62,7 @@ namespace singularity {
             int64_t weight,
             int64_t reverse_weight,
             bool decayable
-        ): relation_t(source, target, height), source_type(source_type), target_type(target_type), weight(weight), reverse_weight(reverse_weight), decayable(decayable) 
+        ): relation_t(source, target, height), name(name), source_type(source_type), target_type(target_type), weight(weight), reverse_weight(reverse_weight), decayable(decayable) 
         {};
         virtual int64_t get_weight() {
             return weight;
@@ -69,7 +71,7 @@ namespace singularity {
             return reverse_weight;
         };
         virtual std::string get_name() {
-            return "CUSTOM";
+            return name;
         }
         virtual bool is_decayable() {
             return decayable;
@@ -96,7 +98,7 @@ namespace singularity {
             return 0;
         };
         virtual std::string get_name() {
-            return "LIKE";
+            return "UPVOTE";
         };
         virtual bool is_decayable() {
             return true;
@@ -122,7 +124,7 @@ namespace singularity {
             return 0;
         };
         virtual std::string get_name() {
-            return "DISLIKE";
+            return "DOWNVOTE";
         };
         virtual bool is_decayable() {
             return true;
