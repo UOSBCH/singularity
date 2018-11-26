@@ -188,7 +188,7 @@ double_type emission_calculator_new::get_emission_limit(double_type current_tota
 {
     double_type emission_event_count_per_year = double_type(31536000) / emission_period_seconds;
     
-    return current_total_supply * boost::multiprecision::pow((1 + yearly_emission_percent / 100), 1.0 / emission_event_count_per_year) - 1;
+    return current_total_supply * (boost::multiprecision::pow((1 + yearly_emission_percent / 100), 1.0 / emission_event_count_per_year) - 1);
 }
 
 double_type emission_calculator_new::get_target_emission(double_type current_activity, double_type max_activity, double_type activity_monetary_value)
