@@ -253,7 +253,7 @@ void singularity::activity_index_calculator::set_parameters(singularity::paramet
 
 void activity_index_calculator::normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices, const vector_t& initial_vector)
 {
-    auto node_type_count = node_maps.size();
+//     auto node_type_count = node_maps.size();
     std::vector<node_type> reverse_map(nodes_count);
     node_type_map<sparce_vector_t> outlink_vectors; 
     node_type_map<sparce_vector_t> mask_vectors;
@@ -285,12 +285,15 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
             norm += initial_vector[node_it.second];
             
         }
-//         std::cout << "NP=" << partial_norms[current_node_type] << std::endl;
     }
-//     std::cout << "N=" << norm << std::endl;
 
     for(auto node_it: *(node_maps[node_type::CONTENT])) {
         m(node_it.second, node_it.second) = 1;
+    }
+    if (disable_negative_weights) {
+        for(auto node_it: *(node_maps[node_type::ACCOUNT])) {
+            m(node_it.second, node_it.second) = 1;
+        }
     }
     
     for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
@@ -316,6 +319,7 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
         std::shared_ptr<account_id_map_t> node_map = node_map_it.second;
         
         node_type current_node_type = node_map_it.first;
+        
         
         sparce_vector_t& scale_vector = *scale_vectors[current_node_type];
         sparce_vector_t& sum_vector = *sum_vectors[current_node_type];
@@ -377,13 +381,8 @@ vector_t activity_index_calculator::create_initial_vector()
             }
             matrix_t::size_type size = nodes_count;
             
-//             std::cout << content_mask_vector << std::endl;
-//             std::cout << account_mask_vector << std::endl;
-
             for (matrix_t::iterator1 i = p_weight_matrix->begin1(); i != p_weight_matrix->end1(); i++)
             {
-//                 std::cout << i.index1() << std::endl;
-                
                 if (i.index1() >= size) {
                     break;
                 }
@@ -410,8 +409,6 @@ vector_t activity_index_calculator::create_initial_vector()
                     
                     double_type post_initial_rating = double_type(1) / (double_type(account_node_map->size()) * double_type(posts_per_account));
                     
-//                     std::cout << i.index1() << "; " << post_initial_rating << "; " << posts_per_account << std::endl;
-                    
                     for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
                     {
                         if (j.index2() >= size) {
@@ -437,8 +434,6 @@ vector_t activity_index_calculator::create_initial_vector()
         
     }
 
-//     std::cout << result << std::endl;
-    
     return result;
 }
 
