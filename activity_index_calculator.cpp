@@ -285,16 +285,21 @@ void activity_index_calculator::normalize_columns(matrix_t &m, additional_matric
             norm += initial_vector[node_it.second];
             
         }
+        
     }
 
-    for(auto node_it: *(node_maps[node_type::CONTENT])) {
-        m(node_it.second, node_it.second) = 1;
-    }
-    if (disable_negative_weights) {
-        for(auto node_it: *(node_maps[node_type::ACCOUNT])) {
+    if (node_maps.find(node_type::CONTENT) != node_maps.end()) {
+        for(auto node_it: *(node_maps[node_type::CONTENT])) {
             m(node_it.second, node_it.second) = 1;
         }
     }
+//     if (node_maps.find(node_type::ACCOUNT) != node_maps.end()) {
+//         if (!disable_negative_weights) {
+//             for(auto node_it: *(node_maps[node_type::ACCOUNT])) {
+//                  m(node_it.second, node_it.second) = 1;
+//             }
+//         }
+//     }
     
     for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
     {
@@ -433,7 +438,7 @@ vector_t activity_index_calculator::create_initial_vector()
          }
         
     }
-
+    
     return result;
 }
 
