@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( new_emission_test )
     double_type emission_period = double_type(365*24*3600)/emission_event_count_per_year;
     double_type delay_koefficient = 0.5;
     
-    double_type current_activity, max_activity, emission_limit, target_emission, emission;
+    double_type current_activity, max_activity, emission_limit, target_emission, emission, total_emission;
     
     emission_calculator_new ec;
     
@@ -186,23 +186,23 @@ BOOST_AUTO_TEST_CASE( new_emission_test )
 
     emission_limit = ec.get_emission_limit(current_supply, year_emission_limit, emission_period);
     BOOST_CHECK_CLOSE(emission_limit, 797414.04289, 1e-3);
-    target_emission = ec.get_target_emission(current_activity, max_activity, emission_scale);
+    target_emission += ec.get_target_emission(current_activity, max_activity, emission_scale);
     BOOST_CHECK_CLOSE(target_emission, 300000, 1e-3);
     emission = ec.get_resulting_emission(target_emission, emission_limit, delay_koefficient);
     BOOST_CHECK_CLOSE(emission, 148255, 1e-3);
     
     current_supply += emission;
+    total_emission += emission;
     max_activity = current_activity;
     current_activity = 5;
 
     emission_limit = ec.get_emission_limit(current_supply, year_emission_limit, emission_period);
     BOOST_CHECK_CLOSE(emission_limit, 798596.2526, 1e-3);
-    target_emission = ec.get_target_emission(current_activity, max_activity, emission_scale);
-    BOOST_CHECK_CLOSE(target_emission, 200000, 1e-3);
-    emission = ec.get_resulting_emission(target_emission, emission_limit, delay_koefficient);
+    target_emission += ec.get_target_emission(current_activity, max_activity, emission_scale);
+    BOOST_CHECK_CLOSE(target_emission, 500000, 1e-3);
+    emission = ec.get_resulting_emission(target_emission - total_emission, emission_limit, delay_koefficient);
     
-    BOOST_CHECK_CLOSE(emission, 99480.5915, 1e-3);
-//    BOOST_CHECK_CLOSE(emission, 173083, 1e-3);
+    BOOST_CHECK_CLOSE(emission, 173083, 1e-3);
     
 }
 
