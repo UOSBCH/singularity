@@ -93,7 +93,7 @@ namespace singularity {
             return account_rate;
         };
         account_activity_index_map_t get_content_rate() {
-            return account_rate;
+            return content_rate;
         };
     private:
         account_activity_index_map_t account_rate;

@@ -30,7 +30,7 @@ void social_index_calculator::collect_accounts(
             source_map.insert(account_id_map_t::value_type(transaction->get_source(), counter++));
         }
         if (found_target == target_map.end()) {
-            uint64_t& counter = transaction->get_source_type() == node_type::ACCOUNT ? accounts_count : contents_count;
+            uint64_t& counter = transaction->get_target_type() == node_type::ACCOUNT ? accounts_count : contents_count;
             target_map.insert(account_id_map_t::value_type(transaction->get_target(), counter++));
         }
     }
@@ -123,11 +123,16 @@ rate_t social_index_calculator::calculate()
     
     matrix_t weight_matrix = prod(*p_hierarchy_matrix, *p_vote_matrix);
     
-    calculate_outlink_matrix(outlink_matrix, weight_matrix, additional_matrices, initial_vector);
-    
+    calculate_outlink_matrix(outlink_matrix, weight_matrix, additional_matrices);
+
     std::shared_ptr<vector_t> account_rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
     
-    auto content_rank = prod(*p_vote_matrix, *account_rank);
+    matrix_t content_outlink_matrix(contents_count, accounts_count);
+    additional_matrices_vector content_additional_matrices;
+
+    calculate_outlink_matrix(content_outlink_matrix, *p_vote_matrix, content_additional_matrices);
+    
+    auto content_rank = prod(content_outlink_matrix, *account_rank);
     
     return calculate_score(*account_rank, content_rank);
 }
@@ -135,8 +140,7 @@ rate_t social_index_calculator::calculate()
 void social_index_calculator::calculate_outlink_matrix(
     matrix_t& o,
     matrix_t& weight_matrix,
-    additional_matrices_vector& additional_matrices,
-    const vector_t& initial_vector
+    additional_matrices_vector& additional_matrices
 )
 {
     matrix_t::size_type size = o.size1();
@@ -177,7 +181,7 @@ void social_index_calculator::calculate_outlink_matrix(
         }
     }
     
-    normalize_columns(o, additional_matrices, initial_vector);
+    normalize_columns(o, additional_matrices);
 //     matrix_tools::normalize_columns(o);
 }
 
@@ -234,7 +238,7 @@ void singularity::social_index_calculator::set_parameters(singularity::parameter
     parameters = params;
 }
 
-void social_index_calculator::normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices, const vector_t& initial_vector)
+void social_index_calculator::normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices)
 {
     sparce_vector_t outlink_vector(m.size2());
     sparce_vector_t mask_vector(m.size2());
@@ -262,7 +266,7 @@ void social_index_calculator::normalize_columns(matrix_t &m, additional_matrices
         } else if (sum_vector(i) == 0) {
             c = double_type (1);
         }
-        scale_vector(i) = double_type(1) / ( (double_type(sum_vector(i)) + c) );
+        scale_vector(i) = double_type(1) / ( (double_type(sum_vector(i)) + sum_vector.size() * c) );
         outlink_vector(i) = c * double_type(scale_vector(i));
     }
     

@@ -68,13 +68,12 @@ namespace singularity {
         void calculate_outlink_matrix(
             matrix_t& o,
             matrix_t& weight_matrix,
-            additional_matrices_vector& additional_matrices,
-            const vector_t& initial_vector
+            additional_matrices_vector& additional_matrices
         );
         void update_weight_matrix(
             const std::vector<std::shared_ptr<relation_t> >& transactions
         );
-        void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices, const vector_t& initial_vector);
+        void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices);
         vector_t create_initial_vector();
     };
 }
