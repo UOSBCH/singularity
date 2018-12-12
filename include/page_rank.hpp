@@ -25,7 +25,8 @@ namespace singularity {
         virtual std::shared_ptr<vector_t> calculate_rank(
             const matrix_t& outlink_matrix, 
             const additional_matrices_vector& additional_matrices,
-            const vector_t& initial_vector
+            const vector_t& initial_vector,
+            const vector_t& weight_vector
         );
         virtual std::shared_ptr<vector_t> iterate(
             const matrix_t& outlink_matrix, 

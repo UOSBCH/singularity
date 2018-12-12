@@ -13,7 +13,7 @@ std::shared_ptr<vector_t> page_rank::process(
 ) {
 //     sparce_vector_t v = matrix_tools::calculate_correction_vector(outlink_matrix);
     
-    return calculate_rank(outlink_matrix, additional_matrices, initial_vector);
+    return calculate_rank(outlink_matrix, additional_matrices, initial_vector, weight_vector);
 }
 
 std::shared_ptr<vector_t> page_rank::iterate(
@@ -45,13 +45,14 @@ std::shared_ptr<vector_t> page_rank::iterate(
 std::shared_ptr<vector_t> page_rank::calculate_rank(
         const matrix_t& outlink_matrix, 
         const additional_matrices_vector& additional_matrices,
-        const vector_t& initial_vector
+        const vector_t& initial_vector,
+        const vector_t& weight_vector
 ) {
-    unsigned int num_accounts = outlink_matrix.size2();
+//     unsigned int num_accounts = outlink_matrix.size2();
 //     double_type initialValue = 1.0/num_accounts;
     std::shared_ptr<vector_t> next;
     std::shared_ptr<vector_t> previous(new vector_t(initial_vector));
-    vector_t teleportation(initial_vector*TELEPORTATION_WEIGHT);
+    vector_t teleportation(weight_vector*TELEPORTATION_WEIGHT);
     
     matrix_t outlink_matrix_weighted = outlink_matrix * (double_type(1) - TELEPORTATION_WEIGHT);
 //     sparce_vector_t outlink_vector_weighted = outlink_vector * (double_type(1) - TELEPORTATION_WEIGHT);
