@@ -25,6 +25,14 @@ namespace singularity {
     typedef boost::numeric::ublas::range range_t;
     typedef boost::numeric::ublas::mapped_matrix_resizable<uint8_t, boost::numeric::ublas::row_major> byte_matrix_t;
     typedef std::vector<std::shared_ptr<boost::numeric::ublas::vector_based_matrix<double_type> > > additional_matrices_vector;
+    
+    typedef std::map<std::string, uint32_t> account_id_map_t;
+    typedef std::map<std::string, double_type> account_activity_index_map_t;
+    
+    struct account_t {
+        money_t amount;
+        int height;
+    };
 
     struct parameters_t {
         uint64_t precision = 10000000;
@@ -76,6 +84,21 @@ namespace singularity {
         
     };
     
+    class rate_t
+    {
+    public:
+        rate_t(account_activity_index_map_t account_rate, account_activity_index_map_t content_rate)
+            :account_rate(account_rate),content_rate(content_rate) {};
+        account_activity_index_map_t get_account_rate() {
+            return account_rate;
+        };
+        account_activity_index_map_t get_content_rate() {
+            return account_rate;
+        };
+    private:
+        account_activity_index_map_t account_rate;
+        account_activity_index_map_t content_rate;
+    };
     
     class runtime_exception: public std::runtime_error
     {

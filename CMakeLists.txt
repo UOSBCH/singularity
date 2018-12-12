@@ -27,6 +27,7 @@ file(GLOB HEADERS "include/*.hpp")
 set(SOURCES ncd_aware_rank.cpp
             page_rank.cpp
             activity_index_calculator.cpp
+            social_index_calculator.cpp
             scan.cpp
             utils.cpp
             emission.cpp

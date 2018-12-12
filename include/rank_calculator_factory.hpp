@@ -3,6 +3,7 @@
 #define RANK_CALCULATOR_FACTORY_HPP
 
 #include "activity_index_calculator.hpp"
+#include "social_index_calculator.hpp"
 #include "ncd_aware_rank.hpp"
 #include "page_rank.hpp"
 
@@ -23,9 +24,9 @@ namespace singularity {
             
             return calculator;
         };
-        static std::shared_ptr<activity_index_calculator> create_calculator_for_social_network(parameters_t parameters)
+        static std::shared_ptr<social_index_calculator> create_calculator_for_social_network(parameters_t parameters)
         {
-            return std::make_shared<activity_index_calculator>(
+            return std::make_shared<social_index_calculator>(
                 parameters, 
                 false, 
                 std::make_shared<page_rank>(parameters)

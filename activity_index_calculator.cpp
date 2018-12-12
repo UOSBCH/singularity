@@ -120,7 +120,7 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
     
     calculate_outlink_matrix(outlink_matrix, *p_weight_matrix, additional_matrices, initial_vector);
     
-    std::shared_ptr<vector_t> rank = p_rank_calculator->process(outlink_matrix, initial_vector, additional_matrices);
+    std::shared_ptr<vector_t> rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
     
     return calculate_score(*rank);
 }
