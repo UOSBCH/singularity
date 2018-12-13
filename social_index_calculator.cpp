@@ -97,9 +97,9 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     
     vector_t initial_vector = create_initial_vector();
     
-    auto p_vote_matrix_new = *p_vote_matrix + prod(*p_repost_matrix, *p_vote_matrix);
+    matrix_t vote_matrix_new = *p_vote_matrix + prod(*p_repost_matrix, *p_vote_matrix);
     
-    matrix_t weight_matrix = prod(*p_ownership_matrix, p_vote_matrix_new);
+    matrix_t weight_matrix = prod(*p_ownership_matrix, vote_matrix_new);
     
     limit_values(weight_matrix);
     
@@ -110,7 +110,7 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     matrix_t content_outlink_matrix(contents_count, accounts_count);
     additional_matrices_vector content_additional_matrices;
 
-    calculate_outlink_matrix(content_outlink_matrix, *p_vote_matrix, content_additional_matrices);
+    calculate_outlink_matrix(content_outlink_matrix, vote_matrix_new, content_additional_matrices);
     
     auto content_rank = prod(content_outlink_matrix, *account_rank);
     
