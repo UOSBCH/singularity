@@ -48,31 +48,7 @@ void social_index_calculator::add_block(const std::vector<std::shared_ptr<relati
 //         *p_weight_matrix *= parameters.decay_koefficient;
 //     }
     
-    
-    
-    if (p_vote_matrix->size1() < contents_count || p_vote_matrix->size2() < accounts_count) {
-        matrix_t::size_type new_size_1 = p_vote_matrix->size1();
-        matrix_t::size_type new_size_2 = p_vote_matrix->size2();
-        while (new_size_1 < contents_count) {
-            new_size_1 *= 2;
-        }
-        while (new_size_2 < accounts_count) {
-            new_size_2 *= 2;
-        }
-        p_vote_matrix->resize(new_size_1, new_size_2);
-    }
-
-    if (p_hierarchy_matrix->size2() < contents_count || p_hierarchy_matrix->size1() < accounts_count) {
-        matrix_t::size_type new_size_1 = p_hierarchy_matrix->size1();
-        matrix_t::size_type new_size_2 = p_hierarchy_matrix->size2();
-        while (new_size_2 < contents_count) {
-            new_size_2 *= 2;
-        }
-        while (new_size_1 < accounts_count) {
-            new_size_1 *= 2;
-        }
-        p_hierarchy_matrix->resize(new_size_1, new_size_2);
-    }
+    adjust_matrix_sizes();
     
     update_weight_matrix(filtered_transactions);
 }
@@ -121,7 +97,9 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     
     vector_t initial_vector = create_initial_vector();
     
-    matrix_t weight_matrix = prod(*p_hierarchy_matrix, *p_vote_matrix);
+    auto p_vote_matrix_new = *p_vote_matrix + prod(*p_repost_matrix, *p_vote_matrix);
+    
+    matrix_t weight_matrix = prod(*p_ownership_matrix, p_vote_matrix_new);
     
     limit_values(weight_matrix);
     
@@ -197,12 +175,17 @@ void social_index_calculator::update_weight_matrix(const std::vector<std::shared
             decay_value = 1;
         }
         
-        if (auto ownership = dynamic_pointer_cast<ownwership_t>(t)) {
-            (*p_hierarchy_matrix)(account_map[ownership->get_source()], content_map[ownership->get_target()]) = 1;
+        if (t->get_name() == "OWNERSHIP") {
+            (*p_ownership_matrix)(account_map[t->get_source()], content_map[t->get_target()]) = 1;
         }
         
-        if (auto upvote = dynamic_pointer_cast<upvote_t>(t)) {
-            (*p_vote_matrix)(content_map[upvote->get_target()], account_map[upvote->get_source()]) = 1;
+        if (t->get_name() == "UPVOTE") {
+            (*p_vote_matrix)(content_map[t->get_target()], account_map[t->get_source()]) = 1;
+        }
+
+        if (t->get_name() == "REPOST") {
+            (*p_repost_matrix)(content_map[t->get_target()], content_map[t->get_source()]) = 1;
+            (*p_repost_matrix)(content_map[t->get_source()], content_map[t->get_source()]) = -1;
         }
     }
 }
@@ -314,4 +297,57 @@ void social_index_calculator::limit_values(matrix_t& m)
         }
     }
 }
+
+void social_index_calculator::adjust_matrix_sizes()
+{
+    if (p_vote_matrix->size1() < contents_count || p_vote_matrix->size2() < accounts_count) {
+        matrix_t::size_type new_size_1 = p_vote_matrix->size1();
+        matrix_t::size_type new_size_2 = p_vote_matrix->size2();
+        while (new_size_1 < contents_count) {
+            new_size_1 *= 2;
+        }
+        while (new_size_2 < accounts_count) {
+            new_size_2 *= 2;
+        }
+        p_vote_matrix->resize(new_size_1, new_size_2);
+    }
+
+    if (p_ownership_matrix->size2() < contents_count || p_ownership_matrix->size1() < accounts_count) {
+        matrix_t::size_type new_size_1 = p_ownership_matrix->size1();
+        matrix_t::size_type new_size_2 = p_ownership_matrix->size2();
+        while (new_size_2 < contents_count) {
+            new_size_2 *= 2;
+        }
+        while (new_size_1 < accounts_count) {
+            new_size_1 *= 2;
+        }
+        p_ownership_matrix->resize(new_size_1, new_size_2);
+    }
+
+    if (p_repost_matrix->size1() < contents_count || p_repost_matrix->size2() < contents_count) {
+        matrix_t::size_type new_size_1 = p_repost_matrix->size1();
+        matrix_t::size_type new_size_2 = p_repost_matrix->size2();
+        while (new_size_1 < contents_count) {
+            new_size_1 *= 2;
+        }
+        while (new_size_2 < contents_count) {
+            new_size_2 *= 2;
+        }
+        p_repost_matrix->resize(new_size_1, new_size_2);
+    }
+    
+    if (p_comment_matrix->size1() < contents_count || p_comment_matrix->size2() < contents_count) {
+        matrix_t::size_type new_size_1 = p_comment_matrix->size1();
+        matrix_t::size_type new_size_2 = p_comment_matrix->size2();
+        while (new_size_1 < contents_count) {
+            new_size_1 *= 2;
+        }
+        while (new_size_2 < contents_count) {
+            new_size_2 *= 2;
+        }
+        p_comment_matrix->resize(new_size_1, new_size_2);
+    }
+    
+}
+
 

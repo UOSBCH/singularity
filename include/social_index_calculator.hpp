@@ -14,14 +14,16 @@ namespace singularity {
     class social_index_calculator 
     {
     public:
-        const matrix_t::size_type initial_size = 10;
+        const matrix_t::size_type initial_size = 1000;
         social_index_calculator(
             parameters_t parameters, 
             bool disable_negative_weights,
             std::shared_ptr<rank_interface> p_rank_calculator
         ): parameters(parameters), disable_negative_weights(disable_negative_weights), p_rank_calculator(p_rank_calculator) {
-            p_hierarchy_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
+            p_ownership_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_vote_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
+            p_repost_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
+            p_comment_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_decay_manager = std::make_shared<decay_manager_t>(parameters.decay_period, parameters.decay_koefficient);
         }
         void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions);
@@ -42,13 +44,14 @@ namespace singularity {
         
         unsigned int total_handled_blocks_count = 0;
         unsigned int handled_blocks_count = 0;
-        std::shared_ptr<matrix_t> p_hierarchy_matrix;
+        std::shared_ptr<matrix_t> p_ownership_matrix;
         std::shared_ptr<matrix_t> p_vote_matrix;
-//         std::map<node_type, std::shared_ptr<account_id_map_t> > node_maps;
+        std::shared_ptr<matrix_t> p_repost_matrix;
+        std::shared_ptr<matrix_t> p_comment_matrix;
+
         account_id_map_t account_map;
         account_id_map_t content_map;
         
-//         singularity::vector_t stack_vector;
         std::map<std::string, double_type> stack_map;
         
         uint64_t accounts_count = 0;
@@ -81,6 +84,7 @@ namespace singularity {
         void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices);
         vector_t create_initial_vector();
         void limit_values(matrix_t& m);
+        void adjust_matrix_sizes();
     };
 }
 
