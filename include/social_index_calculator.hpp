@@ -34,6 +34,7 @@ namespace singularity {
         {
             p_filter = filter;
         };
+        void add_stack_vector(const std::map<std::string, double_type>& stacks);
     private:
         friend class boost::serialization::access;
         parameters_t parameters;
@@ -46,6 +47,10 @@ namespace singularity {
 //         std::map<node_type, std::shared_ptr<account_id_map_t> > node_maps;
         account_id_map_t account_map;
         account_id_map_t content_map;
+        
+//         singularity::vector_t stack_vector;
+        std::map<std::string, double_type> stack_map;
+        
         uint64_t accounts_count = 0;
         uint64_t contents_count = 0;
         std::mutex accounts_lock;
@@ -75,6 +80,7 @@ namespace singularity {
         );
         void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices);
         vector_t create_initial_vector();
+        void limit_values(matrix_t& m);
     };
 }
 

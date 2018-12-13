@@ -123,6 +123,8 @@ rate_t social_index_calculator::calculate()
     
     matrix_t weight_matrix = prod(*p_hierarchy_matrix, *p_vote_matrix);
     
+    limit_values(weight_matrix);
+    
     calculate_outlink_matrix(outlink_matrix, weight_matrix, additional_matrices);
 
     std::shared_ptr<vector_t> account_rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
@@ -290,5 +292,21 @@ vector_t social_index_calculator::create_initial_vector()
     return vector_t(accounts_count, double_type(1)/accounts_count);
 }
 
+void social_index_calculator::add_stack_vector(const std::map<std::string, double_type>& stacks)
+{
+    stack_map = stacks;
+}
 
+void social_index_calculator::limit_values(matrix_t& m)
+{
+    for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
+    {
+        for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
+        {
+            if (*j > 0) {
+                *j = 1;
+            }
+        }
+    }
+}
 
