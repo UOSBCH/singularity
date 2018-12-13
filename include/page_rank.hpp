@@ -9,8 +9,10 @@ namespace singularity {
     class page_rank: public rank_interface
     {
     public:
-        const double_type TELEPORTATION_WEIGHT = double_type(0.1);
-        page_rank(parameters_t parameters):parameters(parameters) {};
+        page_rank(double_type outlink_weight, uint16_t num_threads)
+            :outlink_weight(outlink_weight), 
+            num_threads(num_threads) 
+            {};
         const uint32_t MAX_ITERATIONS = 1000;
 
         virtual std::shared_ptr<vector_t> process(
@@ -20,7 +22,8 @@ namespace singularity {
             const additional_matrices_vector& additional_matrices
         );
     private:
-        parameters_t parameters;
+        double_type outlink_weight;
+        uint16_t num_threads;
         double_type const precision = 0.01;
         virtual std::shared_ptr<vector_t> calculate_rank(
             const matrix_t& outlink_matrix, 

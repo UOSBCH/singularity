@@ -68,6 +68,7 @@ BOOST_AUTO_TEST_SUITE( social_index_calculator_test)
 BOOST_AUTO_TEST_CASE( test1 )
 {
     parameters_t params;
+    params.outlink_weight = 0.9;
     
     auto calculator = rank_calculator_factory::create_calculator_for_social_network(params);
 
@@ -105,6 +106,7 @@ BOOST_AUTO_TEST_CASE( test1 )
 BOOST_AUTO_TEST_CASE( test2 )
 {
     parameters_t params;
+    params.outlink_weight = 0.9;
     
     auto calculator = rank_calculator_factory::create_calculator_for_social_network(params);
 
@@ -142,6 +144,7 @@ BOOST_AUTO_TEST_CASE( test2 )
 BOOST_AUTO_TEST_CASE( test3 )
 {
     parameters_t params;
+    params.outlink_weight = 0.9;
     
     auto calculator = rank_calculator_factory::create_calculator_for_social_network(params);
 
