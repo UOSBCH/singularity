@@ -59,8 +59,8 @@ BOOST_AUTO_TEST_CASE( test1 )
     calculator->add_block(relations);
     auto r = calculator->calculate();
     
-    auto p_account_index_map = std::make_shared<account_activity_index_map_t>(r.get_account_rate());
-    auto p_content_index_map = std::make_shared<account_activity_index_map_t>(r.get_content_rate());
+    auto p_account_index_map = r[node_type::ACCOUNT];
+    auto p_content_index_map = r[node_type::CONTENT];
     
     BOOST_CHECK_CLOSE((double) p_account_index_map->at("account-0"), 0.1826260, 1e-3);
     BOOST_CHECK_CLOSE((double) p_account_index_map->at("account-1"), 0.4055207, 1e-3);
@@ -96,8 +96,8 @@ BOOST_AUTO_TEST_CASE( test2 )
     calculator->add_block(relations);
     auto r = calculator->calculate();
     
-    auto p_account_index_map = std::make_shared<account_activity_index_map_t>(r.get_account_rate());
-    auto p_content_index_map = std::make_shared<account_activity_index_map_t>(r.get_content_rate());
+    auto p_account_index_map = r[node_type::ACCOUNT];
+    auto p_content_index_map = r[node_type::CONTENT];
     
     BOOST_CHECK_CLOSE((double) p_account_index_map->at("account-0"), 0.1834468, 1e-3);
     BOOST_CHECK_CLOSE((double) p_account_index_map->at("account-1"), 0.4080653, 1e-3);

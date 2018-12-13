@@ -26,7 +26,7 @@ namespace singularity {
         }
         void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions);
         void skip_blocks(unsigned int blocks_count);
-        rate_t calculate();
+        std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate();
         unsigned int get_total_handled_block_count();
         void set_parameters(parameters_t params);
         parameters_t get_parameters();
@@ -62,7 +62,7 @@ namespace singularity {
 
         std::vector<std::shared_ptr<relation_t> > filter_block(const std::vector<std::shared_ptr<relation_t> >& block);
                 
-        rate_t calculate_score(
+        std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate_score(
             const vector_t& account_rank,
             const vector_t& content_rank
         );

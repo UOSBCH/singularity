@@ -109,10 +109,10 @@ void social_index_calculator::skip_blocks(unsigned int blocks_count)
 //     }
 }
 
-rate_t social_index_calculator::calculate()
+std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index_calculator::calculate()
 {
     if (accounts_count == 0) {
-        return rate_t(account_activity_index_map_t(), account_activity_index_map_t());
+        return std::map<node_type, std::shared_ptr<account_activity_index_map_t> >();
     }
     
     matrix_t outlink_matrix(accounts_count, accounts_count);
@@ -207,22 +207,27 @@ void social_index_calculator::update_weight_matrix(const std::vector<std::shared
     }
 }
 
-rate_t social_index_calculator::calculate_score(
+std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index_calculator::calculate_score(
     const vector_t& account_rank,
     const vector_t& content_rank
 )
 {
-    account_activity_index_map_t account_rank_map;
-    account_activity_index_map_t content_rank_map;
+    std::map<node_type, std::shared_ptr<account_activity_index_map_t> > result;
+    
+    auto account_rank_map = std::make_shared<account_activity_index_map_t>();
+    auto content_rank_map  = std::make_shared<account_activity_index_map_t>();
 
     for (auto node_it: account_map) {
-        account_rank_map[node_it.first] = account_rank[node_it.second];
+        (*account_rank_map)[node_it.first] = account_rank[node_it.second];
     }
     for (auto node_it: content_map) {
-        content_rank_map[node_it.first] = content_rank[node_it.second];
+        (*content_rank_map)[node_it.first] = content_rank[node_it.second];
     }
+    
+    result[node_type::ACCOUNT] = account_rank_map;
+    result[node_type::CONTENT] = content_rank_map;
 
-    return rate_t(account_rank_map, content_rank_map);
+    return result;
 }
 
 unsigned int social_index_calculator::get_total_handled_block_count() 
