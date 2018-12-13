@@ -85,6 +85,7 @@ namespace singularity {
         vector_t create_initial_vector();
         void limit_values(matrix_t& m);
         void adjust_matrix_sizes();
+        vector_t create_stack_vector();
     };
 }
 

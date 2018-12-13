@@ -48,6 +48,13 @@ namespace singularity {
         double_type token_usd_rate = 1;
     };
     
+    namespace normalization_tools
+    {
+        account_activity_index_map_t scale_activity_index_to_node_count(const account_activity_index_map_t& index_map); 
+        account_activity_index_map_t scale_activity_index_to_1(const account_activity_index_map_t& index_map); 
+        account_activity_index_map_t scale_activity_index(const account_activity_index_map_t& index_map, double_type new_norm);
+    }
+    
     namespace matrix_tools
     {
         void normalize_columns(matrix_t &m);

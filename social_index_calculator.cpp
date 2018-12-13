@@ -350,4 +350,31 @@ void social_index_calculator::adjust_matrix_sizes()
     
 }
 
+vector_t social_index_calculator::create_stack_vector()
+{
+    vector_t result(accounts_count, 0);
+    
+    for (auto stack_it: stack_map) {
+        std::string account_name = stack_it.first;
+        double_type stack_value = stack_it.second;
+        
+        auto account_it = account_map.find(account_name);
+        
+        if (account_it != account_map.end()) {
+            auto account_id = account_it->second;
+            
+            result(account_id) = stack_value;
+        }
+    }
+    
+    double_type norm = norm_1(result);
+    
+    if (norm > 0) {
+        result *= double_type(1) / norm;
+    }
+        
+    return result;
+}
+
+
 
