@@ -14,7 +14,9 @@ namespace singularity {
             num_threads(num_threads) 
             {};
         const uint32_t MAX_ITERATIONS = 1000;
-
+        void set_outlink_weight(double_type a_outlink_weight) {
+            outlink_weight = a_outlink_weight;
+        };
         virtual std::shared_ptr<vector_t> process(
             const matrix_t& outlink_matrix,
             const vector_t& initial_vector,

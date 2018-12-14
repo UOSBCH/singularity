@@ -95,8 +95,6 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
 
     additional_matrices_vector additional_matrices;
     
-    vector_t initial_vector = create_initial_vector();
-    
     matrix_t vote_matrix_new = *p_vote_matrix + prod(*p_repost_matrix, *p_vote_matrix);
     
     matrix_t weight_matrix = prod(*p_ownership_matrix, vote_matrix_new);
@@ -105,16 +103,29 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     
     calculate_outlink_matrix(outlink_matrix, weight_matrix, additional_matrices);
 
-    std::shared_ptr<vector_t> account_rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
+    vector_t default_initial_vector = create_default_initial_vector();
+    vector_t stack_vector = create_stack_vector();
+    
+    std::shared_ptr<vector_t> p_account_rank;
+    
+    p_account_rank = p_rank_calculator->process(outlink_matrix, default_initial_vector, default_initial_vector, additional_matrices);
+    
+    if (norm_1(stack_vector) > 0) {
+        vector_t stack_vector_part = prod(outlink_matrix, stack_vector);
+        for (auto additional_matrix: additional_matrices) {
+            stack_vector_part += prod(*additional_matrix, stack_vector);
+        }
+        *p_account_rank = *p_account_rank * (double_type(0.5)) + stack_vector_part * (double_type(0.5));
+    }
     
     matrix_t content_outlink_matrix(contents_count, accounts_count);
     additional_matrices_vector content_additional_matrices;
 
     calculate_outlink_matrix(content_outlink_matrix, vote_matrix_new, content_additional_matrices);
     
-    auto content_rank = prod(content_outlink_matrix, *account_rank);
+    auto content_rank = prod(content_outlink_matrix, *p_account_rank);
     
-    return calculate_score(*account_rank, content_rank);
+    return calculate_score(*p_account_rank, content_rank);
 }
 
 void social_index_calculator::calculate_outlink_matrix(
@@ -273,7 +284,7 @@ void social_index_calculator::normalize_columns(matrix_t &m, additional_matrices
     additional_matrices.push_back(std::make_shared<vector_based_matrix<double_type> >(vector_t(m.size1(), 1), outlink_vector));
 }
 
-vector_t social_index_calculator::create_initial_vector()
+vector_t social_index_calculator::create_default_initial_vector()
 {
     std::lock_guard<std::mutex> ac_lock(accounts_lock);
     
@@ -376,5 +387,47 @@ vector_t social_index_calculator::create_stack_vector()
     return result;
 }
 
+boost::optional<account_id_map_t::mapped_type> social_index_calculator::get_account_id(std::string name, bool allow_create)
+{
+    std::lock_guard<std::mutex> lock(accounts_lock);
+    
+    auto item_it = account_map.find(name);
+    
+    if (item_it != account_map.end()) {
+        auto id = item_it->second;
+        
+        return id;
+    } else if (allow_create) {
+        
+        auto id = accounts_count++;
+        
+        account_map[name] = id;
+        
+        return id;
+    }
+    
+    return boost::none;
+}
 
+boost::optional<account_id_map_t::mapped_type> social_index_calculator::get_content_id(std::string name, bool allow_create)
+{
+    std::lock_guard<std::mutex> lock(accounts_lock);
+    
+    auto item_it = content_map.find(name);
+    
+    if (item_it != content_map.end()) {
+        auto id = item_it->second;
+        
+        return id;
+    } else if (allow_create) {
+        
+        auto id = contents_count++;
+        
+        content_map[name] = id;
+        
+        return id;
+    }
+    
+    return boost::none;
+}
 
