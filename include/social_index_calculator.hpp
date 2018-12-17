@@ -38,6 +38,10 @@ namespace singularity {
             p_filter = filter;
         };
         void add_stack_vector(const std::map<std::string, double_type>& stacks);
+        activity_index_detalization_t get_detalization() 
+        {
+            return detalization;
+        };
     private:
         friend class boost::serialization::access;
         parameters_t parameters;
@@ -90,6 +94,15 @@ namespace singularity {
         
         boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
         boost::optional<account_id_map_t::mapped_type> get_content_id(std::string name, bool allow_create);
+        
+        activity_index_detalization_t detalization;
+        void calculate_detalization(
+            const matrix_t& outlink_matrix,
+            const vector_t& activity_index_vector,
+            const vector_t& stack_vector,
+            const vector_t& weight_vector,
+            const additional_matrices_vector& additional_matrices
+        );
     };
 }
 

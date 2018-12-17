@@ -95,9 +95,13 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
 
     additional_matrices_vector additional_matrices;
     
-    matrix_t vote_matrix_new = *p_vote_matrix + prod(*p_repost_matrix, *p_vote_matrix);
+    matrix_t vote_matrix_new(p_vote_matrix->size1(), p_vote_matrix->size2());
+    matrix_tools::prod(vote_matrix_new, *p_repost_matrix, *p_vote_matrix);
     
-    matrix_t weight_matrix = prod(*p_ownership_matrix, vote_matrix_new);
+    vote_matrix_new = vote_matrix_new + *p_vote_matrix;
+    
+    matrix_t weight_matrix(p_ownership_matrix->size1(), vote_matrix_new.size2());
+    matrix_tools::prod(weight_matrix, *p_ownership_matrix, vote_matrix_new);
     
     limit_values(weight_matrix);
     
@@ -109,6 +113,10 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     std::shared_ptr<vector_t> p_account_rank;
     
     p_account_rank = p_rank_calculator->process(outlink_matrix, default_initial_vector, default_initial_vector, additional_matrices);
+    
+    if (parameters.include_detailed_data) {
+        calculate_detalization(outlink_matrix, *p_account_rank, stack_vector, default_initial_vector, additional_matrices);
+    }
     
     if (norm_1(stack_vector) > 0) {
         vector_t stack_vector_part = prod(outlink_matrix, stack_vector);
@@ -429,5 +437,76 @@ boost::optional<account_id_map_t::mapped_type> social_index_calculator::get_cont
     }
     
     return boost::none;
+}
+
+void social_index_calculator::calculate_detalization (
+    const matrix_t& outlink_matrix, 
+    const vector_t& activity_index_vector,
+    const vector_t& stack_vector, 
+    const vector_t& weight_vector, 
+    const additional_matrices_vector& additional_matrices
+) 
+{
+    std::lock_guard<std::mutex> lock(accounts_lock);
+    
+    double_type stack_share, activity_share;
+    
+    if (norm_1(stack_vector) == 0) {
+        activity_share = 1;
+        stack_share = 0;
+    } else {
+        activity_share = 0.5;
+        stack_share = 0.5;
+    }
+    
+    std::vector<std::string> reverse_account_map(account_map.size());
+    
+    vector_t base_vector(account_map.size(), 0);
+    
+    base_vector += activity_share * (double_type(1) - parameters.outlink_weight) * weight_vector;
+    
+    for (auto it: additional_matrices) {
+        base_vector += activity_share * parameters.outlink_weight * prod(*it, activity_index_vector);
+        if (stack_share > 0) {
+            base_vector += stack_share * prod(*it, stack_vector);
+        }
+    }
+    
+    for (auto it: account_map) {
+        std::string name = it.first;
+        size_t id = it.second;
+        reverse_account_map[id] = name;
+        
+        detalization.base_index[name] = base_vector[id];
+    }
+    
+    for (auto i = outlink_matrix.cbegin1(); i != outlink_matrix.cend1(); i++) {
+        
+        if (i.index1() >= account_map.size()) {
+            break;
+        }
+        
+        for (auto j = i.cbegin(); j != i.cend(); j++) {
+            if (j.index2() >= account_map.size()) {
+                break;
+            }
+            
+            contribution_t a_contribution;
+            
+            a_contribution.koefficient = activity_share * parameters.outlink_weight * outlink_matrix(j.index1(), j.index2());
+            a_contribution.rate = activity_index_vector(j.index2());
+            
+            detalization.activity_index_contribution[reverse_account_map[j.index1()]][reverse_account_map[j.index2()]] = a_contribution;
+            
+            if (stack_share > 0) {
+                contribution_t s_contribution;
+            
+                s_contribution.koefficient = stack_share * outlink_matrix(j.index1(), j.index2());
+                s_contribution.rate = stack_vector(j.index2());
+            
+                detalization.stack_contribution[reverse_account_map[j.index1()]][reverse_account_map[j.index2()]] = s_contribution;
+            }
+        }
+    }
 }
 

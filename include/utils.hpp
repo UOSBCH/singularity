@@ -33,6 +33,19 @@ namespace singularity {
         money_t amount;
         int height;
     };
+    
+    struct contribution_t {
+        double_type koefficient;
+        double_type rate;
+    };
+    
+    typedef std::map<std::string, contribution_t> contribution_map;
+    
+    struct activity_index_detalization_t {
+        std::map<std::string, double_type> base_index; 
+        std::map<std::string, contribution_map> activity_index_contribution;
+        std::map<std::string, contribution_map> stack_contribution;
+    };
 
     struct parameters_t {
         uint64_t precision = 10000000;
@@ -46,6 +59,7 @@ namespace singularity {
         double_type decay_koefficient = 0.9;
         unsigned int num_threads = 1;
         double_type token_usd_rate = 1;
+        bool include_detailed_data = false;
     };
     
     namespace normalization_tools
@@ -62,6 +76,7 @@ namespace singularity {
         sparce_vector_t calculate_correction_vector(const matrix_t& o);
         std::shared_ptr<matrix_t> resize(matrix_t& m, matrix_t::size_type size1, matrix_t::size_type size2);
         void prod( vector_t& out, const matrix_t& m, const vector_t& v, unsigned int num_threads);
+        void prod( matrix_t& out, const matrix_t& in1, const matrix_t& in2);
         void partial_prod( vector_t& out, const matrix_t& m, const vector_t& v, range_t range);
         std::vector<range_t> split_range(range_t range, unsigned int max);
     };

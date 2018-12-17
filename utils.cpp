@@ -189,3 +189,25 @@ account_activity_index_map_t normalization_tools::scale_activity_index_to_1(cons
 {
     return scale_activity_index(index_map, 1);
 }
+
+void matrix_tools::prod(matrix_t& out, const matrix_t& in1, const matrix_t& in2)
+{
+    for (matrix_t::const_iterator1 i = in1.begin1(); i != in1.end1(); i++) {
+        
+        for (size_t j=0; j < in2.size2(); j++) {
+            
+            double_type x = 0;
+            for (matrix_t::const_iterator2 k = i.cbegin(); k != i.cend(); k++) {
+                double_type y = in2(k.index2(), j);
+                if (y != 0) {
+                    x += (*k) * y;
+                }
+            }
+            
+            if (x != 0 ) {
+                out(i.index1(), j) = x;
+            }
+        }
+    }
+}
+

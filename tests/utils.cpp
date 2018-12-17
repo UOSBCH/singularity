@@ -145,5 +145,41 @@ BOOST_AUTO_TEST_CASE( derived_matrix )
     std::cout << r << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE( matrix_prod )
+{
+    BOOST_TEST_MESSAGE( "matrix_prod" );
+
+    matrix_t expected(3,3), out(3, 3), in1(3,3), in2(3,3);
+    
+    expected(0,0) = 1;
+    expected(1,1) = 1;
+    expected(2,2) = 1;
+    
+    in1(0,0) = 1;
+    in1(0,1) = 1;
+    in1(0,2) = 1;
+    in1(1,0) = 0;
+    in1(1,1) = 2;
+    in1(1,2) = 3;
+    in1(2,0) = 2;
+    in1(2,1) = 1;
+    in1(2,2) = 0;
+
+    in2(0,0) = 3;
+    in2(0,1) = -1;
+    in2(0,2) = -1;
+    in2(1,0) = -6;
+    in2(1,1) = 2;
+    in2(1,2) = 3;
+    in2(2,0) = 4;
+    in2(2,1) = -1;
+    in2(2,2) = -2;
+    
+    matrix_tools::prod(out, in1, in2);
+    
+    BOOST_CHECK(boost::numeric::ublas::detail::equals(expected, out, double_type(0.001), double_type(0.001)));
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
         
