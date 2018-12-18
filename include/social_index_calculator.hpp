@@ -1,5 +1,5 @@
 
-#ifndef SOCIAL_INdEX_CALCULATOR_HPP
+#ifndef SOCIAL_INDEX_CALCULATOR_HPP
 #define SOCIAL_INDEX_CALCULATOR_HPP
 
 #include <mutex>
@@ -9,6 +9,7 @@
 #include "rank_interface.hpp"
 #include "filters.hpp"
 #include <boost/optional.hpp>
+#include "exporter.hpp"
 
 namespace singularity {
     
@@ -42,10 +43,16 @@ namespace singularity {
         {
             return detalization;
         };
+        void set_output_stream(std::ostream& output)
+        {
+            exporter = std::make_shared<exporter_t>(output);
+        }
     private:
         friend class boost::serialization::access;
         parameters_t parameters;
         bool disable_negative_weights;
+        
+        std::shared_ptr<exporter_t> exporter;
         
         unsigned int total_handled_blocks_count = 0;
         unsigned int handled_blocks_count = 0;

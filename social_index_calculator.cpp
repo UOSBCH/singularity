@@ -187,6 +187,11 @@ void social_index_calculator::calculate_outlink_matrix(
 void social_index_calculator::update_weight_matrix(const std::vector<std::shared_ptr<relation_t> >& transactions) {
     for (unsigned int i=0; i<transactions.size(); i++) {
         std::shared_ptr<relation_t> t = transactions[i];
+        
+        if (exporter) {
+            exporter->export_relation(*t);
+        }
+        
         double_type decay_value;
         if (t->is_decayable()) {
             decay_value = p_decay_manager->get_decay_value(t->get_height());
