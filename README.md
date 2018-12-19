@@ -14,3 +14,4 @@ Building the project:
     cmake .  
     make   
 ```
+See also [CONTRIBUTING](../../../uos.docs/blob/master/CONTRIBUTING.md) for detailed project information.
