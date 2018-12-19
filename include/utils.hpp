@@ -60,6 +60,7 @@ namespace singularity {
         unsigned int num_threads = 1;
         double_type token_usd_rate = 1;
         bool include_detailed_data = false;
+        bool extended_logging = false;
     };
     
     namespace normalization_tools

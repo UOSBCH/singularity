@@ -188,8 +188,8 @@ void social_index_calculator::update_weight_matrix(const std::vector<std::shared
     for (unsigned int i=0; i<transactions.size(); i++) {
         std::shared_ptr<relation_t> t = transactions[i];
         
-        if (exporter) {
-            exporter->export_relation(*t);
+        if (parameters.extended_logging) {
+            exporter.export_relation(*t);
         }
         
         double_type decay_value;

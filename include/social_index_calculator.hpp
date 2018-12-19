@@ -43,16 +43,12 @@ namespace singularity {
         {
             return detalization;
         };
-        void set_output_stream(std::ostream& output)
-        {
-            exporter = std::make_shared<exporter_t>(output);
-        }
     private:
         friend class boost::serialization::access;
         parameters_t parameters;
         bool disable_negative_weights;
         
-        std::shared_ptr<exporter_t> exporter;
+        exporter_t exporter;
         
         unsigned int total_handled_blocks_count = 0;
         unsigned int handled_blocks_count = 0;

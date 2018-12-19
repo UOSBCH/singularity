@@ -9,11 +9,9 @@ namespace singularity {
     class exporter_t
     {
     public:
-        exporter_t(std::ostream& output): output(output) {};
-        
         void export_relation(relation_t& relation)
         {
-            output 
+            std::cout 
                 << ";" 
                 << ";" 
                 << relation.get_source() 
@@ -53,8 +51,6 @@ namespace singularity {
             
             return name;
         }
-    private:
-         std::ostream& output;
     };
 }
 
