@@ -90,6 +90,7 @@ namespace singularity {
             const std::vector<std::shared_ptr<relation_t> >& transactions
         );
         void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices);
+        void collapse_matrix(matrix_t& out, const matrix_t& in1, const matrix_t& in2);
         vector_t create_default_initial_vector();
         void limit_values(matrix_t& m);
         void adjust_matrix_sizes();

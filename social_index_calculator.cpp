@@ -95,15 +95,17 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
 
     additional_matrices_vector additional_matrices;
     
-    matrix_t vote_matrix_new(p_vote_matrix->size1(), p_vote_matrix->size2());
-    matrix_tools::prod(vote_matrix_new, *p_repost_matrix, *p_vote_matrix);
+    matrix_t vote_matrix_with_reposts(p_vote_matrix->size1(), p_vote_matrix->size2());
+    matrix_tools::prod(vote_matrix_with_reposts, *p_repost_matrix, *p_vote_matrix);
     
-    vote_matrix_new = vote_matrix_new + *p_vote_matrix;
+    vote_matrix_with_reposts = vote_matrix_with_reposts + *p_vote_matrix;
     
-    matrix_t weight_matrix(p_ownership_matrix->size1(), vote_matrix_new.size2());
-    matrix_tools::prod(weight_matrix, *p_ownership_matrix, vote_matrix_new);
+    matrix_t weight_matrix(p_ownership_matrix->size1(), vote_matrix_with_reposts.size2());
     
-    limit_values(weight_matrix);
+    collapse_matrix(weight_matrix, *p_ownership_matrix, vote_matrix_with_reposts);
+    
+//     matrix_tools::prod(weight_matrix, *p_ownership_matrix, vote_matrix_with_reposts);
+//     limit_values(weight_matrix);
     
     calculate_outlink_matrix(outlink_matrix, weight_matrix, additional_matrices);
 
@@ -129,7 +131,7 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     matrix_t content_outlink_matrix(contents_count, accounts_count);
     additional_matrices_vector content_additional_matrices;
 
-    calculate_outlink_matrix(content_outlink_matrix, vote_matrix_new, content_additional_matrices);
+    calculate_outlink_matrix(content_outlink_matrix, vote_matrix_with_reposts, content_additional_matrices);
     
     auto content_rank = prod(content_outlink_matrix, *p_account_rank);
     
@@ -204,7 +206,7 @@ void social_index_calculator::update_weight_matrix(const std::vector<std::shared
         }
         
         if (t->get_name() == "UPVOTE") {
-            (*p_vote_matrix)(content_map[t->get_target()], account_map[t->get_source()]) = 1;
+            (*p_vote_matrix)(content_map[t->get_target()], account_map[t->get_source()]) = decay_value;
         }
 
         if (t->get_name() == "REPOST") {
@@ -514,4 +516,26 @@ void social_index_calculator::calculate_detalization (
         }
     }
 }
+
+void singularity::social_index_calculator::collapse_matrix(matrix_t& out, const matrix_t& in1, const matrix_t& in2)
+{
+    for (matrix_t::const_iterator1 i = in1.begin1(); i != in1.end1(); i++) {
+        
+        for (size_t j=0; j < in2.size2(); j++) {
+            
+            double_type x = 0;
+            for (matrix_t::const_iterator2 k = i.cbegin(); k != i.cend(); k++) {
+                double_type y = (*k) * in2(k.index2(), j);
+                if (y > x) {
+                    x = y;
+                }
+            }
+            
+            if (x > 0 ) {
+                out(i.index1(), j) = x;
+            }
+        }
+    }
+}
+
 
