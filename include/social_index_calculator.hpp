@@ -95,6 +95,7 @@ namespace singularity {
         void limit_values(matrix_t& m);
         void adjust_matrix_sizes();
         vector_t create_stack_vector();
+        void set_diagonal_elements(matrix_t& m);
         
         boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
         boost::optional<account_id_map_t::mapped_type> get_content_id(std::string name, bool allow_create);

@@ -104,6 +104,10 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     
     collapse_matrix(weight_matrix, *p_ownership_matrix, vote_matrix_with_reposts);
     
+    if (parameters.use_diagonal_elements) {
+        set_diagonal_elements(weight_matrix);
+    }
+    
 //     matrix_tools::prod(weight_matrix, *p_ownership_matrix, vote_matrix_with_reposts);
 //     limit_values(weight_matrix);
     
@@ -517,7 +521,7 @@ void social_index_calculator::calculate_detalization (
     }
 }
 
-void singularity::social_index_calculator::collapse_matrix(matrix_t& out, const matrix_t& in1, const matrix_t& in2)
+void social_index_calculator::collapse_matrix(matrix_t& out, const matrix_t& in1, const matrix_t& in2)
 {
     for (matrix_t::const_iterator1 i = in1.begin1(); i != in1.end1(); i++) {
         
@@ -538,4 +542,14 @@ void singularity::social_index_calculator::collapse_matrix(matrix_t& out, const 
     }
 }
 
+void social_index_calculator::set_diagonal_elements(matrix_t& m)
+{
+    if (m.size1() != m.size2()) {
+        throw runtime_exception("A square matrix is expected");
+    }
+    
+    for (size_t i=0; i<m.size1(); i++ ) {
+        m(i,i) += 1;
+    }
+}
 

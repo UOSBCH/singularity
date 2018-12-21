@@ -61,6 +61,7 @@ namespace singularity {
         double_type token_usd_rate = 1;
         bool include_detailed_data = false;
         bool extended_logging = false;
+        bool use_diagonal_elements = false;
     };
     
     namespace normalization_tools
