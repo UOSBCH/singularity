@@ -133,9 +133,9 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     }
     
     matrix_t content_outlink_matrix(contents_count, accounts_count);
-    additional_matrices_vector content_additional_matrices;
+//     additional_matrices_vector content_additional_matrices;
 
-    calculate_outlink_matrix(content_outlink_matrix, vote_matrix_with_reposts, content_additional_matrices);
+    calculate_content_matrix(content_outlink_matrix, vote_matrix_with_reposts);
     
     auto content_rank = prod(content_outlink_matrix, *p_account_rank);
     
@@ -189,6 +189,46 @@ void social_index_calculator::calculate_outlink_matrix(
     normalize_columns(o, additional_matrices);
 //     matrix_tools::normalize_columns(o);
 }
+
+void social_index_calculator::calculate_content_matrix(
+    matrix_t& o,
+    matrix_t& weight_matrix
+)
+{
+    matrix_t::size_type size = o.size1();
+    {
+        std::lock_guard<std::mutex> lock(weight_matrix_lock);
+
+        for (matrix_t::iterator1 i = weight_matrix.begin1(); i != weight_matrix.end1(); i++)
+        {
+            if (i.index1() >= size) {
+                break;
+            }
+            for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
+            {
+                if (j.index2() >= size) {
+                    break;
+                }
+
+                o(j.index1(), j.index2()) += *j;
+                   
+            }
+        }
+    }
+
+    if (disable_negative_weights) {
+        for (matrix_t::iterator1 i = o.begin1(); i != o.end1(); i++)
+        {
+            for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
+            {
+                if (*j < 0) {
+                    *j = 0;
+                }
+            }
+        }
+    }
+}
+
 
 void social_index_calculator::update_weight_matrix(const std::vector<std::shared_ptr<relation_t> >& transactions) {
     for (unsigned int i=0; i<transactions.size(); i++) {

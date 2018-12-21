@@ -86,6 +86,10 @@ namespace singularity {
             matrix_t& weight_matrix,
             additional_matrices_vector& additional_matrices
         );
+        void calculate_content_matrix(
+            matrix_t& o,
+            matrix_t& weight_matrix
+        );
         void update_weight_matrix(
             const std::vector<std::shared_ptr<relation_t> >& transactions
         );
