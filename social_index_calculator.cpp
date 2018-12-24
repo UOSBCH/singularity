@@ -116,30 +116,33 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     vector_t default_initial_vector = create_default_initial_vector();
     vector_t stack_vector = create_stack_vector();
     
-    std::shared_ptr<vector_t> p_account_rank;
+    std::shared_ptr<vector_t> p_account_rank; 
+    vector_t account_rank_final;
     
     p_account_rank = p_rank_calculator->process(outlink_matrix, default_initial_vector, default_initial_vector, additional_matrices);
-    
-    if (parameters.include_detailed_data) {
-        calculate_detalization(outlink_matrix, *p_account_rank, stack_vector, default_initial_vector, additional_matrices);
-    }
     
     if (norm_1(stack_vector) > 0) {
         vector_t stack_vector_part = prod(outlink_matrix, stack_vector);
         for (auto additional_matrix: additional_matrices) {
             stack_vector_part += prod(*additional_matrix, stack_vector);
         }
-        *p_account_rank = *p_account_rank * (double_type(0.5)) + stack_vector_part * (double_type(0.5));
+        account_rank_final = *p_account_rank * (double_type(0.5)) + stack_vector_part * (double_type(0.5));
+    } else {
+        account_rank_final = *p_account_rank;
     }
     
-    matrix_t content_outlink_matrix(contents_count, accounts_count);
+    matrix_t content_matrix(contents_count, accounts_count);
 //     additional_matrices_vector content_additional_matrices;
 
-    calculate_content_matrix(content_outlink_matrix, vote_matrix_with_reposts);
+    calculate_content_matrix(content_matrix, vote_matrix_with_reposts);
     
-    auto content_rank = prod(content_outlink_matrix, *p_account_rank);
+    auto content_rank = prod(content_matrix, account_rank_final);
+
+    if (parameters.include_detailed_data) {
+        calculate_detalization(outlink_matrix, content_matrix, *p_account_rank, stack_vector, default_initial_vector, additional_matrices);
+    }
     
-    return calculate_score(*p_account_rank, content_rank);
+    return calculate_score(account_rank_final, content_rank);
 }
 
 void social_index_calculator::calculate_outlink_matrix(
@@ -492,6 +495,7 @@ boost::optional<account_id_map_t::mapped_type> social_index_calculator::get_cont
 
 void social_index_calculator::calculate_detalization (
     const matrix_t& outlink_matrix, 
+    const matrix_t& content_matrix,
     const vector_t& activity_index_vector,
     const vector_t& stack_vector, 
     const vector_t& weight_vector, 
@@ -511,6 +515,7 @@ void social_index_calculator::calculate_detalization (
     }
     
     std::vector<std::string> reverse_account_map(account_map.size());
+    std::vector<std::string> reverse_content_map(content_map.size());
     
     vector_t base_vector(account_map.size(), 0);
     
@@ -529,6 +534,12 @@ void social_index_calculator::calculate_detalization (
         reverse_account_map[id] = name;
         
         detalization.base_index[name] = base_vector[id];
+    }
+
+    for (auto it: content_map) {
+        std::string name = it.first;
+        size_t id = it.second;
+        reverse_content_map[id] = name;
     }
     
     for (auto i = outlink_matrix.cbegin1(); i != outlink_matrix.cend1(); i++) {
@@ -559,6 +570,36 @@ void social_index_calculator::calculate_detalization (
             }
         }
     }
+    
+    for (auto i = content_matrix.cbegin1(); i != content_matrix.cend1(); i++) {
+        
+        if (i.index1() >= content_map.size()) {
+            break;
+        }
+        
+        for (auto j = i.cbegin(); j != i.cend(); j++) {
+            if (j.index2() >= account_map.size()) {
+                break;
+            }
+            
+            contribution_t a_contribution;
+            
+            a_contribution.koefficient = activity_share * content_matrix(j.index1(), j.index2());
+            a_contribution.rate = activity_index_vector(j.index2());
+            
+            content_detalization.activity_index_contribution[reverse_content_map[j.index1()]][reverse_account_map[j.index2()]] = a_contribution;
+            
+            if (stack_share > 0) {
+                contribution_t s_contribution;
+            
+                s_contribution.koefficient = stack_share * content_matrix(j.index1(), j.index2());
+                s_contribution.rate = stack_vector(j.index2());
+            
+                content_detalization.stack_contribution[reverse_content_map[j.index1()]][reverse_account_map[j.index2()]] = s_contribution;
+            }
+        }
+    }
+    
 }
 
 void social_index_calculator::collapse_matrix(matrix_t& out, const matrix_t& in1, const matrix_t& in2)

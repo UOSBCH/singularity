@@ -43,6 +43,10 @@ namespace singularity {
         {
             return detalization;
         };
+        activity_index_detalization_t get_content_detalization() 
+        {
+            return content_detalization;
+        };
     private:
         friend class boost::serialization::access;
         parameters_t parameters;
@@ -105,8 +109,10 @@ namespace singularity {
         boost::optional<account_id_map_t::mapped_type> get_content_id(std::string name, bool allow_create);
         
         activity_index_detalization_t detalization;
+        activity_index_detalization_t content_detalization;
         void calculate_detalization(
             const matrix_t& outlink_matrix,
+            const matrix_t& content_matrix,
             const vector_t& activity_index_vector,
             const vector_t& stack_vector,
             const vector_t& weight_vector,
