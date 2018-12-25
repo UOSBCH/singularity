@@ -12,21 +12,28 @@
 #include "exporter.hpp"
 
 namespace singularity {
+
+    enum calculation_mode {SIMPLE, DIAGONAL, PHANTOM_ACCOUNT};
     
     class social_index_calculator 
     {
     public:
-        const matrix_t::size_type initial_size = 1000;
+        const matrix_t::size_type initial_size = 2;
+        const std::string reserved_account = "*";
         social_index_calculator(
             parameters_t parameters, 
             bool disable_negative_weights,
-            std::shared_ptr<rank_interface> p_rank_calculator
-        ): parameters(parameters), disable_negative_weights(disable_negative_weights), p_rank_calculator(p_rank_calculator) {
+            std::shared_ptr<rank_interface> p_rank_calculator,
+            calculation_mode mode
+        ): parameters(parameters), disable_negative_weights(disable_negative_weights), p_rank_calculator(p_rank_calculator), mode(mode) {
             p_ownership_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_vote_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_repost_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_comment_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_decay_manager = std::make_shared<decay_manager_t>(parameters.decay_period, parameters.decay_koefficient);
+            if (mode == calculation_mode::PHANTOM_ACCOUNT) {
+                get_account_id(reserved_account, true);
+            }
         }
         void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions);
         void skip_blocks(unsigned int blocks_count);
@@ -48,6 +55,7 @@ namespace singularity {
             return content_detalization;
         };
     private:
+        calculation_mode mode;
         friend class boost::serialization::access;
         parameters_t parameters;
         bool disable_negative_weights;
@@ -104,6 +112,7 @@ namespace singularity {
         void adjust_matrix_sizes();
         vector_t create_stack_vector();
         void set_diagonal_elements(matrix_t& m);
+        void add_phantom_account_relations (matrix_t& m);
         
         boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
         boost::optional<account_id_map_t::mapped_type> get_content_id(std::string name, bool allow_create);

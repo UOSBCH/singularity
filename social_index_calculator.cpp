@@ -104,8 +104,12 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     
     collapse_matrix(weight_matrix, *p_ownership_matrix, vote_matrix_with_reposts);
     
-    if (parameters.use_diagonal_elements) {
+    if (mode == calculation_mode::DIAGONAL) {
         set_diagonal_elements(weight_matrix);
+    }
+
+    if (mode == calculation_mode::PHANTOM_ACCOUNT) {
+        add_phantom_account_relations(weight_matrix);
     }
     
 //     matrix_tools::prod(weight_matrix, *p_ownership_matrix, vote_matrix_with_reposts);
@@ -274,11 +278,15 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     auto content_rank_map  = std::make_shared<account_activity_index_map_t>();
 
     for (auto node_it: account_map) {
-        (*account_rank_map)[node_it.first] = account_rank[node_it.second];
+        if (node_it.first != reserved_account) {
+            (*account_rank_map)[node_it.first] = account_rank[node_it.second];
+        }
     }
     for (auto node_it: content_map) {
         (*content_rank_map)[node_it.first] = content_rank[node_it.second];
     }
+    
+    normalization_tools::scale_activity_index_to_1(*account_rank_map);
     
     result[node_type::ACCOUNT] = account_rank_map;
     result[node_type::CONTENT] = content_rank_map;
@@ -634,3 +642,18 @@ void social_index_calculator::set_diagonal_elements(matrix_t& m)
     }
 }
 
+void social_index_calculator::add_phantom_account_relations (matrix_t& m)
+{
+    auto phantom_account_id = get_account_id(reserved_account, false);
+    
+    if (phantom_account_id) {
+        for (auto i: account_map) {
+            auto name = i.first;
+            auto id = i.second;
+            
+            if (id != phantom_account_id) {
+                m(*phantom_account_id, id) = 1;
+            }
+        }
+    }
+}
