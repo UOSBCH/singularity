@@ -206,36 +206,6 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
     return result;
 }
 
-void activity_index_calculator::save_state_to_file(std::string filename) 
-{
-    std::lock_guard<std::mutex> lock(weight_matrix_lock);
-    try {
-        std::ofstream ofs(filename, std::ofstream::out);
-    
-        boost::archive::binary_oarchive oarch(ofs);
-        oarch << BOOST_SERIALIZATION_NVP(*this);
-    } catch (std::ifstream::failure& e) {
-        throw runtime_exception("Failed writing to a file " + filename);
-    } catch ( boost::archive::archive_exception& e) {
-        throw runtime_exception("Failed serialization to a file " + filename);
-    }
-}
-
-void activity_index_calculator::load_state_from_file(std::string filename) 
-{
-    std::lock_guard<std::mutex> lock(weight_matrix_lock);
-    try {
-        std::ifstream ifs(filename, std::istream::in);
-        boost::archive::binary_iarchive iarch(ifs);
-
-        iarch >> *this;
-    } catch (std::ifstream::failure& e) {
-        throw runtime_exception("Failed reading from a file " + filename);
-    } catch ( boost::archive::archive_exception& e) {
-        throw runtime_exception("Failed deserialization from a file " + filename);
-    }
-}
-
 unsigned int activity_index_calculator::get_total_handled_block_count() 
 {
     return total_handled_blocks_count;

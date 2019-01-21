@@ -25,8 +25,6 @@ namespace singularity {
         void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions);
         void skip_blocks(unsigned int blocks_count);
         std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate();
-        void save_state_to_file(std::string filename);
-        void load_state_from_file(std::string filename);
         unsigned int get_total_handled_block_count();
         void set_parameters(parameters_t params);
         parameters_t get_parameters();
@@ -70,13 +68,6 @@ namespace singularity {
             matrix_t& weight_matrix,
             const std::vector<std::shared_ptr<relation_t> >& transactions
         );
-        template<class Archive>
-        void serialize(Archive& ar, const unsigned int version) {
-            ar & BOOST_SERIALIZATION_NVP(total_handled_blocks_count);
-            ar & BOOST_SERIALIZATION_NVP(handled_blocks_count);
-//             ar & BOOST_SERIALIZATION_NVP(node_maps);
-            ar & BOOST_SERIALIZATION_NVP(*p_weight_matrix);
-        }
         void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices, const vector_t& initial_vector);
         vector_t create_initial_vector();
     };
