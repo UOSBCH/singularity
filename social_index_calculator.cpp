@@ -118,12 +118,21 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     calculate_outlink_matrix(outlink_matrix, weight_matrix, additional_matrices);
 
     vector_t default_initial_vector = create_default_initial_vector();
+    vector_t initial_vector;
+    vector_t weight_vector = create_weight_vector();
+    
+    if (norm_1(weight_vector) > 0) {
+        initial_vector = default_initial_vector * double_type(0.2) + weight_vector * double_type(0.8);
+    } else {
+        initial_vector = default_initial_vector;
+    }
+    
     vector_t stack_vector = create_stack_vector();
     
     std::shared_ptr<vector_t> p_account_rank; 
     vector_t account_rank_final;
     
-    p_account_rank = p_rank_calculator->process(outlink_matrix, default_initial_vector, default_initial_vector, additional_matrices);
+    p_account_rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
     
     if (mode == calculation_mode::PHANTOM_ACCOUNT && account_map.size() > 1) {
         double_type k = double_type(1) / (double_type(1) -  (*p_account_rank)[0]);
@@ -154,7 +163,7 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     auto content_rank = prod(content_matrix, account_rank_final);
 
     if (parameters.include_detailed_data) {
-        calculate_detalization(outlink_matrix, content_matrix, *p_account_rank, stack_vector, default_initial_vector, additional_matrices);
+        calculate_detalization(outlink_matrix, content_matrix, *p_account_rank, stack_vector, initial_vector, additional_matrices);
     }
     
     return calculate_score(account_rank_final, content_rank);
@@ -377,6 +386,12 @@ void social_index_calculator::add_stack_vector(const std::map<std::string, doubl
     stack_map = stacks;
 }
 
+void social_index_calculator::set_weights(const std::map<std::string, double_type>& weights)
+{
+    weight_map = weights;
+}
+
+
 void social_index_calculator::limit_values(matrix_t& m)
 {
     for (matrix_t::iterator1 i = m.begin1(); i != m.end1(); i++)
@@ -467,6 +482,33 @@ vector_t social_index_calculator::create_stack_vector()
         
     return result;
 }
+
+vector_t social_index_calculator::create_weight_vector()
+{
+    vector_t result(accounts_count, 0);
+    
+    for (auto weight_it: weight_map) {
+        std::string account_name = weight_it.first;
+        double_type weight_value = weight_it.second;
+        
+        auto account_it = account_map.find(account_name);
+        
+        if (account_it != account_map.end()) {
+            auto account_id = account_it->second;
+            
+            result(account_id) = weight_value;
+        }
+    }
+    
+    double_type norm = norm_1(result);
+    
+    if (norm > 0) {
+        result *= double_type(1) / norm;
+    }
+        
+    return result;
+}
+
 
 boost::optional<account_id_map_t::mapped_type> social_index_calculator::get_account_id(std::string name, bool allow_create)
 {

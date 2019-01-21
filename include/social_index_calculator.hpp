@@ -46,6 +46,7 @@ namespace singularity {
             p_filter = filter;
         };
         void add_stack_vector(const std::map<std::string, double_type>& stacks);
+        void set_weights(const std::map<std::string, double_type>& weights);
         activity_index_detalization_t get_detalization() 
         {
             return detalization;
@@ -73,6 +74,7 @@ namespace singularity {
         account_id_map_t content_map;
         
         std::map<std::string, double_type> stack_map;
+        std::map<std::string, double_type> weight_map;
         
         uint64_t accounts_count = 0;
         uint64_t contents_count = 0;
@@ -111,6 +113,7 @@ namespace singularity {
         void limit_values(matrix_t& m);
         void adjust_matrix_sizes();
         vector_t create_stack_vector();
+        vector_t create_weight_vector();
         void set_diagonal_elements(matrix_t& m);
         void add_phantom_account_relations (matrix_t& m);
         
