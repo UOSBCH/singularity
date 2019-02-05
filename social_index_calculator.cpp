@@ -91,6 +91,15 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
         return std::map<node_type, std::shared_ptr<account_activity_index_map_t> >();
     }
     
+    matrix_t trust_outlink_matrix(accounts_count, accounts_count);
+    additional_matrices_vector trust_additional_matrices;
+    
+    calculate_outlink_matrix(trust_outlink_matrix, *p_trust_matrix, trust_additional_matrices);
+    
+    vector_t trust_initial_vector = create_default_initial_vector() * double_type(0.1) + create_stack_vector() * double_type(0.9);
+    
+    auto p_trust_vector = p_rank_calculator->process(trust_outlink_matrix, trust_initial_vector, trust_initial_vector, trust_additional_matrices);
+    
     matrix_t outlink_matrix(accounts_count, accounts_count);
 
     additional_matrices_vector additional_matrices;
@@ -119,14 +128,15 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
 
     vector_t default_initial_vector = create_default_initial_vector();
     vector_t initial_vector;
-    vector_t weight_vector = create_weight_vector();
+//     vector_t weight_vector = create_priority_vector();
+    vector_t priority_vector = matrix_tools::discretize(*p_trust_vector);
     vector_t stack_vector = create_stack_vector();
     
     double_type stack_contribution = norm_1(stack_vector) > 0 ? parameters.stack_contribution : 0;
-    double_type weight_contribution = norm_1(weight_vector) > 0 ? parameters.weight_contribution : 0;
+    double_type weight_contribution = norm_1(priority_vector) > 0 ? parameters.weight_contribution : 0;
     double_type const_contribution = double_type(1) - stack_contribution - weight_contribution;
     
-    initial_vector = default_initial_vector * const_contribution + weight_vector * weight_contribution + stack_vector * stack_contribution;
+    initial_vector = default_initial_vector * const_contribution + priority_vector * weight_contribution + stack_vector * stack_contribution;
     
     
     std::shared_ptr<vector_t> p_account_rank; 
@@ -274,6 +284,9 @@ void social_index_calculator::update_weight_matrix(const std::vector<std::shared
             (*p_repost_matrix)(content_map[t->get_target()], content_map[t->get_source()]) = 1;
             (*p_repost_matrix)(content_map[t->get_source()], content_map[t->get_source()]) = -1;
         }
+        if (t->get_name() == "TRUST") {
+            (*p_trust_matrix)(account_map[t->get_target()], account_map[t->get_source()]) = 1;
+        }
     }
 }
 
@@ -376,9 +389,9 @@ void social_index_calculator::add_stack_vector(const std::map<std::string, doubl
     stack_map = stacks;
 }
 
-void social_index_calculator::set_weights(const std::map<std::string, double_type>& weights)
+void social_index_calculator::set_priorities(const std::map<std::string, double_type>& priorities)
 {
-    weight_map = weights;
+    priority_map = priorities;
 }
 
 
@@ -444,6 +457,18 @@ void social_index_calculator::adjust_matrix_sizes()
         }
         p_comment_matrix->resize(new_size_1, new_size_2);
     }
+
+    if (p_trust_matrix->size1() < accounts_count || p_trust_matrix->size2() < accounts_count) {
+        matrix_t::size_type new_size_1 = p_trust_matrix->size1();
+        matrix_t::size_type new_size_2 = p_trust_matrix->size2();
+        while (new_size_1 < accounts_count) {
+            new_size_1 *= 2;
+        }
+        while (new_size_2 < accounts_count) {
+            new_size_2 *= 2;
+        }
+        p_trust_matrix->resize(new_size_1, new_size_2);
+    }
     
 }
 
@@ -473,11 +498,11 @@ vector_t social_index_calculator::create_stack_vector()
     return result;
 }
 
-vector_t social_index_calculator::create_weight_vector()
+vector_t social_index_calculator::create_priority_vector()
 {
     vector_t result(accounts_count, 0);
     
-    for (auto weight_it: weight_map) {
+    for (auto weight_it: priority_map) {
         std::string account_name = weight_it.first;
         double_type weight_value = weight_it.second;
         

@@ -30,6 +30,7 @@ namespace singularity {
             p_vote_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_repost_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_comment_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
+            p_trust_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_decay_manager = std::make_shared<decay_manager_t>(parameters.decay_period, parameters.decay_koefficient);
             if (mode == calculation_mode::PHANTOM_ACCOUNT) {
                 get_account_id(reserved_account, true);
@@ -46,7 +47,7 @@ namespace singularity {
             p_filter = filter;
         };
         void add_stack_vector(const std::map<std::string, double_type>& stacks);
-        void set_weights(const std::map<std::string, double_type>& weights);
+        void set_priorities(const std::map<std::string, double_type>& priorities);
         activity_index_detalization_t get_detalization() 
         {
             return detalization;
@@ -69,12 +70,13 @@ namespace singularity {
         std::shared_ptr<matrix_t> p_vote_matrix;
         std::shared_ptr<matrix_t> p_repost_matrix;
         std::shared_ptr<matrix_t> p_comment_matrix;
+        std::shared_ptr<matrix_t> p_trust_matrix;
 
         account_id_map_t account_map;
         account_id_map_t content_map;
         
         std::map<std::string, double_type> stack_map;
-        std::map<std::string, double_type> weight_map;
+        std::map<std::string, double_type> priority_map;
         
         uint64_t accounts_count = 0;
         uint64_t contents_count = 0;
@@ -113,7 +115,7 @@ namespace singularity {
         void limit_values(matrix_t& m);
         void adjust_matrix_sizes();
         vector_t create_stack_vector();
-        vector_t create_weight_vector();
+        vector_t create_priority_vector();
         void set_diagonal_elements(matrix_t& m);
         void add_phantom_account_relations (matrix_t& m);
         

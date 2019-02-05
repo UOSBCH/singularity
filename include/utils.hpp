@@ -83,6 +83,7 @@ namespace singularity {
         void prod( matrix_t& out, const matrix_t& in1, const matrix_t& in2);
         void partial_prod( vector_t& out, const matrix_t& m, const vector_t& v, range_t range);
         std::vector<range_t> split_range(range_t range, unsigned int max);
+        vector_t discretize(const vector_t& v);
     };
     
     class decay_manager_t

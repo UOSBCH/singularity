@@ -211,3 +211,28 @@ void matrix_tools::prod(matrix_t& out, const matrix_t& in1, const matrix_t& in2)
     }
 }
 
+vector_t matrix_tools::discretize(const vector_t& v)
+{
+    if (v.size() == 0) {
+        return v;
+    }
+    
+    vector_t result(v.size());
+    
+    for(size_t i=0; i<v.size(); i++) {
+        if (v(i) * v.size() > 1) {
+            result(i) = 1;
+        } else {
+            result(i) = 0;
+        }
+    }
+    
+    auto norm = norm_1(result);
+    
+    if (norm > 0) {
+        result = result / norm;
+    }
+    
+    return result;
+}
+
