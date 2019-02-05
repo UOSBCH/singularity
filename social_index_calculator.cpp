@@ -120,39 +120,29 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     vector_t default_initial_vector = create_default_initial_vector();
     vector_t initial_vector;
     vector_t weight_vector = create_weight_vector();
-    
-    if (norm_1(weight_vector) > 0) {
-        initial_vector = default_initial_vector * double_type(0.2) + weight_vector * double_type(0.8);
-    } else {
-        initial_vector = default_initial_vector;
-    }
-    
     vector_t stack_vector = create_stack_vector();
+    
+    double_type stack_contribution = norm_1(stack_vector) > 0 ? parameters.stack_contribution : 0;
+    double_type weight_contribution = norm_1(weight_vector) > 0 ? parameters.weight_contribution : 0;
+    double_type const_contribution = double_type(1) - stack_contribution - weight_contribution;
+    
+    initial_vector = default_initial_vector * const_contribution + weight_vector * weight_contribution + stack_vector * stack_contribution;
+    
     
     std::shared_ptr<vector_t> p_account_rank; 
     vector_t account_rank_final;
     
     p_account_rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
+
+    account_rank_final = *p_account_rank - stack_vector * ((double_type(1) - parameters.outlink_weight) * stack_contribution);
     
-    if (mode == calculation_mode::PHANTOM_ACCOUNT && account_map.size() > 1) {
-        double_type k = double_type(1) / (double_type(1) -  (*p_account_rank)[0]);
-        *p_account_rank *= k;
+    if (norm_1(account_rank_final) > 0) {
+        account_rank_final *= double_type(1) / norm_1(account_rank_final);
     }
     
-    if (norm_1(stack_vector) > 0) {
-        vector_t stack_vector_part = prod(outlink_matrix, stack_vector);
-        for (auto additional_matrix: additional_matrices) {
-            stack_vector_part += prod(*additional_matrix, stack_vector);
-        }
-        if (mode == calculation_mode::PHANTOM_ACCOUNT && account_map.size() > 1) {
-            double_type k = double_type(1) / (double_type(1) -  (stack_vector_part)[0]);
-            stack_vector_part *= k;
-            stack_vector *= k;
-        }
-        
-        account_rank_final = *p_account_rank * (double_type(0.5)) + stack_vector_part * (double_type(0.5));
-    } else {
-        account_rank_final = *p_account_rank;
+    if (mode == calculation_mode::PHANTOM_ACCOUNT && account_map.size() > 1) {
+        double_type k = double_type(1) / (double_type(1) -  account_rank_final[0]);
+        account_rank_final *= k;
     }
     
     matrix_t content_matrix(contents_count, accounts_count);
@@ -163,7 +153,7 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     auto content_rank = prod(content_matrix, account_rank_final);
 
     if (parameters.include_detailed_data) {
-        calculate_detalization(outlink_matrix, content_matrix, *p_account_rank, stack_vector, initial_vector, additional_matrices);
+        calculate_detalization(outlink_matrix, content_matrix, account_rank_final, stack_vector, initial_vector, additional_matrices);
     }
     
     return calculate_score(account_rank_final, content_rank);

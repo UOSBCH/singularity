@@ -62,6 +62,8 @@ namespace singularity {
         bool include_detailed_data = false;
         bool extended_logging = false;
         bool use_diagonal_elements = false;
+        double_type stack_contribution = 0;
+        double_type weight_contribution = 0;
     };
     
     namespace normalization_tools
