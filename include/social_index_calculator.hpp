@@ -15,6 +15,14 @@ namespace singularity {
 
     enum calculation_mode {SIMPLE, DIAGONAL, PHANTOM_ACCOUNT};
     
+    struct intermediate_results_t 
+    {
+        account_activity_index_map_t default_initial;
+        account_activity_index_map_t trust;
+        account_activity_index_map_t priority;
+        account_activity_index_map_t stack;
+    };
+    
     class social_index_calculator 
     {
     public:
@@ -56,9 +64,13 @@ namespace singularity {
         {
             return content_detalization;
         };
+        account_activity_index_map_t vector2map(vector_t& v);
+        intermediate_results_t get_last_intermediate_results()
+        {
+            return last_intermediate_results;
+        };
     private:
         calculation_mode mode;
-        friend class boost::serialization::access;
         parameters_t parameters;
         bool disable_negative_weights;
         
@@ -132,8 +144,10 @@ namespace singularity {
             const vector_t& weight_vector,
             const additional_matrices_vector& additional_matrices
         );
+        
+        intermediate_results_t last_intermediate_results;
     };
-}
+};
 
 BOOST_CLASS_VERSION( singularity::social_index_calculator, 1 )
 

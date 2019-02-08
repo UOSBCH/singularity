@@ -87,6 +87,8 @@ void social_index_calculator::skip_blocks(unsigned int blocks_count)
 
 std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index_calculator::calculate()
 {
+    intermediate_results_t current_intermediate_results;
+    
     if (accounts_count == 0) {
         return std::map<node_type, std::shared_ptr<account_activity_index_map_t> >();
     }
@@ -96,9 +98,17 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     
     calculate_outlink_matrix(trust_outlink_matrix, *p_trust_matrix, trust_additional_matrices);
     
-    vector_t trust_initial_vector = create_default_initial_vector() * double_type(0.1) + create_stack_vector() * double_type(0.9);
+    vector_t stack_vector = create_stack_vector();
+    vector_t default_initial_vector = create_default_initial_vector();
+    
+    current_intermediate_results.stack = vector2map(stack_vector);
+    current_intermediate_results.default_initial = vector2map(default_initial_vector);
+    
+    vector_t trust_initial_vector = default_initial_vector * double_type(0.1) + stack_vector * double_type(0.9);
     
     auto p_trust_vector = p_rank_calculator->process(trust_outlink_matrix, trust_initial_vector, trust_initial_vector, trust_additional_matrices);
+
+    current_intermediate_results.trust = vector2map(*p_trust_vector);
     
     matrix_t outlink_matrix(accounts_count, accounts_count);
 
@@ -126,11 +136,11 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     
     calculate_outlink_matrix(outlink_matrix, weight_matrix, additional_matrices);
 
-    vector_t default_initial_vector = create_default_initial_vector();
     vector_t initial_vector;
 //     vector_t weight_vector = create_priority_vector();
     vector_t priority_vector = matrix_tools::discretize(*p_trust_vector);
-    vector_t stack_vector = create_stack_vector();
+    
+    current_intermediate_results.priority = vector2map(priority_vector);
     
     double_type stack_contribution = norm_1(stack_vector) > 0 ? parameters.stack_contribution : 0;
     double_type weight_contribution = norm_1(priority_vector) > 0 ? parameters.weight_contribution : 0;
@@ -165,6 +175,8 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     if (parameters.include_detailed_data) {
         calculate_detalization(outlink_matrix, content_matrix, account_rank_final, stack_vector, initial_vector, additional_matrices);
     }
+    
+    last_intermediate_results = current_intermediate_results;
     
     return calculate_score(account_rank_final, content_rank);
 }
@@ -724,4 +736,17 @@ void social_index_calculator::add_phantom_account_relations (matrix_t& m)
             }
         }
     }
+}
+
+account_activity_index_map_t social_index_calculator::vector2map(vector_t& v)
+{
+    account_activity_index_map_t result;
+    
+    for (auto node_it: account_map) {
+        if (node_it.first != reserved_account) {
+            result[node_it.first] = v[node_it.second];
+        }
+    };
+
+    return result;
 }
