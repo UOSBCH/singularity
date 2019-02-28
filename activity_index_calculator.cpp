@@ -14,12 +14,12 @@ using namespace boost;
 using namespace singularity;
 
 void activity_index_calculator::collect_accounts(
-    const std::vector<std::shared_ptr<relation_t> >& transactions
+    const std::vector<std::shared_ptr<relation_t> >& relations
 ) {
     
     std::lock_guard<std::mutex> lock(accounts_lock);
-    for (unsigned int i=0; i<transactions.size(); i++) {
-        std::shared_ptr<relation_t> transaction = transactions[i];
+    for (unsigned int i=0; i<relations.size(); i++) {
+        std::shared_ptr<relation_t> transaction = relations[i];
         
         if (transaction->get_source_type() == node_type::ACCOUNT) {
             auto found_source = account_map.find(transaction->get_source());
@@ -44,18 +44,8 @@ void activity_index_calculator::add_block(const std::vector<std::shared_ptr<rela
     
     total_handled_blocks_count++;
     handled_blocks_count++;
-//     if (handled_blocks_count >= parameters.decay_period) {
-//         handled_blocks_count -= parameters.decay_period;
-//         *p_weight_matrix *= parameters.decay_koefficient;
-//     }
     
-    if (p_weight_matrix->size1() < nodes_count) {
-        matrix_t::size_type new_size = p_weight_matrix->size1();
-        while (new_size < nodes_count) {
-            new_size *= 2;
-        }
-        p_weight_matrix->resize(new_size, new_size);
-    }
+    p_weight_matrix->set_real_size(nodes_count, nodes_count);
 
     update_weight_matrix(filtered_transactions);
 }

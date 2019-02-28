@@ -36,17 +36,13 @@ void social_index_calculator::collect_accounts(
     }
 }
 
-void social_index_calculator::add_block(const std::vector<std::shared_ptr<relation_t> >& transactions) {
-    std::vector<std::shared_ptr<relation_t> > filtered_transactions = filter_block(transactions);
+void social_index_calculator::add_block(const std::vector<std::shared_ptr<relation_t> >& relations) {
+    std::vector<std::shared_ptr<relation_t> > filtered_transactions = filter_block(relations);
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
     collect_accounts(filtered_transactions);
     
     total_handled_blocks_count++;
     handled_blocks_count++;
-//     if (handled_blocks_count >= parameters.decay_period) {
-//         handled_blocks_count -= parameters.decay_period;
-//         *p_weight_matrix *= parameters.decay_koefficient;
-//     }
     
     adjust_matrix_sizes();
     
@@ -269,9 +265,9 @@ void social_index_calculator::calculate_content_matrix(
 }
 
 
-void social_index_calculator::update_weight_matrix(const std::vector<std::shared_ptr<relation_t> >& transactions) {
-    for (unsigned int i=0; i<transactions.size(); i++) {
-        std::shared_ptr<relation_t> t = transactions[i];
+void social_index_calculator::update_weight_matrix(const std::vector<std::shared_ptr<relation_t> >& relations) {
+    for (unsigned int i=0; i<relations.size(); i++) {
+        std::shared_ptr<relation_t> t = relations[i];
         
         if (parameters.extended_logging) {
             exporter.export_relation(*t);
@@ -422,66 +418,11 @@ void social_index_calculator::limit_values(matrix_t& m)
 
 void social_index_calculator::adjust_matrix_sizes()
 {
-    if (p_vote_matrix->size1() < contents_count || p_vote_matrix->size2() < accounts_count) {
-        matrix_t::size_type new_size_1 = p_vote_matrix->size1();
-        matrix_t::size_type new_size_2 = p_vote_matrix->size2();
-        while (new_size_1 < contents_count) {
-            new_size_1 *= 2;
-        }
-        while (new_size_2 < accounts_count) {
-            new_size_2 *= 2;
-        }
-        p_vote_matrix->resize(new_size_1, new_size_2);
-    }
-
-    if (p_ownership_matrix->size2() < contents_count || p_ownership_matrix->size1() < accounts_count) {
-        matrix_t::size_type new_size_1 = p_ownership_matrix->size1();
-        matrix_t::size_type new_size_2 = p_ownership_matrix->size2();
-        while (new_size_2 < contents_count) {
-            new_size_2 *= 2;
-        }
-        while (new_size_1 < accounts_count) {
-            new_size_1 *= 2;
-        }
-        p_ownership_matrix->resize(new_size_1, new_size_2);
-    }
-
-    if (p_repost_matrix->size1() < contents_count || p_repost_matrix->size2() < contents_count) {
-        matrix_t::size_type new_size_1 = p_repost_matrix->size1();
-        matrix_t::size_type new_size_2 = p_repost_matrix->size2();
-        while (new_size_1 < contents_count) {
-            new_size_1 *= 2;
-        }
-        while (new_size_2 < contents_count) {
-            new_size_2 *= 2;
-        }
-        p_repost_matrix->resize(new_size_1, new_size_2);
-    }
-    
-    if (p_comment_matrix->size1() < contents_count || p_comment_matrix->size2() < contents_count) {
-        matrix_t::size_type new_size_1 = p_comment_matrix->size1();
-        matrix_t::size_type new_size_2 = p_comment_matrix->size2();
-        while (new_size_1 < contents_count) {
-            new_size_1 *= 2;
-        }
-        while (new_size_2 < contents_count) {
-            new_size_2 *= 2;
-        }
-        p_comment_matrix->resize(new_size_1, new_size_2);
-    }
-
-    if (p_trust_matrix->size1() < accounts_count || p_trust_matrix->size2() < accounts_count) {
-        matrix_t::size_type new_size_1 = p_trust_matrix->size1();
-        matrix_t::size_type new_size_2 = p_trust_matrix->size2();
-        while (new_size_1 < accounts_count) {
-            new_size_1 *= 2;
-        }
-        while (new_size_2 < accounts_count) {
-            new_size_2 *= 2;
-        }
-        p_trust_matrix->resize(new_size_1, new_size_2);
-    }
-    
+    p_vote_matrix->set_real_size(contents_count, accounts_count);
+    p_ownership_matrix->set_real_size(accounts_count, contents_count);
+    p_repost_matrix->set_real_size(contents_count, contents_count);
+    p_comment_matrix->set_real_size(contents_count, contents_count);
+    p_trust_matrix->set_real_size(accounts_count, accounts_count);
 }
 
 vector_t social_index_calculator::create_stack_vector()

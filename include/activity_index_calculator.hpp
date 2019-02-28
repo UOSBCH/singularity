@@ -56,7 +56,7 @@ namespace singularity {
         );
         
         void collect_accounts(
-            const std::vector<std::shared_ptr<relation_t> >& transactions
+            const std::vector<std::shared_ptr<relation_t> >& relations
         );
         void calculate_outlink_matrix(
             matrix_t& o,

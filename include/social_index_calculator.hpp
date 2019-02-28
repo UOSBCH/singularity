@@ -44,7 +44,7 @@ namespace singularity {
                 get_account_id(reserved_account, true);
             }
         }
-        void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions);
+        void add_block(const std::vector<std::shared_ptr<relation_t> >& relations);
         void skip_blocks(unsigned int blocks_count);
         std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate();
         unsigned int get_total_handled_block_count();
@@ -119,7 +119,7 @@ namespace singularity {
             matrix_t& weight_matrix
         );
         void update_weight_matrix(
-            const std::vector<std::shared_ptr<relation_t> >& transactions
+            const std::vector<std::shared_ptr<relation_t> >& relations
         );
         void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices);
         void collapse_matrix(matrix_t& out, const matrix_t& in1, const matrix_t& in2);
