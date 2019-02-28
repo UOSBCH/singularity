@@ -23,7 +23,7 @@ namespace singularity {
             auto transaction = std::dynamic_pointer_cast<transaction_t>(relation);
             
             if (!transaction) {
-                return true;
+                return false;
             } else {
                 if (transaction->get_amount() < parameters.token_usd_rate * parameters.transaction_amount_threshold * parameters.precision) {
                     return false;

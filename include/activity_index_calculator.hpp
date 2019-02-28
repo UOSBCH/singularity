@@ -40,7 +40,7 @@ namespace singularity {
         unsigned int total_handled_blocks_count = 0;
         unsigned int handled_blocks_count = 0;
         std::shared_ptr<matrix_t> p_weight_matrix;
-        std::map<node_type, std::shared_ptr<account_id_map_t> > node_maps;
+        account_id_map_t account_map;
         uint64_t nodes_count = 0;
         std::mutex accounts_lock;
         std::mutex weight_matrix_lock;
@@ -61,14 +61,12 @@ namespace singularity {
         void calculate_outlink_matrix(
             matrix_t& o,
             matrix_t& weight_matrix,
-            additional_matrices_vector& additional_matrices,
-            const vector_t& initial_vector
+            additional_matrices_vector& additional_matrices
         );
         void update_weight_matrix(
-            matrix_t& weight_matrix,
             const std::vector<std::shared_ptr<relation_t> >& transactions
         );
-        void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices, const vector_t& initial_vector);
+        void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices);
         vector_t create_initial_vector();
     };
 }
