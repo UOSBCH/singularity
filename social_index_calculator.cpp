@@ -81,6 +81,25 @@ void social_index_calculator::skip_blocks(unsigned int blocks_count)
 //     }
 }
 
+std::shared_ptr<vector_t> social_index_calculator::calculate_priority_vector()
+{
+    if (accounts_count == 0) {
+        return std::shared_ptr<vector_t>();
+    }
+    
+    matrix_t trust_outlink_matrix(accounts_count, accounts_count);
+    additional_matrices_vector trust_additional_matrices;
+    
+    calculate_outlink_matrix(trust_outlink_matrix, *p_trust_matrix, trust_additional_matrices);
+
+    vector_t stack_vector = create_stack_vector();
+    vector_t default_initial_vector = create_default_initial_vector();
+    
+    vector_t trust_initial_vector = default_initial_vector * double_type(0.1) + stack_vector * double_type(0.9);
+    
+    return p_rank_calculator->process(trust_outlink_matrix, trust_initial_vector, trust_initial_vector, trust_additional_matrices);
+}
+
 std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index_calculator::calculate()
 {
     intermediate_results_t current_intermediate_results;
@@ -89,20 +108,13 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
         return std::map<node_type, std::shared_ptr<account_activity_index_map_t> >();
     }
     
-    matrix_t trust_outlink_matrix(accounts_count, accounts_count);
-    additional_matrices_vector trust_additional_matrices;
-    
-    calculate_outlink_matrix(trust_outlink_matrix, *p_trust_matrix, trust_additional_matrices);
-    
     vector_t stack_vector = create_stack_vector();
     vector_t default_initial_vector = create_default_initial_vector();
     
     current_intermediate_results.stack = vector2map(stack_vector);
     current_intermediate_results.default_initial = vector2map(default_initial_vector);
     
-    vector_t trust_initial_vector = default_initial_vector * double_type(0.1) + stack_vector * double_type(0.9);
-    
-    auto p_trust_vector = p_rank_calculator->process(trust_outlink_matrix, trust_initial_vector, trust_initial_vector, trust_additional_matrices);
+    auto p_trust_vector = calculate_priority_vector();
 
     current_intermediate_results.trust = vector2map(*p_trust_vector);
     
