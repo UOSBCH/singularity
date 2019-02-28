@@ -85,6 +85,36 @@ class mapped_matrix_resizable:
             }
             return *this;
         }
+        
+        typename A::size_type get_real_size_1() {
+            return real_size_1_;
+        }
+
+        typename A::size_type get_real_size_2() {
+            return real_size_2_;
+        }
+        
+        void set_real_size(typename A::size_type real_size_1, typename A::size_type real_size_2) {
+            if (real_size_1 > parent_type::size1() || real_size_2 > parent_type::size2()) {
+                typename A::size_type new_size_1 = parent_type::size1();
+                typename A::size_type new_size_2 = parent_type::size2();
+                while (new_size_1 < real_size_1) {
+                    new_size_1 *= 2;
+                }
+                while (new_size_2 < real_size_2) {
+                    new_size_2 *= 2;
+                }
+                
+                this->resize(new_size_1, new_size_2, true);
+            };
+            
+            real_size_1_ = real_size_1;
+            real_size_2_ = real_size_2;
+        }
+        
+    private:
+        typename A::size_type real_size_1_ = 0;
+        typename A::size_type real_size_2_ = 0;
     };
 }}}
 
