@@ -57,13 +57,17 @@ namespace singularity {
         };
         void add_stack_vector(const std::map<std::string, double_type>& stacks);
         void set_priorities(const std::map<std::string, double_type>& priorities);
-        activity_index_detalization_t get_detalization() 
+        activity_index_detalization_t get_account_rank_detalization() 
         {
-            return detalization;
+            return account_rank_detalization;
         };
-        activity_index_detalization_t get_content_detalization() 
+        activity_index_detalization_t get_account_priority_detalization() 
         {
-            return content_detalization;
+            return account_priority_detalization;
+        };
+        activity_index_detalization_t get_content_rank_detalization() 
+        {
+            return content_rank_detalization;
         };
         account_activity_index_map_t vector2map(vector_t& v);
         intermediate_results_t get_last_intermediate_results()
@@ -71,9 +75,10 @@ namespace singularity {
             return last_intermediate_results;
         };
     private:
-        calculation_mode mode;
         parameters_t parameters;
         bool disable_negative_weights;
+        std::shared_ptr<rank_interface> p_rank_calculator;
+        calculation_mode mode;
         
         exporter_t exporter;
         
@@ -96,7 +101,6 @@ namespace singularity {
         std::mutex accounts_lock;
         std::mutex weight_matrix_lock;
         
-        std::shared_ptr<rank_interface> p_rank_calculator;
         std::shared_ptr<decay_manager_t> p_decay_manager;
         std::shared_ptr<filter_interface> p_filter;
 
@@ -108,7 +112,7 @@ namespace singularity {
         );
         
         void collect_accounts(
-            const std::vector<std::shared_ptr<relation_t> >& transactions
+            const std::vector<std::shared_ptr<relation_t> >& relations
         );
         void calculate_outlink_matrix(
             matrix_t& o,
@@ -135,13 +139,14 @@ namespace singularity {
         boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
         boost::optional<account_id_map_t::mapped_type> get_content_id(std::string name, bool allow_create);
         
-        activity_index_detalization_t detalization;
-        activity_index_detalization_t content_detalization;
+        activity_index_detalization_t account_rank_detalization;
+        activity_index_detalization_t account_priority_detalization;
+        activity_index_detalization_t content_rank_detalization;
         void calculate_detalization(
+            activity_index_detalization_t& detalization,
+            double_type outlink_weight,
             const matrix_t& outlink_matrix,
-            const matrix_t& content_matrix,
             const vector_t& activity_index_vector,
-            const vector_t& stack_vector,
             const vector_t& weight_vector,
             const additional_matrices_vector& additional_matrices
         );

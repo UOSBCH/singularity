@@ -33,7 +33,6 @@ namespace singularity {
             p_filter = filter;
         };
     private:
-        friend class boost::serialization::access;
         parameters_t parameters;
         bool disable_negative_weights;
         
@@ -58,6 +57,8 @@ namespace singularity {
         void collect_accounts(
             const std::vector<std::shared_ptr<relation_t> >& relations
         );
+        boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
+        
         void calculate_outlink_matrix(
             matrix_t& o,
             matrix_t& weight_matrix,

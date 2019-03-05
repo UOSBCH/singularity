@@ -19,20 +19,14 @@ void activity_index_calculator::collect_accounts(
     
     std::lock_guard<std::mutex> lock(accounts_lock);
     for (unsigned int i=0; i<relations.size(); i++) {
-        std::shared_ptr<relation_t> transaction = relations[i];
+        std::shared_ptr<relation_t> relation = relations[i];
         
-        if (transaction->get_source_type() == node_type::ACCOUNT) {
-            auto found_source = account_map.find(transaction->get_source());
-            if (found_source == account_map.end()) {
-                account_map.insert(account_id_map_t::value_type(transaction->get_source(), nodes_count ++));
-            }
+        if (relation->get_source_type() == node_type::ACCOUNT) {
+            get_account_id(relation->get_source(), true);
         }
 
-        if (transaction->get_target_type() == node_type::ACCOUNT) {
-            auto found_target = account_map.find(transaction->get_target());
-            if (found_target == account_map.end()) {
-                account_map.insert(account_id_map_t::value_type(transaction->get_target(), nodes_count ++));
-            }
+        if (relation->get_target_type() == node_type::ACCOUNT) {
+            get_account_id(relation->get_target(), true);
         }
     }
 }
@@ -40,6 +34,7 @@ void activity_index_calculator::collect_accounts(
 void activity_index_calculator::add_block(const std::vector<std::shared_ptr<relation_t> >& transactions) {
     std::vector<std::shared_ptr<relation_t> > filtered_transactions = filter_block(transactions);
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
+    
     collect_accounts(filtered_transactions);
     
     total_handled_blocks_count++;
@@ -73,13 +68,6 @@ void activity_index_calculator::skip_blocks(unsigned int blocks_count)
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
     total_handled_blocks_count += blocks_count;
     handled_blocks_count += blocks_count;
-    
-//     if (handled_blocks_count >= parameters.decay_period) {
-//         unsigned int decay_period_count = handled_blocks_count / parameters.decay_period;
-//         handled_blocks_count = handled_blocks_count - decay_period_count * parameters.decay_period;
-//         double_type decay_value = boost::multiprecision::pow(parameters.decay_koefficient, decay_period_count);
-//         *p_weight_matrix *= decay_value;
-//     }
 }
 
 std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_index_calculator::calculate()
@@ -241,6 +229,26 @@ vector_t activity_index_calculator::create_initial_vector()
     std::lock_guard<std::mutex> ac_lock(accounts_lock);
     
     return vector_t(nodes_count, double_type(1)/nodes_count);
+}
+
+boost::optional<account_id_map_t::mapped_type> activity_index_calculator::get_account_id(std::string name, bool allow_create)
+{
+    auto item_it = account_map.find(name);
+    
+    if (item_it != account_map.end()) {
+        auto id = item_it->second;
+        
+        return id;
+    } else if (allow_create) {
+        
+        auto id = nodes_count++;
+        
+        account_map[name] = id;
+        
+        return id;
+    }
+    
+    return boost::none;
 }
 
 

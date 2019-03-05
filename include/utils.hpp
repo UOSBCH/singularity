@@ -44,7 +44,6 @@ namespace singularity {
     struct activity_index_detalization_t {
         std::map<std::string, double_type> base_index; 
         std::map<std::string, contribution_map> activity_index_contribution;
-        std::map<std::string, contribution_map> stack_contribution;
     };
 
     struct parameters_t {
