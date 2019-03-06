@@ -145,11 +145,18 @@ namespace singularity {
         void calculate_detalization(
             activity_index_detalization_t& detalization,
             double_type outlink_weight,
+            double_type normalization_koefficient,
             const matrix_t& outlink_matrix,
             const vector_t& activity_index_vector,
-            const vector_t& weight_vector,
+            const vector_t& base_vector,
             const additional_matrices_vector& additional_matrices
         );
+        
+        void calculate_content_detalization (
+            activity_index_detalization_t& detalization,
+            const matrix_t& outlink_matrix, 
+            const vector_t& activity_index_vector
+        ); 
         
         intermediate_results_t last_intermediate_results;
     };

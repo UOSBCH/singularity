@@ -91,7 +91,15 @@ std::shared_ptr<vector_t> social_index_calculator::calculate_priority_vector()
     auto p_rank = p_rank_calculator->process(trust_outlink_matrix, trust_initial_vector, trust_initial_vector, trust_additional_matrices);
     
     if (parameters.include_detailed_data) {
-        calculate_detalization(account_priority_detalization, parameters.outlink_weight, trust_outlink_matrix, *p_rank, trust_initial_vector, trust_additional_matrices);
+        calculate_detalization(
+            account_priority_detalization, 
+            parameters.outlink_weight, 
+            1, 
+            trust_outlink_matrix, 
+            *p_rank, 
+            trust_initial_vector, 
+            trust_additional_matrices
+        );
     }
     
     return p_rank;
@@ -152,16 +160,22 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     vector_t account_rank_final;
     
     p_account_rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
+    
+    vector_t base_vector = initial_vector;
+    double_type normalization_koefficient(1);
 
     account_rank_final = *p_account_rank - stack_vector * ((double_type(1) - parameters.outlink_weight) * stack_contribution);
+    base_vector -= stack_vector * stack_contribution;
     
     if (norm_1(account_rank_final) > 0) {
         account_rank_final *= double_type(1) / norm_1(account_rank_final);
+        normalization_koefficient *= double_type(1) / norm_1(account_rank_final);
     }
     
     if (mode == calculation_mode::PHANTOM_ACCOUNT && account_map.size() > 1) {
         double_type k = double_type(1) / (double_type(1) -  account_rank_final[0]);
         account_rank_final *= k;
+        normalization_koefficient *= k;
     }
     
     matrix_t content_matrix(contents_count, accounts_count);
@@ -171,7 +185,8 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     auto content_rank = prod(content_matrix, account_rank_final);
 
     if (parameters.include_detailed_data) {
-        calculate_detalization(account_rank_detalization, parameters.outlink_weight, outlink_matrix, account_rank_final, initial_vector, additional_matrices);
+        calculate_detalization(account_rank_detalization, parameters.outlink_weight, normalization_koefficient, outlink_matrix, *p_account_rank, base_vector, additional_matrices);
+        calculate_content_detalization(content_rank_detalization, content_matrix, account_rank_final);
     }
     
     last_intermediate_results = current_intermediate_results;
@@ -516,6 +531,7 @@ boost::optional<account_id_map_t::mapped_type> social_index_calculator::get_cont
 void social_index_calculator::calculate_detalization (
     activity_index_detalization_t& detalization,
     double_type outlink_weight,
+    double_type normalization_koefficient,
     const matrix_t& outlink_matrix, 
     const vector_t& activity_index_vector,
     const vector_t& weight_vector, 
@@ -526,11 +542,11 @@ void social_index_calculator::calculate_detalization (
     
     std::vector<std::string> reverse_account_map(account_map.size());
     
-    double_type activity_index_vector_norm = norm_1(activity_index_vector);
+    double_type norm = norm_1(activity_index_vector);
     
     vector_t base_vector(account_map.size(), 0);
     
-    base_vector += (double_type(1) - outlink_weight) * weight_vector * activity_index_vector_norm;
+    base_vector += (double_type(1) - outlink_weight) * weight_vector * normalization_koefficient * norm;
     
     for (auto it: additional_matrices) {
         base_vector += outlink_weight * prod(*it, activity_index_vector);
@@ -548,7 +564,7 @@ void social_index_calculator::calculate_detalization (
         for (auto j = i.cbegin(); j != i.cend(); j++) {
             contribution_t contribution;
             
-            contribution.koefficient = outlink_weight * outlink_matrix(j.index1(), j.index2());
+            contribution.koefficient = outlink_weight * normalization_koefficient * outlink_matrix(j.index1(), j.index2());
             contribution.rate = activity_index_vector(j.index2());
             
             detalization.activity_index_contribution[reverse_account_map[j.index1()]][reverse_account_map[j.index2()]] = contribution;
@@ -556,6 +572,45 @@ void social_index_calculator::calculate_detalization (
         }
     }
 }
+
+void social_index_calculator::calculate_content_detalization (
+    activity_index_detalization_t& detalization,
+    const matrix_t& outlink_matrix, 
+    const vector_t& activity_index_vector
+) 
+{
+    std::lock_guard<std::mutex> lock(accounts_lock);
+    
+    std::vector<std::string> reverse_account_map(account_map.size());
+    std::vector<std::string> reverse_content_map(content_map.size());
+    std::map<std::string, double_type> base;
+    
+    for (auto it: account_map) {
+        std::string name = it.first;
+        size_t id = it.second;
+        reverse_account_map[id] = name;
+    }
+    for (auto it: content_map) {
+        std::string name = it.first;
+        size_t id = it.second;
+        reverse_content_map[id] = name;
+        base[name] = 0;
+    }
+    
+    for (auto i = outlink_matrix.cbegin1(); i != outlink_matrix.cend1(); i++) {
+        for (auto j = i.cbegin(); j != i.cend(); j++) {
+            contribution_t contribution;
+            
+            contribution.koefficient = outlink_matrix(j.index1(), j.index2());
+            contribution.rate = activity_index_vector(j.index2());
+            
+            detalization.activity_index_contribution[reverse_content_map[j.index1()]][reverse_account_map[j.index2()]] = contribution;
+        }
+    }
+    
+    detalization.base_index = base;
+}
+
 
 void social_index_calculator::collapse_matrix(matrix_t& out, const matrix_t& in1, const matrix_t& in2)
 {
