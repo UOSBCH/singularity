@@ -104,17 +104,17 @@ void run_test(
     
     for(auto r: *p_account_index_map) {
         std::string name = r.first;
-        double value1 = (double) r.second;
-        double value2 = (double) expected_account_rank[name];
-        account_norm += value1;
-        BOOST_CHECK_CLOSE (value1, value2, precision);
+        double calculated = (double) r.second;
+        double expected = (double) expected_account_rank[name];
+        account_norm += calculated;
+        BOOST_CHECK_CLOSE (calculated, expected, precision);
     }
     for(auto r: *p_content_index_map) {
         std::string name = r.first;
-        double value1 = (double) r.second;
-        double value2 = (double) expected_content_rank[name];
-        content_norm += value1;
-        BOOST_CHECK_CLOSE (value1, value2, precision);
+        double calculated = (double) r.second;
+        double expected = (double) expected_content_rank[name];
+        content_norm += calculated;
+        BOOST_CHECK_CLOSE (calculated, expected, precision);
     }
     BOOST_CHECK_CLOSE (account_norm, 1, precision);
 };
