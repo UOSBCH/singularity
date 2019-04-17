@@ -16,10 +16,10 @@
 namespace singularity {
     typedef uint64_t money_t;
     typedef boost::multiprecision::number< boost::multiprecision::cpp_dec_float<10> > double_type;
-    typedef boost::numeric::ublas::mapped_matrix_resizable<double_type, boost::numeric::ublas::row_major> matrix_t;
+    typedef boost::numeric::ublas::mapped_matrix_resizable<double_type, boost::numeric::ublas::row_major, std::map<std::uint64_t, double_type> > matrix_t;
     typedef boost::numeric::ublas::vector<double_type> vector_t;
     typedef boost::numeric::ublas::mapped_vector<double_type> sparce_vector_t;
-    typedef unsigned long int index_t;
+    typedef uint32_t index_t;
     typedef boost::numeric::ublas::matrix_range<matrix_t> matrix_range_t;
     typedef boost::numeric::ublas::vector_range<vector_t> vector_range_t;
     typedef boost::numeric::ublas::range range_t;
