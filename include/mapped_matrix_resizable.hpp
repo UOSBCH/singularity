@@ -118,10 +118,10 @@ class mapped_matrix_resizable:
     };
     
     template<class T, class L = row_major, class A = std::map<std::size_t, T> >
-    vector_expression<T> prod(const mapped_matrix_resizable<T, L, A> &e1, const vector_expression<T> &e2)
+    BOOST_UBLAS_INLINE
+    vector<T> prod(const mapped_matrix_resizable<T, L, A> &e1, const vector<T> &e2)
     {
         vector<T> result(e1.size1());
-        
         for (auto it: e1.data()) {
             auto i = L::index_i(it.first, e1.size1(), e1.size2());
             auto j = L::index_j(it.first, e1.size1(), e1.size2());
