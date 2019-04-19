@@ -10,15 +10,6 @@
 #include "filters.hpp"
 
 namespace singularity {
-    
-    typedef std::map<std::string, uint32_t> account_id_map_t;
-    typedef std::map<std::string, double_type> account_activity_index_map_t;
-    
-    struct account_t {
-        money_t amount;
-        int height;
-    };
-    
     class activity_index_calculator 
     {
     public:
@@ -34,8 +25,6 @@ namespace singularity {
         void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions);
         void skip_blocks(unsigned int blocks_count);
         std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate();
-        void save_state_to_file(std::string filename);
-        void load_state_from_file(std::string filename);
         unsigned int get_total_handled_block_count();
         void set_parameters(parameters_t params);
         parameters_t get_parameters();
@@ -44,14 +33,13 @@ namespace singularity {
             p_filter = filter;
         };
     private:
-        friend class boost::serialization::access;
         parameters_t parameters;
         bool disable_negative_weights;
         
         unsigned int total_handled_blocks_count = 0;
         unsigned int handled_blocks_count = 0;
         std::shared_ptr<matrix_t> p_weight_matrix;
-        std::map<node_type, std::shared_ptr<account_id_map_t> > node_maps;
+        account_id_map_t account_map;
         uint64_t nodes_count = 0;
         std::mutex accounts_lock;
         std::mutex weight_matrix_lock;
@@ -67,24 +55,18 @@ namespace singularity {
         );
         
         void collect_accounts(
-            const std::vector<std::shared_ptr<relation_t> >& transactions
+            const std::vector<std::shared_ptr<relation_t> >& relations
         );
+        boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
+        
         void calculate_outlink_matrix(
             matrix_t& o,
             matrix_t& weight_matrix,
             additional_matrices_vector& additional_matrices
         );
         void update_weight_matrix(
-            matrix_t& weight_matrix,
             const std::vector<std::shared_ptr<relation_t> >& transactions
         );
-        template<class Archive>
-        void serialize(Archive& ar, const unsigned int version) {
-            ar & BOOST_SERIALIZATION_NVP(total_handled_blocks_count);
-            ar & BOOST_SERIALIZATION_NVP(handled_blocks_count);
-//             ar & BOOST_SERIALIZATION_NVP(node_maps);
-            ar & BOOST_SERIALIZATION_NVP(*p_weight_matrix);
-        }
         void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices);
         vector_t create_initial_vector();
     };

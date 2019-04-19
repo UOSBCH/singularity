@@ -85,7 +85,51 @@ class mapped_matrix_resizable:
             }
             return *this;
         }
+        
+        typename A::size_type get_real_size_1() {
+            return real_size_1_;
+        }
+
+        typename A::size_type get_real_size_2() {
+            return real_size_2_;
+        }
+        
+        void set_real_size(typename A::size_type real_size_1, typename A::size_type real_size_2) {
+            if (real_size_1 > parent_type::size1() || real_size_2 > parent_type::size2()) {
+                typename A::size_type new_size_1 = parent_type::size1();
+                typename A::size_type new_size_2 = parent_type::size2();
+                while (new_size_1 < real_size_1) {
+                    new_size_1 *= 2;
+                }
+                while (new_size_2 < real_size_2) {
+                    new_size_2 *= 2;
+                }
+                
+                this->resize(new_size_1, new_size_2, true);
+            };
+            
+            real_size_1_ = real_size_1;
+            real_size_2_ = real_size_2;
+        }
+        
+    private:
+        typename A::size_type real_size_1_ = 0;
+        typename A::size_type real_size_2_ = 0;
     };
+    
+    template<class T, class L = row_major, class A = std::map<std::size_t, T> >
+    BOOST_UBLAS_INLINE
+    vector<T> prod(const mapped_matrix_resizable<T, L, A> &e1, const vector<T> &e2)
+    {
+        vector<T> result(e1.size1());
+        for (auto it: e1.data()) {
+            auto i = L::index_i(it.first, e1.size1(), e1.size2());
+            auto j = L::index_j(it.first, e1.size1(), e1.size2());
+            result(i) += it.second * e2(j);
+        }
+        
+        return result;
+    }
 }}}
 
 #endif /* MAPPED_MATRIX_RESIZABLE_HPP */

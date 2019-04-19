@@ -84,6 +84,19 @@ class vector_based_matrix:
         
         return left;
     };
+
+    template<typename T1, class E2>
+    BOOST_UBLAS_INLINE
+    typename vector_based_matrix<T1>::basic_vector_type prod (const vector_based_matrix<T1> &e1,  const matrix_expression<E2> &e2) 
+    {
+        typename vector_based_matrix<T1>::basic_vector_type left = e1.get_left_generator();
+        typename vector_based_matrix<T1>::basic_vector_type right = e1.get_right_generator();
+    
+        typename vector_based_matrix<T1>::basic_vector_type new_right = prod(right, e2);
+        
+        return vector_based_matrix<T1>(left, new_right);
+    };
+
     
 }}}
 

@@ -14,6 +14,7 @@ namespace singularity {
         virtual std::shared_ptr<vector_t> process(
             const matrix_t& outlink_matrix,
             const vector_t& initial_vector,
+            const vector_t& weight_vector,
             const additional_matrices_vector& additional_matrices
         );
         virtual Graph create_graph(const matrix_t& m);

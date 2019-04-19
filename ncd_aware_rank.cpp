@@ -8,6 +8,7 @@ using namespace singularity;
 std::shared_ptr<vector_t> ncd_aware_rank::process(
         const matrix_t& outlink_matrix,
         const vector_t& initial_vector,
+        const vector_t& weight_vector,
         const additional_matrices_vector& additional_matrices
 ) {
 //     sparce_vector_t v = matrix_tools::calculate_correction_vector(outlink_matrix);

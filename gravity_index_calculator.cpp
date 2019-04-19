@@ -14,19 +14,41 @@ money_t gravity_index_calculator::calculate_votes(money_t balance, double_type a
     return  (money_t)(double_type) (calculate_index(balance, activity_index, social_index) * current_supply);
 }
 
-account_activity_index_map_t gravity_index_calculator::scale_activity_index(const account_activity_index_map_t& index_map)
+account_activity_index_map_t gravity_index_calculator::scale_activity_index(const account_activity_index_map_t& index_map, double_type new_norm)
 {
     account_activity_index_map_t result;
     
-    auto objects_count = double_type(index_map.size());
+    double_type old_norm = 0;
+
+    for (auto index: index_map) {
+        old_norm += index.second;
+    }
     
-    if (objects_count == 0) {
+    if (old_norm == 0) {
         return result;
     }
     
+    double_type scale = new_norm / old_norm;
+    
     for (auto index: index_map) {
-        result[index.first] = index.second * objects_count;
+        result[index.first] = index.second * scale;
     }
     
     return result;
+}
+
+account_activity_index_map_t gravity_index_calculator::scale_activity_index_to_node_count(const account_activity_index_map_t& index_map)
+{
+    auto objects_count = double_type(index_map.size());
+    
+    if (objects_count == 0) {
+        return account_activity_index_map_t();
+    } else {
+        return scale_activity_index(index_map, objects_count);
+    }
+}
+
+account_activity_index_map_t gravity_index_calculator::scale_activity_index_to_1(const account_activity_index_map_t& index_map)
+{
+    return scale_activity_index(index_map, 1);
 }
