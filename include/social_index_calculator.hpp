@@ -117,7 +117,8 @@ namespace singularity {
         void calculate_outlink_matrix(
             matrix_t& o,
             matrix_t& weight_matrix,
-            additional_matrices_vector& additional_matrices
+            additional_matrices_vector& additional_matrices,
+            const vector_t& weight_vector
         );
         void calculate_content_matrix(
             matrix_t& o,
@@ -126,7 +127,7 @@ namespace singularity {
         void update_weight_matrix(
             const std::vector<std::shared_ptr<relation_t> >& relations
         );
-        void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices);
+        void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices, const vector_t& weight_vector);
         void collapse_matrix(matrix_t& out, const matrix_t& in1, const matrix_t& in2);
         vector_t create_default_initial_vector();
         void limit_values(matrix_t& m);
