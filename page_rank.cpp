@@ -28,7 +28,7 @@ std::shared_ptr<vector_t> page_rank::iterate(
         *next += prod(*additional_matrix, previous) * outlink_weight;
     }
     
-    *next += teleportation;
+//     *next += teleportation;
     
     return next;
 }
@@ -40,22 +40,26 @@ std::shared_ptr<vector_t> page_rank::calculate_rank(
         const vector_t& weight_vector
 ) {
     std::shared_ptr<vector_t> next;
-    std::shared_ptr<vector_t> previous(new vector_t(initial_vector));
+    std::shared_ptr<vector_t> result = std::make_shared<vector_t>(weight_vector.size(), 0);
     vector_t teleportation(weight_vector * (double_type(1) - outlink_weight));
+    std::shared_ptr<vector_t> previous = std::make_shared<vector_t>(teleportation);
+    
+    *result += *previous;
     
     matrix_t outlink_matrix_weighted = outlink_matrix * outlink_weight;
     
     for (uint i = 0; i < MAX_ITERATIONS; i++) {
         next  = iterate(outlink_matrix_weighted, additional_matrices, *previous, teleportation);
-        double_type norm = norm_1(*next - *previous);
+        double_type norm = norm_1(*next);
 
         if (norm <= precision) {
-            return next;
+            return result;
         } else {
             previous = next;
+            *result += *next;
         }
     }
     
-    return next;
+    return result;
 }
 
