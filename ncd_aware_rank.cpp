@@ -73,7 +73,7 @@ std::shared_ptr<vector_t> ncd_aware_rank::calculate_rank(
     for (uint i = 0; i < MAX_ITERATIONS; i++) {
         next  = iterate(outlink_matrix_weighted, additional_matrices, interlevel_matrix_s_weighted, interlevel_matrix_l, *previous, teleportation);
         double_type norm = norm_1(*next - *previous);
-        if (norm <= precision) {
+        if (norm <= parameters.rank_calculation_precision) {
             return next;
         } else {
             previous = next;

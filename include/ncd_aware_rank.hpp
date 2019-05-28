@@ -20,7 +20,6 @@ namespace singularity {
         virtual Graph create_graph(const matrix_t& m);
     private:
         parameters_t parameters;
-        double_type const precision = 0.01;
         virtual std::shared_ptr<vector_t> calculate_rank(
             const matrix_t& outlink_matrix, 
             const additional_matrices_vector& additional_matrices,

@@ -63,6 +63,7 @@ namespace singularity {
         bool use_diagonal_elements = false;
         double_type stack_contribution = 0;
         double_type weight_contribution = 0;
+        double_type rank_calculation_precision = 0.01;
     };
     
     namespace normalization_tools
