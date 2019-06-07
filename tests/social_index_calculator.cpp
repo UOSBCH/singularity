@@ -271,6 +271,7 @@ BOOST_AUTO_TEST_CASE( test1 )
 {
     parameters_t params;
     params.outlink_weight = 0.9;
+    params.interlevel_weight = 0;
     
     std::vector<std::vector<std::shared_ptr<relation_t> > > blocks;
     blocks.push_back(get_relations());
@@ -282,6 +283,7 @@ BOOST_AUTO_TEST_CASE( test2 )
 {
     parameters_t params;
     params.outlink_weight = 0.9;
+    params.interlevel_weight = 0;
     params.weight_contribution = 0.7;
     
     std::vector<std::vector<std::shared_ptr<relation_t> > > blocks;
@@ -296,6 +298,7 @@ BOOST_AUTO_TEST_CASE( test3 )
 {
     parameters_t params;
     params.outlink_weight = 0.9;
+    params.interlevel_weight = 0;
     params.weight_contribution = 0.7;
     
     std::vector<std::vector<std::shared_ptr<relation_t> > > blocks;
@@ -311,6 +314,7 @@ BOOST_AUTO_TEST_CASE( test4 )
 {
     parameters_t params;
     params.outlink_weight = 0.9;
+    params.interlevel_weight = 0;
     params.weight_contribution = 0.7;
     
     std::vector<std::vector<std::shared_ptr<relation_t> > > blocks;

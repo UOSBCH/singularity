@@ -131,7 +131,17 @@ namespace singularity {
     {
     public:
         runtime_exception(const std::string& __arg) :
-        runtime_error(__arg) {
+            runtime_error(__arg) 
+        {
+        }
+    };
+
+    class validation_exception: public std::invalid_argument
+    {
+    public:
+        validation_exception(const std::string& __arg) :
+            invalid_argument(__arg) 
+        {
         }
     };
 }

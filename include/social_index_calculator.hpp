@@ -10,6 +10,7 @@
 #include "filters.hpp"
 #include <boost/optional.hpp>
 #include "exporter.hpp"
+#include "validator.hpp"
 
 namespace singularity {
 
@@ -34,6 +35,7 @@ namespace singularity {
             std::shared_ptr<rank_interface> p_rank_calculator,
             calculation_mode mode
         ): parameters(parameters), disable_negative_weights(disable_negative_weights), p_rank_calculator(p_rank_calculator), mode(mode) {
+            validator.validate(parameters);
             p_ownership_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_vote_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_repost_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
@@ -76,6 +78,7 @@ namespace singularity {
         };
     private:
         parameters_t parameters;
+        parameters_validator_t validator;
         bool disable_negative_weights;
         std::shared_ptr<rank_interface> p_rank_calculator;
         calculation_mode mode;

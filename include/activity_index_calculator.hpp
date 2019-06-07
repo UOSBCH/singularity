@@ -8,6 +8,7 @@
 #include "relations.hpp"
 #include "rank_interface.hpp"
 #include "filters.hpp"
+#include "validator.hpp"
 
 namespace singularity {
     class activity_index_calculator 
@@ -19,6 +20,7 @@ namespace singularity {
             bool disable_negative_weights,
             std::shared_ptr<rank_interface> p_rank_calculator
         ): parameters(parameters), disable_negative_weights(disable_negative_weights), p_rank_calculator(p_rank_calculator) {
+            validator.validate(parameters);
             p_weight_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_decay_manager = std::make_shared<decay_manager_t>(parameters.decay_period, parameters.decay_koefficient);
         }
@@ -34,6 +36,7 @@ namespace singularity {
         };
     private:
         parameters_t parameters;
+        parameters_validator_t validator;
         bool disable_negative_weights;
         
         unsigned int total_handled_blocks_count = 0;

@@ -348,6 +348,7 @@ singularity::parameters_t singularity::social_index_calculator::get_parameters()
 
 void singularity::social_index_calculator::set_parameters(singularity::parameters_t params)
 {
+    validator.validate(params);
     parameters = params;
 }
 
