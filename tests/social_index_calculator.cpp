@@ -22,7 +22,7 @@ void run_test(
     std::map<std::string, double_type> *p_priorities
 )
 {
-    const double precision = 1e-2;
+    const double precision = (double) params.rank_calculation_precision * 100;
     auto p_calculator = rank_calculator_factory::create_calculator_for_social_network(params);
     
     for(auto block: blocks) {
@@ -71,6 +71,67 @@ void run_test(
     
     BOOST_CHECK_CLOSE (account_norm, 1, precision);
 };
+
+void check_details (
+    parameters_t params, 
+    std::vector<std::vector<std::shared_ptr<relation_t> > > blocks, 
+    std::map<std::string, double_type> *p_stack,
+    std::map<std::string, double_type> *p_priorities
+)
+{
+    double precision = (double) params.rank_calculation_precision * 5 * 100;
+    auto p_calculator = rank_calculator_factory::create_calculator_for_social_network(params);
+    
+    for(auto block: blocks) {
+        p_calculator->add_block(block);
+    }
+    if (p_stack) {
+        p_calculator->add_stack_vector(*p_stack);
+    }
+    if (p_priorities) {
+        p_calculator->set_priorities(*p_priorities);
+    }
+    auto r = p_calculator->calculate();
+    
+    auto p_account_index_map = r[node_type::ACCOUNT];
+    auto p_content_index_map = r[node_type::CONTENT];
+    
+    auto account_rank_detalization = p_calculator->get_account_rank_detalization();
+    auto content_rank_detalization = p_calculator->get_content_rank_detalization();
+    
+    double account_norm = 0;
+    double content_norm = 0;
+    
+    for(auto r: *p_account_index_map) {
+        std::string name = r.first;
+        double direct_calculated = (double) r.second;
+        double calculated_from_detalization = 0;
+        calculated_from_detalization += (double) account_rank_detalization.base_index[name];
+        for (auto contrubution: account_rank_detalization.activity_index_contribution[name]) {
+            calculated_from_detalization += (double) (contrubution.second.koefficient * contrubution.second.rate);
+        }
+        
+        account_norm += calculated_from_detalization;
+        
+        std::cout << name << ": " << direct_calculated << " - " << calculated_from_detalization << " (" << precision << ")" << std::endl;
+        
+        BOOST_CHECK_CLOSE (direct_calculated, calculated_from_detalization, precision);
+    }
+    for(auto r: *p_content_index_map) {
+        std::string name = r.first;
+        double direct_calculated = (double) r.second;
+        double calculated_from_detalization = 0;
+        calculated_from_detalization += (double) content_rank_detalization.base_index[name];
+        for (auto contrubution: content_rank_detalization.activity_index_contribution[name]) {
+            calculated_from_detalization += (double) (contrubution.second.koefficient * contrubution.second.rate);
+        }
+        content_norm += calculated_from_detalization;
+        BOOST_CHECK_CLOSE (direct_calculated, calculated_from_detalization, precision);
+    }
+
+    BOOST_CHECK_CLOSE (account_norm, 1, precision);
+};
+
 
 std::vector<std::shared_ptr<relation_t> > get_relations()
 {
@@ -267,7 +328,7 @@ std::map<std::string, double_type> priorities_2_subnets = {
 
 BOOST_AUTO_TEST_SUITE( social_index_calculator_test)
 
-BOOST_AUTO_TEST_CASE( test1 )
+BOOST_AUTO_TEST_CASE( test1_1 )
 {
     parameters_t params;
     params.outlink_weight = 0.9;
@@ -279,7 +340,7 @@ BOOST_AUTO_TEST_CASE( test1 )
     run_test(params, blocks, nullptr, account_rank_1, content_rank_1, nullptr);
 }
 
-BOOST_AUTO_TEST_CASE( test2 )
+BOOST_AUTO_TEST_CASE( test1_2 )
 {
     parameters_t params;
     params.outlink_weight = 0.9;
@@ -294,7 +355,7 @@ BOOST_AUTO_TEST_CASE( test2 )
     run_test(params, blocks, &stack, account_rank_2, content_rank_2, nullptr);
 }
 
-BOOST_AUTO_TEST_CASE( test3 )
+BOOST_AUTO_TEST_CASE( test1_3 )
 {
     parameters_t params;
     params.outlink_weight = 0.9;
@@ -310,7 +371,7 @@ BOOST_AUTO_TEST_CASE( test3 )
     run_test(params, blocks, &stack, account_rank_3, content_rank_3, nullptr);
 }
 
-BOOST_AUTO_TEST_CASE( test4 )
+BOOST_AUTO_TEST_CASE( test1_4 )
 {
     parameters_t params;
     params.outlink_weight = 0.9;
@@ -322,5 +383,74 @@ BOOST_AUTO_TEST_CASE( test4 )
     
     run_test(params, blocks, nullptr, account_rank_2_subnets, content_rank_2_subnets, &priorities_2_subnets);
 }
+
+BOOST_AUTO_TEST_CASE( test2_1 )
+{
+    parameters_t params;
+    params.outlink_weight = 0.9;
+    params.interlevel_weight = 0;
+    params.rank_calculation_precision = 0.01;
+    
+    params.include_detailed_data = true;
+    
+    std::vector<std::vector<std::shared_ptr<relation_t> > > blocks;
+    blocks.push_back(get_relations());
+    
+    check_details(params, blocks, nullptr, nullptr);
+}
+
+BOOST_AUTO_TEST_CASE( test2_2 )
+{
+    parameters_t params;
+    params.outlink_weight = 0.9;
+    params.interlevel_weight = 0;
+    params.weight_contribution = 0.7;
+    params.rank_calculation_precision = 0.01;
+    
+    params.include_detailed_data = true;
+    
+    std::vector<std::vector<std::shared_ptr<relation_t> > > blocks;
+    blocks.push_back(get_relations_4());
+    
+    auto stack = get_stack_1();
+    
+    check_details(params, blocks, &stack, nullptr);
+}
+
+BOOST_AUTO_TEST_CASE( test2_3 )
+{
+    parameters_t params;
+    params.outlink_weight = 0.9;
+    params.interlevel_weight = 0;
+    params.weight_contribution = 0.7;
+    params.rank_calculation_precision = 0.001;
+    
+    params.include_detailed_data = true;
+    
+    std::vector<std::vector<std::shared_ptr<relation_t> > > blocks;
+    blocks.push_back(get_relations_4());
+    blocks.push_back(get_trust_relations_4());
+    
+    auto stack = get_stack_1();
+    
+    check_details(params, blocks, &stack, nullptr);
+}
+
+BOOST_AUTO_TEST_CASE( test2_4 )
+{
+    parameters_t params;
+    params.outlink_weight = 0.9;
+    params.interlevel_weight = 0;
+    params.weight_contribution = 0.7;
+    params.rank_calculation_precision = 0.001;
+    
+    params.include_detailed_data = true;
+    
+    std::vector<std::vector<std::shared_ptr<relation_t> > > blocks;
+    blocks.push_back(get_relations_for_2_subnets());
+    
+    check_details(params, blocks, nullptr, &priorities_2_subnets);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
