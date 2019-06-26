@@ -137,16 +137,14 @@ class mapped_matrix_resizable:
     {
         std::shared_ptr<mapped_matrix_resizable<T, L, A> > result = std::make_shared<mapped_matrix_resizable<T, L, A> >(e1.size1(), e2.size2());
         for (auto it1: e1.data()) {
-            for (auto it2: e2.data()) {
-                auto j1 = L::index_j(it1.first, e1.size1(), e1.size2());
-                auto i2 = L::index_i(it2.first, e2.size1(), e2.size2());
-                if (j1 == i2) {
-                    auto i1 = L::index_i(it1.first, e1.size1(), e1.size2());
-                    auto j2 = L::index_j(it2.first, e2.size1(), e2.size2());
-                    auto x = it1.second * it2.second;
-                    if ((*result)(i1, j2) < x) {
-                        (*result)(i1, j2) = x;
-                    }
+            auto i1 = L::index_i(it1.first, e1.size1(), e1.size2());
+            auto j1 = L::index_j(it1.first, e1.size1(), e1.size2());
+            auto it2 = e2.find1(0, j1, 0);
+            for (auto it2row = it2.cbegin(); it2row != it2.cend(); it2row++) {
+                auto j2 = it2row.index2();
+                auto x = it1.second * (*it2row);
+                if ((*result)(i1, j2) < x) {
+                    (*result)(i1, j2) = x;
                 }
             }
         }
