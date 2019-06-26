@@ -117,13 +117,14 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     vector_t default_initial_vector = create_default_initial_vector();
     vector_t external_priority_vector = create_priority_vector();
     std::shared_ptr<vector_t> p_trust_vector = calculate_priority_vector();
+    
     vector_t priority_vector = norm_1(external_priority_vector) > 0 ? external_priority_vector : matrix_tools::discretize(*p_trust_vector);
     
     current_intermediate_results.stack = vector2map(stack_vector);
     current_intermediate_results.default_initial = vector2map(default_initial_vector);
 
     current_intermediate_results.trust = vector2map(*p_trust_vector);
-    
+
     matrix_t outlink_matrix(accounts_count, accounts_count);
     additional_matrices_vector additional_matrices;
     
@@ -131,17 +132,15 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     matrix_tools::prod(vote_matrix_with_reposts, *p_repost_matrix, *p_vote_matrix);
     
     vote_matrix_with_reposts = vote_matrix_with_reposts + *p_vote_matrix;
-    
-    matrix_t weight_matrix(p_ownership_matrix->size1(), vote_matrix_with_reposts.size2());
-    
-    collapse_matrix(weight_matrix, *p_ownership_matrix, vote_matrix_with_reposts);
-    
+
+    auto p_weight_matrix = collapse(*p_ownership_matrix, vote_matrix_with_reposts);
+
     if (mode == calculation_mode::DIAGONAL) {
-        set_diagonal_elements(weight_matrix);
+        set_diagonal_elements(*p_weight_matrix);
     }
 
     if (mode == calculation_mode::PHANTOM_ACCOUNT) {
-        add_phantom_account_relations(weight_matrix);
+        add_phantom_account_relations(*p_weight_matrix);
     }
     
     vector_t initial_vector;
@@ -157,8 +156,8 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     std::shared_ptr<vector_t> p_account_rank; 
     vector_t account_rank_final;
     
-    calculate_outlink_matrix(outlink_matrix, weight_matrix, additional_matrices, initial_vector);
-    
+    calculate_outlink_matrix(outlink_matrix, *p_weight_matrix, additional_matrices, initial_vector);
+
     p_account_rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
     
     vector_t base_vector = initial_vector;
@@ -612,28 +611,6 @@ void social_index_calculator::calculate_content_detalization (
     }
     
     detalization.base_index = base;
-}
-
-
-void social_index_calculator::collapse_matrix(matrix_t& out, const matrix_t& in1, const matrix_t& in2)
-{
-    for (matrix_t::const_iterator1 i = in1.begin1(); i != in1.end1(); i++) {
-        
-        for (size_t j=0; j < in2.size2(); j++) {
-            
-            double_type x = 0;
-            for (matrix_t::const_iterator2 k = i.cbegin(); k != i.cend(); k++) {
-                double_type y = (*k) * in2(k.index2(), j);
-                if (y > x) {
-                    x = y;
-                }
-            }
-            
-            if (x > 0 ) {
-                out(i.index1(), j) = x;
-            }
-        }
-    }
 }
 
 void social_index_calculator::set_diagonal_elements(matrix_t& m)
