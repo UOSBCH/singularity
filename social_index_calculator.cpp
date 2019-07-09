@@ -163,8 +163,12 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     vector_t base_vector = initial_vector;
     double_type normalization_koefficient(1);
 
-    account_rank_final = *p_account_rank - stack_vector * ((double_type(1) - parameters.outlink_weight) * stack_contribution);
-    base_vector -= stack_vector * stack_contribution;
+    account_rank_final = *p_account_rank 
+        - priority_vector * ((double_type(1) - parameters.outlink_weight) * weight_contribution)
+        - stack_vector * ((double_type(1) - parameters.outlink_weight) * stack_contribution)
+        ;
+        
+    base_vector -= stack_vector * stack_contribution + priority_vector * weight_contribution;
     
     if (norm_1(account_rank_final) > 0) {
         account_rank_final *= double_type(1) / norm_1(account_rank_final);
