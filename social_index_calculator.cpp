@@ -118,7 +118,12 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     vector_t external_priority_vector = create_priority_vector();
     std::shared_ptr<vector_t> p_trust_vector = calculate_priority_vector();
     
-    vector_t priority_vector = norm_1(external_priority_vector) > 0 ? external_priority_vector : matrix_tools::discretize(*p_trust_vector);
+    vector_t priority_vector = norm_1(external_priority_vector) > 0 ? 
+        external_priority_vector : 
+        (parameters.use_soft_descretization_function ? 
+            matrix_tools::discretize_soft(*p_trust_vector) : 
+            matrix_tools::discretize_hard(*p_trust_vector)
+        );
     
     current_intermediate_results.stack = vector2map(stack_vector);
     current_intermediate_results.default_initial = vector2map(default_initial_vector);
@@ -163,13 +168,18 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     vector_t base_vector = initial_vector;
     double_type normalization_koefficient(1);
 
-    account_rank_final = *p_account_rank 
-        - priority_vector * ((double_type(1) - parameters.outlink_weight) * weight_contribution)
-        - stack_vector * ((double_type(1) - parameters.outlink_weight) * stack_contribution)
-        ;
-        
-    base_vector -= stack_vector * stack_contribution + priority_vector * weight_contribution;
+    account_rank_final = *p_account_rank;
     
+    if (parameters.subtract_stack_after_activity_index_is_calculated) {
+        account_rank_final -= stack_vector * ((double_type(1) - parameters.outlink_weight) * stack_contribution);
+        base_vector -= stack_vector * stack_contribution;
+    }
+    
+    if (parameters.subtract_priority_after_activity_index_is_calculated) {
+        account_rank_final -= priority_vector * ((double_type(1) - parameters.outlink_weight) * weight_contribution);
+        base_vector -= priority_vector * weight_contribution;
+    }
+        
     if (norm_1(account_rank_final) > 0) {
         account_rank_final *= double_type(1) / norm_1(account_rank_final);
         normalization_koefficient *= double_type(1) / norm_1(account_rank_final);
@@ -396,9 +406,13 @@ void social_index_calculator::normalize_columns(matrix_t &m, additional_matrices
             }
         }
     }
+    
+    vector_t left_vector = parameters.consider_priorities_on_column_normalization ?
+        weight_vector * account_map.size() :
+        vector_t(m.size1(), 1)
+        ;
 
-//    additional_matrices.push_back(std::make_shared<vector_based_matrix<double_type> >(vector_t(m.size1(), 1), outlink_vector));
-    additional_matrices.push_back(std::make_shared<vector_based_matrix<double_type> >(weight_vector * account_map.size(), outlink_vector));
+    additional_matrices.push_back(std::make_shared<vector_based_matrix<double_type> >(left_vector, outlink_vector));
 }
 
 vector_t social_index_calculator::create_default_initial_vector()

@@ -211,7 +211,7 @@ void matrix_tools::prod(matrix_t& out, const matrix_t& in1, const matrix_t& in2)
     }
 }
 
-vector_t matrix_tools::discretize(const vector_t& v)
+vector_t matrix_tools::discretize_hard(const vector_t& v)
 {
     if (v.size() == 0) {
         return v;
@@ -220,6 +220,32 @@ vector_t matrix_tools::discretize(const vector_t& v)
     vector_t result(v.size());
     
     for(size_t i=0; i<v.size(); i++) {
+        if (v(i) * v.size() > 1) {
+            result(i) = 1;
+        } else {
+            result(i) = 0;
+        }
+    }
+    
+    auto norm = norm_1(result);
+    
+    if (norm > 0) {
+        result = result / norm;
+    }
+    
+    return result;
+}
+
+vector_t matrix_tools::discretize_soft(const vector_t& v)
+{
+    if (v.size() == 0) {
+        return v;
+    }
+    
+    vector_t result(v.size());
+    
+    for(size_t i=0; i<v.size(); i++) {
+        result(i) = (double_type(1) + tanh((v(i) * v.size() - 1) * double_type(3))) / double_type(2);
         if (v(i) * v.size() > 1) {
             result(i) = 1;
         } else {

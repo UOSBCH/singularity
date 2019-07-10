@@ -64,6 +64,10 @@ namespace singularity {
         double_type stack_contribution = 0;
         double_type weight_contribution = 0;
         double_type rank_calculation_precision = 0.01;
+        bool consider_priorities_on_column_normalization = true;
+        bool subtract_stack_after_activity_index_is_calculated = true;
+        bool subtract_priority_after_activity_index_is_calculated = true;
+        bool use_soft_descretization_function = false;
     };
     
     namespace normalization_tools
@@ -83,7 +87,8 @@ namespace singularity {
         void prod( matrix_t& out, const matrix_t& in1, const matrix_t& in2);
         void partial_prod( vector_t& out, const matrix_t& m, const vector_t& v, range_t range);
         std::vector<range_t> split_range(range_t range, unsigned int max);
-        vector_t discretize(const vector_t& v);
+        vector_t discretize_hard(const vector_t& v);
+        vector_t discretize_soft(const vector_t& v);
     };
     
     class decay_manager_t
