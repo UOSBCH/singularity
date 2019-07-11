@@ -566,6 +566,8 @@ void social_index_calculator::calculate_detalization (
     
     vector_t base_vector(account_map.size(), 0);
     
+    detalization.normalization_koefficient = normalization_koefficient;
+    
     base_vector += (double_type(1) - outlink_weight) * weight_vector * normalization_koefficient * norm;
     
     for (auto it: additional_matrices) {

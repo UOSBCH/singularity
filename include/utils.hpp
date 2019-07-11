@@ -42,6 +42,7 @@ namespace singularity {
     typedef std::map<std::string, contribution_t> contribution_map;
     
     struct activity_index_detalization_t {
+        double_type normalization_koefficient;
         std::map<std::string, double_type> base_index; 
         std::map<std::string, contribution_map> activity_index_contribution;
     };
@@ -66,7 +67,7 @@ namespace singularity {
         double_type rank_calculation_precision = 0.01;
         bool consider_priorities_on_column_normalization = true;
         bool subtract_stack_after_activity_index_is_calculated = true;
-        bool subtract_priority_after_activity_index_is_calculated = true;
+        bool subtract_priority_after_activity_index_is_calculated = false;
         bool use_soft_descretization_function = false;
     };
     

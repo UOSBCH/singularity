@@ -245,12 +245,7 @@ vector_t matrix_tools::discretize_soft(const vector_t& v)
     vector_t result(v.size());
     
     for(size_t i=0; i<v.size(); i++) {
-        result(i) = (double_type(1) + tanh((v(i) * v.size() - 1) * double_type(3))) / double_type(2);
-        if (v(i) * v.size() > 1) {
-            result(i) = 1;
-        } else {
-            result(i) = 0;
-        }
+        result(i) = (double_type(1) + tanh((v(i) * v.size() - 1))) / double_type(2);
     }
     
     auto norm = norm_1(result);
