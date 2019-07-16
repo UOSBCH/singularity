@@ -22,6 +22,11 @@ namespace singularity {
         account_activity_index_map_t trust;
         account_activity_index_map_t priority;
         account_activity_index_map_t stack;
+        account_activity_index_map_t initial;
+        account_activity_index_map_t activity_index;
+        account_activity_index_map_t activity_index_significant;
+        account_activity_index_map_t activity_index_norm;
+        account_activity_index_map_t activity_index_norm_excluding_phantom;
     };
     
     class social_index_calculator 

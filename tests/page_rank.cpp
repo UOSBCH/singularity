@@ -2,6 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include "../include/singularity.hpp"
+#include "../include/page_rank.hpp"
 #include "../include/page_rank_alt.hpp"
 
 using namespace singularity;

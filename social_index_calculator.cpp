@@ -158,12 +158,16 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     
     initial_vector = default_initial_vector * const_contribution + priority_vector * weight_contribution + stack_vector * stack_contribution;
 
+    current_intermediate_results.initial = vector2map(initial_vector);
+
     std::shared_ptr<vector_t> p_account_rank; 
     vector_t account_rank_final;
     
     calculate_outlink_matrix(outlink_matrix, *p_weight_matrix, additional_matrices, initial_vector);
 
     p_account_rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
+
+    current_intermediate_results.activity_index = vector2map(*p_account_rank);
     
     vector_t base_vector = initial_vector;
     double_type normalization_koefficient(1);
@@ -179,17 +183,23 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
         account_rank_final -= priority_vector * ((double_type(1) - parameters.outlink_weight) * weight_contribution);
         base_vector -= priority_vector * weight_contribution;
     }
+
+    current_intermediate_results.activity_index_significant = vector2map(account_rank_final);
         
     if (norm_1(account_rank_final) > 0) {
         account_rank_final *= double_type(1) / norm_1(account_rank_final);
         normalization_koefficient *= double_type(1) / norm_1(account_rank_final);
     }
+
+    current_intermediate_results.activity_index_norm = vector2map(account_rank_final);
     
     if (mode == calculation_mode::PHANTOM_ACCOUNT && account_map.size() > 1) {
         double_type k = double_type(1) / (double_type(1) -  account_rank_final[0]);
         account_rank_final *= k;
         normalization_koefficient *= k;
     }
+
+    current_intermediate_results.activity_index_norm_excluding_phantom = vector2map(account_rank_final);
     
     matrix_t content_matrix(contents_count, accounts_count);
 
@@ -663,9 +673,9 @@ account_activity_index_map_t social_index_calculator::vector2map(vector_t& v)
     account_activity_index_map_t result;
     
     for (auto node_it: account_map) {
-        if (node_it.first != reserved_account) {
-            result[node_it.first] = v[node_it.second];
-        }
+//         if (node_it.first != reserved_account) {
+        result[node_it.first] = v[node_it.second];
+//         }
     };
 
     return result;
