@@ -78,17 +78,27 @@ std::shared_ptr<vector_t> social_index_calculator::calculate_priority_vector()
         return std::shared_ptr<vector_t>();
     }
     
+    trust_intermediate_results_t trust_intermediate_results;
+    
     matrix_t trust_outlink_matrix(accounts_count, accounts_count);
     additional_matrices_vector trust_additional_matrices;
     
+    
     vector_t stack_vector = create_stack_vector();
     vector_t default_initial_vector = create_default_initial_vector();
+
+    trust_intermediate_results.default_initial = vector2map(default_initial_vector);
+    trust_intermediate_results.stack = vector2map(stack_vector);
     
     vector_t trust_initial_vector = default_initial_vector * double_type(0.1) + stack_vector * double_type(0.9);
+
+    trust_intermediate_results.initial = vector2map(trust_initial_vector);
     
     calculate_outlink_matrix(trust_outlink_matrix, *p_trust_matrix, trust_additional_matrices, trust_initial_vector);
     
     auto p_rank = p_rank_calculator->process(trust_outlink_matrix, trust_initial_vector, trust_initial_vector, trust_additional_matrices);
+
+    trust_intermediate_results.trust = vector2map(*p_rank);
     
     if (parameters.include_detailed_data) {
         calculate_detalization(
@@ -101,6 +111,8 @@ std::shared_ptr<vector_t> social_index_calculator::calculate_priority_vector()
             trust_additional_matrices
         );
     }
+    
+    last_trust_intermediate_results = trust_intermediate_results;
     
     return p_rank;
 }

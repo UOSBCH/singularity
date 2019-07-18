@@ -28,6 +28,13 @@ namespace singularity {
         account_activity_index_map_t activity_index_norm;
         account_activity_index_map_t activity_index_norm_excluding_phantom;
     };
+    struct trust_intermediate_results_t 
+    {
+        account_activity_index_map_t default_initial;
+        account_activity_index_map_t stack;
+        account_activity_index_map_t initial;
+        account_activity_index_map_t trust;
+    };
     
     class social_index_calculator 
     {
@@ -80,6 +87,10 @@ namespace singularity {
         intermediate_results_t get_last_intermediate_results()
         {
             return last_intermediate_results;
+        };
+        trust_intermediate_results_t get_last_trust_intermediate_results()
+        {
+            return last_trust_intermediate_results;
         };
     private:
         parameters_t parameters;
@@ -167,6 +178,7 @@ namespace singularity {
         ); 
         
         intermediate_results_t last_intermediate_results;
+        trust_intermediate_results_t last_trust_intermediate_results;
     };
 };
 
