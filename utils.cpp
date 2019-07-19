@@ -257,3 +257,11 @@ vector_t matrix_tools::discretize_soft(const vector_t& v)
     return result;
 }
 
+double_type matrix_tools::control_sum(const matrix_t& m)
+{
+    vector_t right = vector_t(m.size2(), 1);
+    vector_t left = vector_t(m.size1(), 1);
+    vector_t tmp = prod(m, right);
+    
+    return inner_prod(left, tmp);
+}

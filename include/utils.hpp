@@ -90,6 +90,7 @@ namespace singularity {
         std::vector<range_t> split_range(range_t range, unsigned int max);
         vector_t discretize_hard(const vector_t& v);
         vector_t discretize_soft(const vector_t& v);
+        double_type control_sum(const matrix_t& m);
     };
     
     class decay_manager_t
