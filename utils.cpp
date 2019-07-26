@@ -265,3 +265,13 @@ double_type matrix_tools::control_sum(const matrix_t& m)
     
     return inner_prod(left, tmp);
 }
+
+double_type matrix_tools::control_sum(const numeric::ublas::vector_based_matrix<double_type>& m)
+{
+    vector_t right = vector_t(m.size2(), 1);
+    vector_t left = vector_t(m.size1(), 1);
+    double_type tmp1 = inner_prod(m.get_right_generator(), right);
+    double_type tmp2 = inner_prod(left, m.get_left_generator());
+    
+    return tmp1 * tmp2;
+}

@@ -91,6 +91,7 @@ namespace singularity {
         vector_t discretize_hard(const vector_t& v);
         vector_t discretize_soft(const vector_t& v);
         double_type control_sum(const matrix_t& m);
+        double_type control_sum(const boost::numeric::ublas::vector_based_matrix<double_type>& m);
     };
     
     class decay_manager_t
