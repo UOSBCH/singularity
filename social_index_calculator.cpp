@@ -152,10 +152,12 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
 
     auto p_weight_matrix = collapse(*p_ownership_matrix, vote_matrix_with_reposts);
 
-    std::cout << "repost_matrix: " << matrix_tools::control_sum(*p_repost_matrix) << std::endl;
-    std::cout << "vote_matrix: " << matrix_tools::control_sum(*p_vote_matrix) << std::endl;
-    std::cout << "vote_matrix_with_reposts: " << matrix_tools::control_sum(vote_matrix_with_reposts) << std::endl;
-    std::cout << "weight_matrix: " << matrix_tools::control_sum(*p_weight_matrix) << std::endl;
+    if(parameters.debug_mode) {
+        std::cout << "repost_matrix: " << matrix_tools::control_sum(*p_repost_matrix) << std::endl;
+        std::cout << "vote_matrix: " << matrix_tools::control_sum(*p_vote_matrix) << std::endl;
+        std::cout << "vote_matrix_with_reposts: " << matrix_tools::control_sum(vote_matrix_with_reposts) << std::endl;
+        std::cout << "weight_matrix: " << matrix_tools::control_sum(*p_weight_matrix) << std::endl;
+    }
 
     if (mode == calculation_mode::DIAGONAL) {
         set_diagonal_elements(*p_weight_matrix);
@@ -165,7 +167,9 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
         add_phantom_account_relations(*p_weight_matrix);
     }
 
-    std::cout << "weight_matrix (phantom): " << matrix_tools::control_sum(*p_weight_matrix) << std::endl;
+    if(parameters.debug_mode) {
+        std::cout << "weight_matrix (phantom): " << matrix_tools::control_sum(*p_weight_matrix) << std::endl;
+    }
     
     vector_t initial_vector;
     
@@ -184,11 +188,13 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     
     calculate_outlink_matrix(outlink_matrix, *p_weight_matrix, additional_matrices, initial_vector);
 
-    std::cout << "outlink_matrix: " << matrix_tools::control_sum(outlink_matrix) << std::endl;
-
-    for(size_t i=0; i<additional_matrices.size(); i++) {
-        std::cout << "additional_matrix " << to_string(i) << ": "  << matrix_tools::control_sum(*(additional_matrices[i])) << std::endl;
+    if(parameters.debug_mode) {
+        std::cout << "outlink_matrix: " << matrix_tools::control_sum(outlink_matrix) << std::endl;
+        for(size_t i=0; i<additional_matrices.size(); i++) {
+            std::cout << "additional_matrix " << to_string(i) << ": "  << matrix_tools::control_sum(*(additional_matrices[i])) << std::endl;
+        }
     }
+
     
     p_account_rank = p_rank_calculator->process(outlink_matrix, initial_vector, initial_vector, additional_matrices);
 

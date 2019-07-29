@@ -69,6 +69,7 @@ namespace singularity {
         bool subtract_stack_after_activity_index_is_calculated = true;
         bool subtract_priority_after_activity_index_is_calculated = false;
         bool use_soft_descretization_function = false;
+        bool debug_mode = false;
     };
     
     namespace normalization_tools
