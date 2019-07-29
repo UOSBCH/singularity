@@ -347,6 +347,10 @@ void social_index_calculator::update_weight_matrix(const std::vector<std::shared
             (*p_vote_matrix)(content_map[t->get_target()], account_map[t->get_source()]) = decay_value;
         }
 
+        if (t->get_name() == "DOWNVOTE") {
+            (*p_vote_matrix)(content_map[t->get_target()], account_map[t->get_source()]) = - decay_value;
+        }
+
         if (t->get_name() == "REPOST") {
             (*p_repost_matrix)(content_map[t->get_target()], content_map[t->get_source()]) = 1;
             (*p_repost_matrix)(content_map[t->get_source()], content_map[t->get_source()]) = -1;

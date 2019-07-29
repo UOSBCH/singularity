@@ -28,7 +28,7 @@ namespace singularity {
         {
             return std::make_shared<social_index_calculator>(
                 parameters, 
-                false, 
+                true, 
                 std::make_shared<page_rank>(parameters.outlink_weight, parameters.num_threads, parameters.rank_calculation_precision),
                 calculation_mode::PHANTOM_ACCOUNT
             );
