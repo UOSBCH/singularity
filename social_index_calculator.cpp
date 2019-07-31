@@ -698,7 +698,9 @@ void social_index_calculator::add_phantom_account_relations (matrix_t& m)
             auto name = i.first;
             auto id = i.second;
             
-            m(*phantom_account_id, id) = 1;
+            if (id != phantom_account_id) {
+                m(*phantom_account_id, id) = 1;
+            }
         }
     }
 }
