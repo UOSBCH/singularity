@@ -210,4 +210,9 @@ double_type emission_calculator_new::get_resulting_emission(double_type target_e
     
 }
 
+double_type emission_calculator_new::get_next_max_activity(double_type max_activity, double_type resulting_emission, double_type activity_monetary_value)
+{
+    return max_activity + resulting_emission / activity_monetary_value;
+}
+
 

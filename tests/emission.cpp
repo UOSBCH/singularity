@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( test3 )
     BOOST_CHECK_EQUAL(ap.get_activity(), ap2.get_activity());
 }
 
-BOOST_AUTO_TEST_CASE( new_emission_test )
+BOOST_AUTO_TEST_CASE( new_emission_test_1 )
 {
     double_type current_supply = 100000000;
     double_type emission_event_count_per_year = 12;
@@ -202,5 +202,42 @@ BOOST_AUTO_TEST_CASE( new_emission_test )
     
 }
 
+BOOST_AUTO_TEST_CASE( new_emission_test_2 )
+{
+    double_type current_supply = 100000000;
+    double_type emission_event_count_per_year = 12;
+    double_type year_emission_limit = 10;
+    double_type emission_scale = 100000;
+    double_type emission_period = double_type(365*24*3600)/emission_event_count_per_year;
+    double_type delay_koefficient = 0.5;
+    
+    double_type current_activity, max_activity, emission_limit, target_emission, emission, total_emission;
+    
+    emission_calculator_new ec;
+    
+    current_activity = 3;
+    max_activity = 0;
+
+    emission_limit = ec.get_emission_limit(current_supply, year_emission_limit, emission_period);
+    BOOST_CHECK_CLOSE(emission_limit, 797414.04289, 1e-3);
+    target_emission += ec.get_target_emission(current_activity, max_activity, emission_scale);
+    BOOST_CHECK_CLOSE(target_emission, 300000, 1e-3);
+    emission = ec.get_resulting_emission(target_emission, emission_limit, delay_koefficient);
+    BOOST_CHECK_CLOSE(emission, 148255, 1e-3);
+    
+    current_supply += emission;
+    total_emission += emission;
+    max_activity = ec.get_next_max_activity(max_activity, emission, emission_scale);
+    current_activity = 5;
+
+    emission_limit = ec.get_emission_limit(current_supply, year_emission_limit, emission_period);
+    BOOST_CHECK_CLOSE(emission_limit, 798596.2526, 1e-3);
+    target_emission += ec.get_target_emission(current_activity, max_activity, emission_scale);
+    BOOST_CHECK_CLOSE(target_emission, 651744, 1e-3);
+    emission = ec.get_resulting_emission(target_emission - total_emission, emission_limit, delay_koefficient);
+    
+    BOOST_CHECK_CLOSE(emission, 243724, 1e-3);
+    
+}
 
 BOOST_AUTO_TEST_SUITE_END()
