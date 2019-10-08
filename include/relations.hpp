@@ -22,6 +22,7 @@ namespace singularity {
             target(target),
             height(height)
             {};
+        virtual ~relation_t(){};
         virtual int64_t get_weight() = 0;
         virtual int64_t get_reverse_weight() = 0;
         virtual std::string get_name() = 0;

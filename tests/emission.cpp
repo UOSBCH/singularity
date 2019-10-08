@@ -9,6 +9,34 @@ using namespace singularity;
 using namespace boost;
 using namespace boost::numeric::ublas;
 
+class emission_step_t
+{
+public:
+    emission_step_t(
+        double_type activity, 
+        double_type max_activity, 
+        double_type target_emission,        
+        double_type emission_value
+    ):
+        activity(activity), 
+        max_activity(max_activity),
+        target_emission(target_emission),
+        emission_value(emission_value)
+    {};
+    double_type activity;
+    double_type max_activity;
+    double_type target_emission; 
+    double_type emission_value;
+};
+
+std::vector<emission_step_t> get_emission_steps()
+{
+    return {
+        emission_step_t(3, 1.48255, 300000, 148255),
+        emission_step_t(5, 3.21329, 351744, 173074),
+    };
+};
+
 std::vector<transaction_t> get_transactions1()
 {
     time_t now = time(nullptr);
@@ -54,29 +82,21 @@ BOOST_AUTO_TEST_CASE( new_emission_test )
     
     emission_calculator_new ec(params);
     
-    current_activity = 3;
     max_activity = 0;
 
     emission_limit = ec.get_emission_limit(current_supply);
     BOOST_CHECK_CLOSE(emission_limit, 797414.04289, 1e-3);
-    target_emission += ec.get_target_emission(current_activity, max_activity);
-    BOOST_CHECK_CLOSE(target_emission, 300000, 1e-3);
-    emission = ec.get_resulting_emission(target_emission, emission_limit);
-    BOOST_CHECK_CLOSE(emission, 148255, 1e-3);
     
-    current_supply += emission;
-    total_emission += emission;
-    max_activity = ec.get_next_max_activity(max_activity, emission);
-    current_activity = 5;
-
-    emission_limit = ec.get_emission_limit(current_supply);
-    BOOST_CHECK_CLOSE(emission_limit, 798596.2526, 1e-3);
-    target_emission += ec.get_target_emission(current_activity, max_activity);
-    BOOST_CHECK_CLOSE(target_emission, 651744, 1e-3);
-    emission = ec.get_resulting_emission(target_emission - total_emission, emission_limit);
-    
-    BOOST_CHECK_CLOSE(emission, 243724, 1e-3);
-    
+    for(auto step: get_emission_steps()) {
+        target_emission = ec.get_target_emission(step.activity, max_activity);
+        BOOST_CHECK_CLOSE(target_emission, step.target_emission, 1e-3);
+        emission = ec.get_resulting_emission(target_emission, emission_limit);
+        BOOST_CHECK_CLOSE(emission, step.emission_value, 1e-3);
+        current_supply += emission;
+        total_emission += emission;
+        max_activity = ec.get_next_max_activity(max_activity, emission);
+        BOOST_CHECK_CLOSE(max_activity, step.max_activity, 1e-3);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
