@@ -275,3 +275,30 @@ double_type matrix_tools::control_sum(const numeric::ublas::vector_based_matrix<
     
     return tmp1 * tmp2;
 }
+
+boost::optional<account_id_map_t::mapped_type> account_keeper::get_account_id(std::string name, bool allow_create)
+{
+    std::lock_guard<std::mutex> local_lock(accounts_lock);
+    
+    auto item_it = account_map.find(name);
+    
+    if (item_it != account_map.end()) {
+        auto id = item_it->second;
+        
+        return id;
+    } else if (allow_create) {
+        
+        auto id = account_map.size() + 1;
+        
+        account_map[name] = id;
+        
+        return id;
+    }
+    
+    return boost::none;
+}
+
+std::size_t account_keeper::get_account_count()
+{
+    return account_map.size();
+}

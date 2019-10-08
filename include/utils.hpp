@@ -12,6 +12,7 @@
 #include "mapped_matrix_resizable.hpp"
 #include <boost/multiprecision/cpp_dec_float.hpp>
 #include "vector_based_matrix.hpp"
+#include <mutex>
 
 namespace singularity {
     typedef uint64_t money_t;
@@ -46,7 +47,7 @@ namespace singularity {
         std::map<std::string, double_type> base_index; 
         std::map<std::string, contribution_map> activity_index_contribution;
     };
-
+    
     struct parameters_t {
         uint64_t precision = 10000000;
         uint64_t account_amount_threshold = 10000;
@@ -135,6 +136,16 @@ namespace singularity {
         account_activity_index_map_t account_rate;
         account_activity_index_map_t content_rate;
     };
+
+    class account_keeper
+    {
+    public:
+        boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
+        std::size_t get_account_count();
+    private:
+        std::mutex accounts_lock;
+        account_id_map_t account_map;
+    };
     
     class runtime_exception: public std::runtime_error
     {
@@ -153,6 +164,7 @@ namespace singularity {
         {
         }
     };
+    
 }
 
 #endif /* UTILS_HPP */

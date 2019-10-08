@@ -82,16 +82,72 @@ namespace singularity {
         emission_state_t emission_state;
     };
     
+    class activity_period_new
+    {
+    public:
+        activity_period_new(uint32_t period_length, uint32_t period_count)
+            :period_length(period_length), period_count(period_count)
+        {
+            p_account_keepers = new std::vector<account_keeper>(period_count);
+        };
+        virtual ~activity_period_new()
+        {
+            delete p_account_keepers;
+        };
+        void add_block(const std::vector<transaction_t>& transactions);
+        double_type get_activity();
+        unsigned int get_handled_block_count();
+    private:
+        uint32_t period_length;
+        uint32_t period_count;
+        std::vector<account_keeper>* p_account_keepers;
+        unsigned int handled_blocks_count = 0;
+    };
+    
     class emission_calculator_new 
     {
     public:
-        double_type get_emission_limit(double_type current_total_supply, double_type yearly_emission_percent, double_type emission_period_seconds);
+        emission_calculator_new(
+            double_type yearly_emission_percent, 
+            double_type emission_period_seconds,
+            double_type activity_monetary_value, 
+            double_type delay_koefficient
+        ):_yearly_emission_percent(yearly_emission_percent),
+        _emission_period_seconds(emission_period_seconds),
+        _activity_monetary_value(activity_monetary_value),
+        _delay_koefficient(delay_koefficient)
+        {};
+        double_type get_emission_limit(double_type current_total_supply);
         
-        double_type get_target_emission(double_type current_activity, double_type max_activity, double_type activity_monetary_value);
+        double_type get_target_emission(double_type current_activity, double_type max_activity);
         
-        double_type get_resulting_emission(double_type target_emission, double_type emission_limit, double_type delay_koefficient);
+        double_type get_resulting_emission(double_type target_emission, double_type emission_limit);
 
-        double_type get_next_max_activity(double_type max_activity, double_type resulting_emission, double_type activity_monetary_value);
+        double_type get_next_max_activity(double_type max_activity, double_type resulting_emission);
+        
+        void set_yearly_emission_percent(double_type yearly_emission_percent)
+        {
+            _yearly_emission_percent = yearly_emission_percent;
+        };
+        
+        void set_activity_monetary_value(double_type activity_monetary_value)
+        {
+            _activity_monetary_value = activity_monetary_value;
+        };
+        
+        void set_delay_koefficient(double_type delay_koefficient)
+        {
+            _delay_koefficient = delay_koefficient;
+        };
+        void set_emission_period_seconds(double_type emission_period_seconds)
+        {
+            _emission_period_seconds = emission_period_seconds;
+        };
+    private:
+        double_type _yearly_emission_percent;
+        double_type _emission_period_seconds;
+        double_type _activity_monetary_value;
+        double_type _delay_koefficient;
     };
 }
 
