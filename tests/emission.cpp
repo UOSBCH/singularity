@@ -39,181 +39,20 @@ std::vector<transaction_t> get_transactions2()
 
 BOOST_AUTO_TEST_SUITE( emission_test )
 
-BOOST_AUTO_TEST_CASE( test1 )
+BOOST_AUTO_TEST_CASE( new_emission_test )
 {
-    std::vector<transaction_t> transactions = get_transactions1();
-    
-    activity_period ap;
-    
-    ap.add_block(transactions);
-    
-    double_type activity = ap.get_activity();
-
-    BOOST_CHECK_CLOSE(activity, 3, 1e-3);
-    
     emission_parameters_t params;
     
-    params.initial_supply = 100000000;
-    params.emission_event_count_per_year = 12;
-    params.emission_scale = 1000000;
-    params.year_emission_limit = 10;
-    
-    emission_state_t state;
-    
-    emission_calculator ec(params, state);
-    money_t total_emission = 0;
-    
-    money_t emission = ec.calculate(total_emission, ap);
-    
-    total_emission += emission;
-    
-    BOOST_CHECK_EQUAL(emission, 761201);
-    
-    ap.clear();
-    
-    ap.add_block(get_transactions2());
-    activity = ap.get_activity();
-
-    BOOST_CHECK_CLOSE(activity, 5, 1e-3);
-
-    emission = ec.calculate(total_emission, ap);
-
-    total_emission += emission;
-    
-    BOOST_CHECK_EQUAL(emission, 795305);
-
-    ap.clear();
-    
-    ap.add_block(get_transactions1());
-    activity = ap.get_activity();
-
-    BOOST_CHECK_CLOSE(activity, 3, 1e-3);
-
-    emission = ec.calculate(total_emission, ap);
-
-    total_emission += emission;
-    
-    BOOST_CHECK_EQUAL(emission, 0);
-}
-
-BOOST_AUTO_TEST_CASE( test2 )
-{
-    std::vector<transaction_t> transactions = get_transactions1();
-    
-    activity_period ap;
-    
-    ap.add_block(transactions);
-    
-    double_type activity = ap.get_activity();
-
-    BOOST_CHECK_CLOSE(activity, 3, 1e-3);
-    
-    emission_parameters_t params;
-    
-    params.initial_supply = 100000000;
-    params.emission_event_count_per_year = 12;
-    params.emission_scale = 100000;
-    params.year_emission_limit = 10;
-    
-    emission_state_t state;
-    
-    emission_calculator ec(params, state);
-    money_t total_emission = 0;
-    
-    money_t emission = ec.calculate(total_emission, ap);
-    
-    total_emission += emission;
-    
-    BOOST_CHECK_EQUAL(emission, 148255);
-    
-    ap.clear();
-    
-    ap.add_block(get_transactions2());
-    activity = ap.get_activity();
-
-    BOOST_CHECK_CLOSE(activity, 5, 1e-3);
-
-    emission = ec.calculate(total_emission, ap);
-
-    total_emission += emission;
-    
-    BOOST_CHECK_EQUAL(emission, 173083);
-}
-
-BOOST_AUTO_TEST_CASE( test3 )
-{
-    activity_period ap;
-
-    ap.add_block(get_transactions1());
-    
-    char buffer[] = "/tmp/grv_apXXXXXX\0";
-    
-    mkstemp(buffer);
-    std::string filename(buffer);
-    
-    ap.save_state_to_file(filename);
-    
-    activity_period ap2;
-    
-    ap2.load_state_from_file(filename);
-    
-    remove(filename.c_str());
-
-    BOOST_CHECK_EQUAL(ap.get_handled_block_count(), ap2.get_handled_block_count());
-
-    BOOST_CHECK_EQUAL(ap.get_activity(), ap2.get_activity());
-}
-
-BOOST_AUTO_TEST_CASE( new_emission_test_1 )
-{
     double_type current_supply = 100000000;
-    double_type emission_event_count_per_year = 12;
-    double_type year_emission_limit = 10;
-    double_type emission_scale = 100000;
-    double_type emission_period = double_type(365*24*3600)/emission_event_count_per_year;
-    double_type delay_koefficient = 0.5;
+    params.yearly_emission_percent = 10;
+    params.activity_monetary_value = 100000;
+    params.emission_period_seconds = double_type(365*24*3600)/12;
+    params.delay_koefficient = 0.5;
+    
     
     double_type current_activity, max_activity, emission_limit, target_emission, emission, total_emission;
     
-    emission_calculator_new ec(year_emission_limit, emission_period, emission_scale, delay_koefficient);
-    
-    current_activity = 3;
-    max_activity = 0;
-
-    emission_limit = ec.get_emission_limit(current_supply);
-    BOOST_CHECK_CLOSE(emission_limit, 797414.04289, 1e-3);
-    target_emission += ec.get_target_emission(current_activity, max_activity);
-    BOOST_CHECK_CLOSE(target_emission, 300000, 1e-3);
-    emission = ec.get_resulting_emission(target_emission, emission_limit);
-    BOOST_CHECK_CLOSE(emission, 148255, 1e-3);
-    
-    current_supply += emission;
-    total_emission += emission;
-    max_activity = current_activity;
-    current_activity = 5;
-
-    emission_limit = ec.get_emission_limit(current_supply);
-    BOOST_CHECK_CLOSE(emission_limit, 798596.2526, 1e-3);
-    target_emission += ec.get_target_emission(current_activity, max_activity);
-    BOOST_CHECK_CLOSE(target_emission, 500000, 1e-3);
-    emission = ec.get_resulting_emission(target_emission - total_emission, emission_limit);
-    
-    BOOST_CHECK_CLOSE(emission, 173083, 1e-3);
-    
-}
-
-BOOST_AUTO_TEST_CASE( new_emission_test_2 )
-{
-    double_type current_supply = 100000000;
-    double_type emission_event_count_per_year = 12;
-    double_type year_emission_limit = 10;
-    double_type emission_scale = 100000;
-    double_type emission_period = double_type(365*24*3600)/emission_event_count_per_year;
-    double_type delay_koefficient = 0.5;
-    
-    double_type current_activity, max_activity, emission_limit, target_emission, emission, total_emission;
-    
-    emission_calculator_new ec(year_emission_limit, emission_period, emission_scale, delay_koefficient);
+    emission_calculator_new ec(params);
     
     current_activity = 3;
     max_activity = 0;

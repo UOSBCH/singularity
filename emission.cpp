@@ -102,34 +102,6 @@ double_type activity_period::get_activity()
     return double_type(n.nnz());
 }
 
-money_t emission_calculator::calculate(money_t total_emission, activity_period& period)
-{
-    emission_parameters_t current_parameters = parameters;
-    
-    money_t current_supply = current_parameters.initial_supply + total_emission;
-
-    double_type emission_limit = boost::multiprecision::pow((1 + double_type(current_parameters.year_emission_limit) / 100), 1.0 / current_parameters.emission_event_count_per_year) - 1;
-    
-    double_type new_activity = period.get_activity();
-    
-    if (new_activity > emission_state.last_activity) {
-        emission_state.target_emission += (money_t)(double_type) (current_parameters.emission_scale * (new_activity - emission_state.last_activity));
-
-        emission_state.last_activity = new_activity;
-        double_type argument = (double_type(emission_state.target_emission - total_emission)) / current_supply;
-
-        return (money_t)(double_type) (current_supply * emission_limit * tanh(current_parameters.delay_koefficient * argument / emission_limit));
-    } else {
-        
-        return 0;
-    }
-}
-
-singularity::emission_state_t singularity::emission_calculator::get_emission_state()
-{
-    return emission_state;
-}
-
 void activity_period::clear()
 {
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
@@ -137,16 +109,6 @@ void activity_period::clear()
     handled_blocks_count = 0;
     
     p_weight_matrix->clear();
-}
-
-singularity::emission_parameters_t singularity::emission_calculator::get_parameters()
-{
-    return parameters;
-}
-
-void singularity::emission_calculator::set_parameters(singularity::emission_parameters_t emission_parameters)
-{
-    this->parameters = emission_parameters;
 }
 
 void activity_period::save_state_to_file(std::string filename) 
@@ -186,15 +148,15 @@ unsigned int singularity::activity_period::get_handled_block_count()
 
 double_type emission_calculator_new::get_emission_limit(double_type current_total_supply)
 {
-    double_type emission_event_count_per_year = double_type(31536000) / _emission_period_seconds;
+    double_type emission_event_count_per_year = double_type(31536000) / _parameters.emission_period_seconds;
     
-    return current_total_supply * (boost::multiprecision::pow((1 + _yearly_emission_percent / 100), 1.0 / emission_event_count_per_year) - 1);
+    return current_total_supply * (boost::multiprecision::pow((1 + _parameters.yearly_emission_percent / 100), 1.0 / emission_event_count_per_year) - 1);
 }
 
 double_type emission_calculator_new::get_target_emission(double_type current_activity, double_type max_activity)
 {
     if (current_activity > max_activity) {
-        return _activity_monetary_value * (current_activity - max_activity);
+        return _parameters.activity_monetary_value * (current_activity - max_activity);
     } else {
         return 0;
     }
@@ -203,7 +165,7 @@ double_type emission_calculator_new::get_target_emission(double_type current_act
 double_type emission_calculator_new::get_resulting_emission(double_type target_emission, double_type emission_limit)
 {
     if (target_emission > 0) {
-        return emission_limit * tanh(_delay_koefficient * target_emission / emission_limit);
+        return emission_limit * tanh(_parameters.delay_koefficient * target_emission / emission_limit);
     } else {
         return 0;
     }
@@ -211,7 +173,7 @@ double_type emission_calculator_new::get_resulting_emission(double_type target_e
 
 double_type emission_calculator_new::get_next_max_activity(double_type max_activity, double_type resulting_emission)
 {
-    return max_activity + resulting_emission / _activity_monetary_value;
+    return max_activity + resulting_emission / _parameters.activity_monetary_value;
 }
 
 unsigned int activity_period_new::activity_period_new::get_handled_block_count()

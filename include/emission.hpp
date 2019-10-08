@@ -12,11 +12,11 @@ namespace singularity {
         // Initial token supply
         money_t initial_supply = 100000000000000;
         // Maximal supply increment per year, in percents
-        uint16_t year_emission_limit = 10;
+        double_type yearly_emission_percent = 10;
         // Emission value koefficient
-        money_t emission_scale = 100000000;
-        // Emission event quantity per a year
-        uint32_t emission_event_count_per_year = 12;
+        money_t activity_monetary_value = 100000000;
+        // Emission period in seconds
+        double_type emission_period_seconds = 1800;
         // Delay emission koefficient, 0 < delay_koefficient < 1
         double_type delay_koefficient = 0.5;
     };
@@ -66,22 +66,6 @@ namespace singularity {
         }
     };
 
-    class emission_calculator
-    {
-    public:
-        emission_calculator(emission_parameters_t parameters, emission_state_t emission_state)
-        :parameters(parameters), 
-        emission_state(emission_state) 
-        {};
-        money_t calculate(money_t total_emission, activity_period& period);
-        emission_state_t get_emission_state();
-        emission_parameters_t get_parameters();
-        void set_parameters(emission_parameters_t emission_parameters);
-    private:
-        emission_parameters_t parameters;
-        emission_state_t emission_state;
-    };
-    
     class activity_period_new
     {
     public:
@@ -104,18 +88,20 @@ namespace singularity {
         unsigned int handled_blocks_count = 0;
     };
     
+//     struct emission_parameters_t
+//     {
+//         double_type yearly_emission_percent;
+//         double_type emission_period_seconds;
+//         double_type activity_monetary_value;
+//         double_type delay_koefficient;
+//     };
+    
     class emission_calculator_new 
     {
     public:
         emission_calculator_new(
-            double_type yearly_emission_percent, 
-            double_type emission_period_seconds,
-            double_type activity_monetary_value, 
-            double_type delay_koefficient
-        ):_yearly_emission_percent(yearly_emission_percent),
-        _emission_period_seconds(emission_period_seconds),
-        _activity_monetary_value(activity_monetary_value),
-        _delay_koefficient(delay_koefficient)
+            emission_parameters_t parameters
+        ): _parameters(parameters)
         {};
         double_type get_emission_limit(double_type current_total_supply);
         
@@ -125,29 +111,17 @@ namespace singularity {
 
         double_type get_next_max_activity(double_type max_activity, double_type resulting_emission);
         
-        void set_yearly_emission_percent(double_type yearly_emission_percent)
+        void set_parameters(emission_parameters_t parameters)
         {
-            _yearly_emission_percent = yearly_emission_percent;
+            _parameters = parameters;
         };
         
-        void set_activity_monetary_value(double_type activity_monetary_value)
+        emission_parameters_t get_parameters()
         {
-            _activity_monetary_value = activity_monetary_value;
-        };
-        
-        void set_delay_koefficient(double_type delay_koefficient)
-        {
-            _delay_koefficient = delay_koefficient;
-        };
-        void set_emission_period_seconds(double_type emission_period_seconds)
-        {
-            _emission_period_seconds = emission_period_seconds;
+            return _parameters;
         };
     private:
-        double_type _yearly_emission_percent;
-        double_type _emission_period_seconds;
-        double_type _activity_monetary_value;
-        double_type _delay_koefficient;
+        emission_parameters_t _parameters;
     };
 }
 
