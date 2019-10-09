@@ -72,6 +72,9 @@ namespace singularity {
         activity_period_new(uint32_t period_length, uint32_t period_count)
             :period_length(period_length), period_count(period_count)
         {
+            if (period_length == 0 || period_count == 0) {
+                throw validation_exception("Parameters period_length and period_count must be positive");
+            }
             p_account_keepers = new std::vector<account_keeper>(period_count);
         };
         virtual ~activity_period_new()
