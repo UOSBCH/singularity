@@ -56,16 +56,27 @@ std::vector<transaction_t> get_transactions2()
     
     return {
         transaction_t (200, 0, "account-0", "account-1", now, 0, 0, 0),
-        transaction_t (100, 0, "account-1", "account-0", now, 0, 0, 0),
-        transaction_t (300, 0, "account-0", "account-2", now, 0, 0, 0),
-        transaction_t (500, 0, "account-2", "account-1", now, 0, 0, 0),
-        transaction_t (700, 0, "account-1", "account-2", now, 0, 0, 0),
-        transaction_t (800, 0, "account-1", "account-3", now, 0, 0, 0),
-        transaction_t (100, 0, "account-2", "account-3", now, 0, 0, 0),
+        transaction_t (100, 0, "account-1", "account-0", now, 0, 0, 5),
+        transaction_t (300, 0, "account-0", "account-2", now, 0, 0, 9),
+        transaction_t (500, 0, "account-2", "account-1", now, 0, 0, 10),
+        transaction_t (700, 0, "account-1", "account-2", now, 0, 0, 11),
+        transaction_t (800, 0, "account-1", "account-3", now, 0, 0, 15),
+        transaction_t (100, 0, "account-0", "account-4", now, 0, 0, 30),
     };
 }
 
 BOOST_AUTO_TEST_SUITE( emission_test )
+
+BOOST_AUTO_TEST_CASE( new_activity_period_test )
+{
+    activity_period_new ap(10, 5);
+    
+    ap.add_block(get_transactions2());
+    
+    auto activity = ap.get_activity();
+    
+    BOOST_CHECK_CLOSE(activity, 1.6, 1e-3);
+}
 
 BOOST_AUTO_TEST_CASE( new_emission_test )
 {
