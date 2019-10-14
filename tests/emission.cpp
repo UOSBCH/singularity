@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( new_emission_test )
     
     double_type current_activity, max_activity, emission_limit, target_emission, emission, total_emission;
     
-    emission_calculator_new ec(params);
+    emission_calculator ec(params);
     
     max_activity = 0;
 

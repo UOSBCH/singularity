@@ -10,7 +10,7 @@ std::shared_ptr<vector_t> ncd_aware_rank::process(
         const vector_t& initial_vector,
         const vector_t& weight_vector,
         const additional_matrices_vector& additional_matrices
-) {
+) const {
 //     sparce_vector_t v = matrix_tools::calculate_correction_vector(outlink_matrix);
     Graph g = create_graph(outlink_matrix);
     scan scan(parameters.clustering_e, parameters.clustering_m);
@@ -28,7 +28,7 @@ std::shared_ptr<vector_t> ncd_aware_rank::iterate(
         const matrix_t& interlevel_matrix_l, 
         const vector_t& previous,
         const vector_t& teleportation
-) {
+) const {
 //     unsigned int num_accounts = outlink_matrix.size2();
     vector_t tmp(interlevel_matrix_l.size1(), 0); 
     matrix_tools::prod(tmp, interlevel_matrix_l, previous, parameters.num_threads);
@@ -59,7 +59,7 @@ std::shared_ptr<vector_t> ncd_aware_rank::calculate_rank(
         const matrix_t& interlevel_matrix_s, 
         const matrix_t& interlevel_matrix_l,
         const vector_t& initial_vector
-) {
+) const {
 //     unsigned int num_accounts = outlink_matrix.size2();
 //     double_type initialValue = 1.0/num_accounts;
     std::shared_ptr<vector_t> next;
@@ -84,7 +84,9 @@ std::shared_ptr<vector_t> ncd_aware_rank::calculate_rank(
 }
 
 
-std::shared_ptr<matrix_t> ncd_aware_rank::create_interlevel_matrix_s(const Graph& g)
+std::shared_ptr<matrix_t> ncd_aware_rank::create_interlevel_matrix_s(
+    const Graph& g
+) const
 {
     Graph::vertex_iterator current, end;
     
@@ -108,7 +110,7 @@ std::shared_ptr<matrix_t> ncd_aware_rank::create_interlevel_matrix_s(const Graph
 std::shared_ptr<matrix_t> ncd_aware_rank::create_interlevel_matrix_l(
         const Graph& g, 
         const matrix_t& outlink_matrix
-) 
+) const
 {
     unsigned int num_clusters = get_property(g, graph_num_clusters);
 
@@ -136,7 +138,7 @@ std::shared_ptr<matrix_t> ncd_aware_rank::create_interlevel_matrix_l(
     return L;
 }
 
-Graph ncd_aware_rank::create_graph(const matrix_t& m)
+Graph ncd_aware_rank::create_graph(const matrix_t& m) const
 {
     Graph g(m.size2());
     

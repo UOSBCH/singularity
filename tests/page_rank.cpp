@@ -93,8 +93,6 @@ void normalize(matrix_t& m)
         }
     }
     
-    std::cout << sum << std::endl;
-
     for(auto i=m.begin1(); i != m.end1(); i++) {
        for(auto j=i.begin(); j != i.end(); j++)  {
            if(sum(j.index2()) > 0) {

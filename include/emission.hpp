@@ -76,55 +76,48 @@ namespace singularity {
                 throw validation_exception("Parameters period_length and period_count must be positive");
             }
             p_account_keepers = new std::vector<account_keeper>(period_count);
-        };
+        }
         virtual ~activity_period_new()
         {
             delete p_account_keepers;
-        };
+        }
         void add_block(const std::vector<transaction_t>& transactions);
-        double_type get_activity();
-        unsigned int get_handled_block_count();
+        double_type get_activity() const;
+        unsigned int get_handled_block_count () const;
     private:
+        activity_period_new(const activity_period_new& obj) {}
         uint32_t period_length;
         uint32_t period_count;
         std::vector<account_keeper>* p_account_keepers;
         unsigned int handled_blocks_count = 0;
     };
     
-//     struct emission_parameters_t
-//     {
-//         double_type yearly_emission_percent;
-//         double_type emission_period_seconds;
-//         double_type activity_monetary_value;
-//         double_type delay_koefficient;
-//     };
-    
-    class emission_calculator_new 
+    class emission_calculator
     {
     public:
-        emission_calculator_new(
+        emission_calculator(
             emission_parameters_t parameters
-        ): _parameters(parameters)
-        {};
-        double_type get_emission_limit(double_type current_total_supply);
+        ): parameters_(parameters)
+        {}
+        double_type get_emission_limit(double_type current_total_supply) const;
         
-        double_type get_target_emission(double_type current_activity, double_type max_activity);
+        double_type get_target_emission(double_type current_activity, double_type max_activity) const;
         
-        double_type get_resulting_emission(double_type target_emission, double_type emission_limit);
+        double_type get_resulting_emission(double_type target_emission, double_type emission_limit) const;
 
-        double_type get_next_max_activity(double_type max_activity, double_type resulting_emission);
+        double_type get_next_max_activity(double_type max_activity, double_type resulting_emission) const;
         
         void set_parameters(emission_parameters_t parameters)
         {
-            _parameters = parameters;
-        };
+            parameters_ = parameters;
+        }
         
-        emission_parameters_t get_parameters()
+        emission_parameters_t get_parameters() const
         {
-            return _parameters;
-        };
+            return parameters_;
+        }
     private:
-        emission_parameters_t _parameters;
+        emission_parameters_t parameters_;
     };
 }
 

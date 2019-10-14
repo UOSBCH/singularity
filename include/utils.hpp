@@ -101,7 +101,7 @@ namespace singularity {
     public:
         decay_manager_t(uint decay_period, double_type decay_koefficient):
             decay_period(decay_period), decay_koefficient(decay_koefficient) 
-            {};
+            {}
             double_type get_decay_value (uint64_t height)
             {
                 uint64_t periods_passed = height / decay_period;
@@ -114,7 +114,7 @@ namespace singularity {
                 }
                 
                 return result;
-            };
+            }
     private:
         uint decay_period;
         double_type decay_koefficient;
@@ -125,13 +125,13 @@ namespace singularity {
     {
     public:
         rate_t(account_activity_index_map_t account_rate, account_activity_index_map_t content_rate)
-            :account_rate(account_rate),content_rate(content_rate) {};
+            :account_rate(account_rate),content_rate(content_rate) {}
         account_activity_index_map_t get_account_rate() {
             return account_rate;
-        };
+        }
         account_activity_index_map_t get_content_rate() {
             return content_rate;
-        };
+        }
     private:
         account_activity_index_map_t account_rate;
         account_activity_index_map_t content_rate;

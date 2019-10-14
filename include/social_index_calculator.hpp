@@ -11,6 +11,7 @@
 #include <boost/optional.hpp>
 #include "exporter.hpp"
 #include "validator.hpp"
+#include <vector>
 
 namespace singularity {
 
@@ -68,30 +69,30 @@ namespace singularity {
         void set_filter(std::shared_ptr<filter_interface> filter)
         {
             p_filter = filter;
-        };
+        }
         void add_stack_vector(const std::map<std::string, double_type>& stacks);
         void set_priorities(const std::map<std::string, double_type>& priorities);
         activity_index_detalization_t get_account_rank_detalization() 
         {
             return account_rank_detalization;
-        };
+        }
         activity_index_detalization_t get_account_priority_detalization() 
         {
             return account_priority_detalization;
-        };
+        }
         activity_index_detalization_t get_content_rank_detalization() 
         {
             return content_rank_detalization;
-        };
+        }
         account_activity_index_map_t vector2map(vector_t& v);
         intermediate_results_t get_last_intermediate_results()
         {
             return last_intermediate_results;
-        };
+        }
         trust_intermediate_results_t get_last_trust_intermediate_results()
         {
             return last_trust_intermediate_results;
-        };
+        }
     private:
         parameters_t parameters;
         parameters_validator_t validator;

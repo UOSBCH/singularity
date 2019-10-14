@@ -10,7 +10,8 @@ std::shared_ptr<vector_t> page_rank_alt::process(
         const vector_t& initial_vector,
         const vector_t& weight_vector,
         const additional_matrices_vector& additional_matrices
-) {
+) const
+{
     return calculate_rank(outlink_matrix, additional_matrices, initial_vector, weight_vector);
 }
 
@@ -19,7 +20,8 @@ std::shared_ptr<vector_t> page_rank_alt::iterate(
         const additional_matrices_vector& additional_matrices,
         const vector_t& previous,
         const vector_t& teleportation
-) {
+) const
+{
     std::shared_ptr<vector_t> next(new vector_t(outlink_matrix.size1(), 0));
     
     matrix_tools::prod(*next, outlink_matrix, previous, num_threads);
@@ -38,7 +40,8 @@ std::shared_ptr<vector_t> page_rank_alt::calculate_rank(
         const additional_matrices_vector& additional_matrices,
         const vector_t& initial_vector,
         const vector_t& weight_vector
-) {
+) const
+{
     std::shared_ptr<vector_t> next;
     std::shared_ptr<vector_t> result = std::make_shared<vector_t>(weight_vector.size(), 0);
     vector_t teleportation(weight_vector * (double_type(1) - outlink_weight));

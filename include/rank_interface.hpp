@@ -15,7 +15,8 @@ namespace singularity {
             const vector_t& initial_vector,
             const vector_t& weight_vector,
             const additional_matrices_vector& additional_matrices
-        ) = 0;
+        ) const = 0;
+        virtual ~rank_interface() {}
     };
 }
 #endif /* RANK_INTERFACE_HPP */
