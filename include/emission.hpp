@@ -75,7 +75,7 @@ namespace singularity {
             if (period_length == 0 || period_count == 0) {
                 throw validation_exception("Parameters period_length and period_count must be positive");
             }
-            p_account_keepers = new std::vector<account_keeper>(period_count);
+            p_account_keepers = new std::vector<account_storage>(period_count);
         }
         virtual ~activity_period_new()
         {
@@ -88,7 +88,7 @@ namespace singularity {
         activity_period_new(const activity_period_new& obj) {}
         uint32_t period_length;
         uint32_t period_count;
-        std::vector<account_keeper>* p_account_keepers;
+        std::vector<account_storage>* p_account_keepers;
         unsigned int handled_blocks_count = 0;
     };
     

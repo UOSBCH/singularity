@@ -137,7 +137,7 @@ namespace singularity {
         account_activity_index_map_t content_rate;
     };
 
-    class account_keeper
+    class account_storage
     {
     public:
         boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
@@ -150,19 +150,13 @@ namespace singularity {
     class runtime_exception: public std::runtime_error
     {
     public:
-        runtime_exception(const std::string& __arg) :
-            runtime_error(__arg) 
-        {
-        }
+        using std::runtime_error::runtime_error;
     };
 
     class validation_exception: public std::invalid_argument
     {
     public:
-        validation_exception(const std::string& __arg) :
-            invalid_argument(__arg) 
-        {
-        }
+        using std::invalid_argument::invalid_argument;
     };
     
 }
