@@ -16,6 +16,7 @@ namespace singularity {
             const vector_t& weight_vector,
             const additional_matrices_vector& additional_matrices
         ) const = 0;
+        virtual double_type get_teleportation_weight() const  = 0;
         virtual ~rank_interface() {}
     };
 }

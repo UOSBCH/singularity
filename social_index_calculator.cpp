@@ -206,12 +206,12 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     account_rank_final = *p_account_rank;
     
     if (parameters.subtract_stack_after_activity_index_is_calculated) {
-        account_rank_final -= stack_vector * ((double_type(1) - parameters.outlink_weight) * stack_contribution);
+        account_rank_final -= stack_vector * p_rank_calculator->get_teleportation_weight() * stack_contribution;
         base_vector -= stack_vector * stack_contribution;
     }
     
     if (parameters.subtract_priority_after_activity_index_is_calculated) {
-        account_rank_final -= priority_vector * ((double_type(1) - parameters.outlink_weight) * weight_contribution);
+        account_rank_final -= priority_vector * p_rank_calculator->get_teleportation_weight() * weight_contribution;
         base_vector -= priority_vector * weight_contribution;
     }
 

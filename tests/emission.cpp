@@ -37,31 +37,31 @@ std::vector<emission_step_t> get_emission_steps()
     };
 };
 
-std::vector<transaction_t> get_transactions1()
+std::vector<std::shared_ptr<relation_t> > get_transactions1()
 {
     time_t now = time(nullptr);
     
     return {
-        transaction_t (200, 0, "account-0", "account-1", now, 0, 0, 0),
-        transaction_t (100, 0, "account-1", "account-0", now, 0, 0, 0),
-        transaction_t (300, 0, "account-0", "account-2", now, 0, 0, 0),
-        transaction_t (500, 0, "account-2", "account-1", now, 0, 0, 0),
-        transaction_t (700, 0, "account-1", "account-2", now, 0, 0, 0),
+        std::make_shared<transaction_t> (200, 0, "account-0", "account-1", now, 0, 0, 0),
+        std::make_shared<transaction_t> (100, 0, "account-1", "account-0", now, 0, 0, 0),
+        std::make_shared<transaction_t> (300, 0, "account-0", "account-2", now, 0, 0, 0),
+        std::make_shared<transaction_t> (500, 0, "account-2", "account-1", now, 0, 0, 0),
+        std::make_shared<transaction_t> (700, 0, "account-1", "account-2", now, 0, 0, 0),
     };
 }
 
-std::vector<transaction_t> get_transactions2()
+std::vector<std::shared_ptr<relation_t> > get_transactions2()
 {
     time_t now = time(nullptr);
     
     return {
-        transaction_t (200, 0, "account-0", "account-1", now, 0, 0, 0),
-        transaction_t (100, 0, "account-1", "account-0", now, 0, 0, 5),
-        transaction_t (300, 0, "account-0", "account-2", now, 0, 0, 9),
-        transaction_t (500, 0, "account-2", "account-1", now, 0, 0, 10),
-        transaction_t (700, 0, "account-1", "account-2", now, 0, 0, 11),
-        transaction_t (800, 0, "account-1", "account-3", now, 0, 0, 15),
-        transaction_t (100, 0, "account-0", "account-4", now, 0, 0, 30),
+        std::make_shared<transaction_t> (200, 0, "account-0", "account-1", now, 0, 0, 0),
+        std::make_shared<transaction_t> (100, 0, "account-1", "account-0", now, 0, 0, 5),
+        std::make_shared<transaction_t> (300, 0, "account-0", "account-2", now, 0, 0, 9),
+        std::make_shared<transaction_t> (500, 0, "account-2", "account-1", now, 0, 0, 10),
+        std::make_shared<transaction_t> (700, 0, "account-1", "account-2", now, 0, 0, 11),
+        std::make_shared<transaction_t> (800, 0, "account-1", "account-3", now, 0, 0, 15),
+        std::make_shared<transaction_t> (100, 0, "account-0", "account-4", now, 0, 0, 30),
     };
 }
 

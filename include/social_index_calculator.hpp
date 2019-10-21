@@ -12,6 +12,7 @@
 #include "exporter.hpp"
 #include "validator.hpp"
 #include <vector>
+#include "abstract_index_calculator.hpp"
 
 namespace singularity {
 
@@ -37,7 +38,7 @@ namespace singularity {
         account_activity_index_map_t trust;
     };
     
-    class social_index_calculator 
+    class social_index_calculator: public abstract_index_calculator
     {
     public:
         const matrix_t::size_type initial_size = 2;
@@ -59,7 +60,7 @@ namespace singularity {
                 get_account_id(reserved_account, true);
             }
         }
-        void add_block(const std::vector<std::shared_ptr<relation_t> >& relations);
+        virtual void add_block(const std::vector<std::shared_ptr<relation_t> >& relations) override;
         void skip_blocks(unsigned int blocks_count);
         std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate();
         std::shared_ptr<vector_t> calculate_priority_vector();

@@ -17,6 +17,7 @@ namespace singularity {
             const vector_t& weight_vector,
             const additional_matrices_vector& additional_matrices
         ) const override;
+        virtual double_type get_teleportation_weight() const override;
         virtual Graph create_graph(const matrix_t& m) const;
     private:
         parameters_t parameters;

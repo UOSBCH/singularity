@@ -24,6 +24,7 @@ namespace singularity {
             const vector_t& weight_vector,
             const additional_matrices_vector& additional_matrices
         ) const override;
+        virtual double_type get_teleportation_weight() const override;
     private:
         double_type outlink_weight;
         uint16_t num_threads;

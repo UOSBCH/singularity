@@ -15,6 +15,11 @@ std::shared_ptr<vector_t> page_rank_alt::process(
     return calculate_rank(outlink_matrix, additional_matrices, initial_vector, weight_vector);
 }
 
+double_type page_rank_alt::get_teleportation_weight() const
+{
+    return  double_type(1) - outlink_weight;
+}
+
 std::shared_ptr<vector_t> page_rank_alt::iterate(
         const matrix_t& outlink_matrix, 
         const additional_matrices_vector& additional_matrices,

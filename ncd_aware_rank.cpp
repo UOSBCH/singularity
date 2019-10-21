@@ -21,6 +21,11 @@ std::shared_ptr<vector_t> ncd_aware_rank::process(
     return calculate_rank(outlink_matrix, additional_matrices, *ms, *ml, initial_vector);
 }
 
+double_type ncd_aware_rank::get_teleportation_weight() const
+{
+    return double_type(1) - parameters.outlink_weight - parameters.interlevel_weight;
+}
+
 std::shared_ptr<vector_t> ncd_aware_rank::iterate(
         const matrix_t& outlink_matrix, 
         const additional_matrices_vector& additional_matrices,

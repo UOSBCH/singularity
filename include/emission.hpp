@@ -26,45 +26,6 @@ namespace singularity {
         money_t target_emission = 0;
         double_type last_activity = 0;
     };
-    
-    class activity_period
-    {
-    public:
-        activity_period();
-        const matrix_t::size_type initial_size = 10000;
-        void add_block(const std::vector<transaction_t>& transactions);
-        double_type get_activity();
-        void clear();
-        unsigned int get_handled_block_count();
-        void save_state_to_file(std::string filename);
-        void load_state_from_file(std::string filename);
-    private:
-        friend class boost::serialization::access;
-        unsigned int handled_blocks_count = 0;
-        account_id_map_t account_map;
-        std::mutex accounts_lock;
-        std::mutex weight_matrix_lock;
-        std::shared_ptr<matrix_t> p_weight_matrix;
-        void collect_accounts(
-            account_id_map_t& account_id_map,
-            const std::vector<transaction_t>& transactions
-        );
-        byte_matrix_t calculate_link_matrix(
-            matrix_t::size_type size,
-            matrix_t& weight_matrix
-        );
-        void update_weight_matrix(
-            matrix_t& weight_matrix,
-            account_id_map_t& account_id_map,
-            const std::vector<transaction_t>& transactions
-        );
-        template<class Archive>
-        void serialize(Archive& ar, const unsigned int version) {
-            ar & BOOST_SERIALIZATION_NVP(handled_blocks_count);
-            ar & BOOST_SERIALIZATION_NVP(account_map);
-            ar & BOOST_SERIALIZATION_NVP(*p_weight_matrix);
-        }
-    };
 
     class activity_period_new
     {
@@ -81,7 +42,7 @@ namespace singularity {
         {
             delete p_account_keepers;
         }
-        void add_block(const std::vector<transaction_t>& transactions);
+        void add_block(const std::vector<std::shared_ptr<relation_t> >& relations);
         double_type get_activity() const;
         unsigned int get_handled_block_count () const;
     private:

@@ -9,9 +9,10 @@
 #include "rank_interface.hpp"
 #include "filters.hpp"
 #include "validator.hpp"
+#include "abstract_index_calculator.hpp"
 
 namespace singularity {
-    class activity_index_calculator 
+    class activity_index_calculator: public abstract_index_calculator
     {
     public:
         const matrix_t::size_type initial_size = 10;
@@ -24,7 +25,7 @@ namespace singularity {
             p_weight_matrix = std::make_shared<matrix_t>(initial_size, initial_size);
             p_decay_manager = std::make_shared<decay_manager_t>(parameters.decay_period, parameters.decay_koefficient);
         }
-        void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions);
+        virtual void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions) override;
         void skip_blocks(unsigned int blocks_count);
         std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate();
         unsigned int get_total_handled_block_count();
