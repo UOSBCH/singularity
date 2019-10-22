@@ -9,6 +9,7 @@ namespace singularity {
   {
   public:
       virtual void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions) = 0;
+      virtual std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate() = 0;
   };
 }
 #endif // ABSTRACT_INDEX_CALCULATOR_HPP

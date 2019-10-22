@@ -62,7 +62,7 @@ namespace singularity {
         }
         virtual void add_block(const std::vector<std::shared_ptr<relation_t> >& relations) override;
         void skip_blocks(unsigned int blocks_count);
-        std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate();
+        virtual std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate() override;
         std::shared_ptr<vector_t> calculate_priority_vector();
         unsigned int get_total_handled_block_count();
         void set_parameters(parameters_t params);
@@ -179,8 +179,8 @@ namespace singularity {
             const vector_t& activity_index_vector
         ); 
         
-        intermediate_results_t last_intermediate_results;
-        trust_intermediate_results_t last_trust_intermediate_results;
+        mutable intermediate_results_t last_intermediate_results;
+        mutable trust_intermediate_results_t last_trust_intermediate_results;
     };
 };
 

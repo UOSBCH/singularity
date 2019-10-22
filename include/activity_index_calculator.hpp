@@ -27,7 +27,7 @@ namespace singularity {
         }
         virtual void add_block(const std::vector<std::shared_ptr<relation_t> >& transactions) override;
         void skip_blocks(unsigned int blocks_count);
-        std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate();
+        virtual std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate() override;
         unsigned int get_total_handled_block_count();
         void set_parameters(parameters_t params);
         parameters_t get_parameters();
