@@ -137,7 +137,7 @@ namespace singularity {
         account_activity_index_map_t content_rate;
     };
 
-    class account_storage
+    class id_registry
     {
     public:
         boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
