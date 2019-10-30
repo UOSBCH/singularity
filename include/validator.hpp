@@ -24,15 +24,15 @@ namespace singularity {
             }
             
             if (parameters.stack_contribution < 0) {
-                throw validation_exception("The parameter stack_contribution must be not nefative");
+                throw validation_exception("The parameter stack_contribution must be not negative");
             }
             
             if (parameters.weight_contribution < 0) {
                 throw validation_exception("The parameter weight_contribution must be not negative");
             }
             
-            if (parameters.stack_contribution + parameters.weight_contribution >= 1) {
-                throw validation_exception("Sum of parameters stack_contribution and weight_contribution must be less than 1");
+            if (parameters.stack_contribution + parameters.weight_contribution > 1) {
+                throw validation_exception("Sum of parameters stack_contribution and weight_contribution must be less (or equal) than 1");
             }
 
             if (parameters.rank_calculation_precision <= 0) {

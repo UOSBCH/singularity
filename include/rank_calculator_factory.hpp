@@ -5,7 +5,7 @@
 #include "activity_index_calculator.hpp"
 #include "social_index_calculator.hpp"
 #include "ncd_aware_rank.hpp"
-#include "page_rank.hpp"
+#include "page_rank_alt.hpp"
 
 namespace singularity {
     
@@ -29,7 +29,7 @@ namespace singularity {
             return std::make_shared<social_index_calculator>(
                 parameters, 
                 true, 
-                std::make_shared<page_rank>(parameters.outlink_weight, parameters.num_threads, parameters.rank_calculation_precision),
+                std::make_shared<page_rank_alt>(parameters.outlink_weight, parameters.num_threads, parameters.rank_calculation_precision),
                 calculation_mode::PHANTOM_ACCOUNT
             );
         };
