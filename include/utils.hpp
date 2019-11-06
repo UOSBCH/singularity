@@ -137,14 +137,25 @@ namespace singularity {
         account_activity_index_map_t content_rate;
     };
 
+    class id_registry_observer
+    {
+    public:
+        virtual void on_count_increase(std::size_t new_count) = 0;
+    };
+
     class id_registry
     {
     public:
         boost::optional<account_id_map_t::mapped_type> get_id(std::string name, bool allow_create);
         std::size_t get_count();
+        void set_observer(std::shared_ptr<id_registry_observer> observer)
+        {
+            observer_ = observer;
+        };
     private:
-        std::mutex accounts_lock;
-        account_id_map_t account_map;
+        std::mutex lock_;
+        account_id_map_t map_;
+        std::shared_ptr<id_registry_observer> observer_;
     };
     
     class runtime_exception: public std::runtime_error
