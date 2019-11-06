@@ -136,6 +136,9 @@ class mapped_matrix_resizable:
     std::shared_ptr<mapped_matrix_resizable<T, L, A> > collapse(const mapped_matrix_resizable<T, L, A> &e1, const mapped_matrix_resizable<T, L, A> &e2)
     {
         std::shared_ptr<mapped_matrix_resizable<T, L, A> > result = std::make_shared<mapped_matrix_resizable<T, L, A> >(e1.size1(), e2.size2());
+        mapped_matrix_resizable<T, L, A> positive(e1.size1(), e2.size2());
+        mapped_matrix_resizable<T, L, A> negative(e1.size1(), e2.size2());
+
         for (auto it1: e1.data()) {
             auto i1 = L::index_i(it1.first, e1.size1(), e1.size2());
             auto j1 = L::index_j(it1.first, e1.size1(), e1.size2());
@@ -143,11 +146,16 @@ class mapped_matrix_resizable:
             for (auto it2row = it2.cbegin(); it2row != it2.cend(); it2row++) {
                 auto j2 = it2row.index2();
                 auto x = it1.second * (*it2row);
-                if ((*result)(i1, j2) < x) {
-                    (*result)(i1, j2) = x;
+                if (positive(i1, j2) < x) {
+                    positive(i1, j2) = x;
+                }
+                if (negative(i1, j2) > x) {
+                    negative(i1, j2) = x;
                 }
             }
         }
+
+        *result = positive + negative;
         
         return result;
     }

@@ -244,8 +244,50 @@ BOOST_AUTO_TEST_CASE( collapse )
     expected(1,2) = 0.5;
     
     double_type diff = norm_1(expected - *p_result);
-    
-    BOOST_CHECK_CLOSE(diff, double_type(0), double_type(0.001));
+
+    BOOST_CHECK_SMALL(diff, double_type(0.001));
+}
+
+BOOST_AUTO_TEST_CASE( collapse_2 )
+{
+    matrix_t left(3,4);
+    left(0,0) = 1;
+    left(0,1) = 1;
+    left(0,3) = 1;
+    left(1,2) = 1;
+
+    matrix_t right(4,3);
+
+    right(0,0) = 0.8;
+    right(1,0) = -0.3;
+    right(2,0) = 0.9;
+    right(3,0) = 0.1;
+
+    right(0,1) = 0.2;
+    right(1,1) = 0.1;
+    right(2,1) = 0.3;
+    right(3,1) = 0.7;
+
+    right(0,2) = 0.1;
+    right(1,2) = -1;
+    right(2,2) = 0.5;
+    right(3,2) = 0.1;
+
+    std::shared_ptr<matrix_t> p_result = boost::numeric::ublas::collapse(left, right);
+
+    matrix_t expected(3, 3);
+
+    expected(0,0) = 0.5;
+    expected(0,1) = 0.7;
+    expected(0,2) = -0.9;
+
+    expected(1,0) = 0.9;
+    expected(1,1) = 0.3;
+    expected(1,2) = 0.5;
+
+    double_type diff = norm_1(expected - *p_result);
+
+    BOOST_CHECK_SMALL(diff, double_type(0.001));
 }
 
 
