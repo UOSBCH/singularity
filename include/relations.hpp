@@ -93,6 +93,7 @@ namespace singularity {
     class upvote_t: public relation_t 
     {
     public:
+        const static std::string NAME;
         upvote_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {}
@@ -103,7 +104,7 @@ namespace singularity {
             return 0;
         }
         virtual std::string get_name() const override {
-            return "UPVOTE";
+            return upvote_t::NAME;
         }
         virtual bool is_decayable() const override {
             return true;
@@ -119,6 +120,7 @@ namespace singularity {
     class downvote_t: public relation_t 
     {
     public:
+        const static std::string NAME;
         downvote_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {}
@@ -129,7 +131,7 @@ namespace singularity {
             return 0;
         }
         virtual std::string get_name() const override {
-            return "DOWNVOTE";
+            return downvote_t::NAME;
         }
         virtual bool is_decayable() const override {
             return true;
@@ -145,6 +147,7 @@ namespace singularity {
     class follow_t: public relation_t 
     {
     public:
+        const static std::string NAME;
         follow_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {}
@@ -155,7 +158,7 @@ namespace singularity {
             return 0;
         }
         virtual std::string get_name() const override {
-            return "FOLLOW";
+            return follow_t::NAME;
         }
         virtual bool is_decayable() const override {
             return false;
@@ -171,6 +174,7 @@ namespace singularity {
     class trust_t: public relation_t 
     {
     public:
+        const static std::string NAME;
         trust_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {}
@@ -181,7 +185,7 @@ namespace singularity {
             return 0;
         }
         virtual std::string get_name() const override {
-            return "TRUST";
+            return trust_t::NAME;
         }
         virtual bool is_decayable() const override {
             return true;
@@ -194,10 +198,11 @@ namespace singularity {
         }
     };
 
-    class ownwership_t: public relation_t 
+    class ownership_t: public relation_t
     {
     public:
-        ownwership_t (std::string source, std::string target, uint64_t height):
+        const static std::string NAME;
+        ownership_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {}
         virtual int64_t get_weight() const override {
@@ -207,7 +212,7 @@ namespace singularity {
             return 1;
         }
         virtual std::string get_name() const override {
-            return "OWNERSHIP";
+            return ownership_t::NAME;
         }
         virtual bool is_decayable() const override {
             return false;
@@ -223,6 +228,7 @@ namespace singularity {
     class comment_t: public relation_t 
     {
     public:
+        const static std::string NAME;
         comment_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {}
@@ -233,7 +239,7 @@ namespace singularity {
             return 0;
         }
         virtual std::string get_name() const override {
-            return "COMMENT";
+            return comment_t::NAME;
         }
         virtual bool is_decayable() const override {
             return true;
@@ -249,6 +255,7 @@ namespace singularity {
     class repost_t: public relation_t 
     {
     public:
+        const static std::string NAME;
         repost_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {}
@@ -259,7 +266,7 @@ namespace singularity {
             return 0;
         }
         virtual std::string get_name() const override {
-            return "REPOST";
+            return repost_t::NAME;
         }
         virtual bool is_decayable() const override {
             return true;
@@ -275,6 +282,7 @@ namespace singularity {
     class membership_t: public relation_t 
     {
     public:
+        const static std::string NAME;
         membership_t (std::string source, std::string target, uint64_t height):
         relation_t(source, target, height) 
         {}
@@ -285,7 +293,7 @@ namespace singularity {
             return 10;
         }
         virtual std::string get_name() const override {
-            return "MEMBERSHIP";
+            return membership_t::NAME;
         }
         virtual bool is_decayable() const override {
             return true;
@@ -307,6 +315,7 @@ namespace singularity {
         money_t target_account_balance;
         time_t timestamp;
     public:
+        const static std::string NAME;
         transaction_t (
             money_t amount, 
             money_t comission, 
@@ -331,7 +340,7 @@ namespace singularity {
             return - int64_t(amount);
         }
         virtual std::string get_name() const override {
-            return "TRANSFER";
+            return transaction_t::NAME;
         }
         money_t get_amount() 
         {

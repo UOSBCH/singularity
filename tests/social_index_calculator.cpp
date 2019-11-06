@@ -127,9 +127,9 @@ void check_details (
 std::vector<std::shared_ptr<relation_t> > get_relations()
 {
     return {
-        std::make_shared<ownwership_t>("account-0", "post-0", 0),
-        std::make_shared<ownwership_t>("account-1", "post-1", 0),
-        std::make_shared<ownwership_t>("account-2", "post-2", 0),
+        std::make_shared<ownership_t>("account-0", "post-0", 0),
+        std::make_shared<ownership_t>("account-1", "post-1", 0),
+        std::make_shared<ownership_t>("account-2", "post-2", 0),
         std::make_shared<upvote_t>("account-0", "post-1", 0),
         std::make_shared<upvote_t>("account-1", "post-0", 0),
         std::make_shared<upvote_t>("account-0", "post-2", 0),
@@ -141,9 +141,9 @@ std::vector<std::shared_ptr<relation_t> > get_relations()
 std::vector<std::shared_ptr<relation_t> > get_relations_2()
 {
     return {
-        std::make_shared<ownwership_t>("account-0", "post-0", 0),
-        std::make_shared<ownwership_t>("account-1", "post-1", 0),
-        std::make_shared<ownwership_t>("account-2", "post-2", 0),
+        std::make_shared<ownership_t>("account-0", "post-0", 0),
+        std::make_shared<ownership_t>("account-1", "post-1", 0),
+        std::make_shared<ownership_t>("account-2", "post-2", 0),
         std::make_shared<upvote_t>("account-0", "post-1", 0),
         std::make_shared<upvote_t>("account-1", "post-0", 0),
         std::make_shared<downvote_t>("account-0", "post-2", 0),
@@ -155,10 +155,10 @@ std::vector<std::shared_ptr<relation_t> > get_relations_2()
 std::vector<std::shared_ptr<relation_t> > get_relations_3()
 {
     return {
-        std::make_shared<ownwership_t>("account-0", "post-0", 0),
-        std::make_shared<ownwership_t>("account-1", "post-1", 0),
-        std::make_shared<ownwership_t>("account-2", "post-2", 0),
-        std::make_shared<ownwership_t>("account-2", "repost-2-1", 0),
+        std::make_shared<ownership_t>("account-0", "post-0", 0),
+        std::make_shared<ownership_t>("account-1", "post-1", 0),
+        std::make_shared<ownership_t>("account-2", "post-2", 0),
+        std::make_shared<ownership_t>("account-2", "repost-2-1", 0),
         std::make_shared<repost_t>("repost-2-1", "post-1", 0),
         std::make_shared<upvote_t>("account-0", "repost-2-1", 0),
         std::make_shared<upvote_t>("account-1", "post-0", 0),
@@ -171,10 +171,10 @@ std::vector<std::shared_ptr<relation_t> > get_relations_3()
 std::vector<std::shared_ptr<relation_t> > get_relations_decayable()
 {
     return {
-        std::make_shared<ownwership_t>("account-0", "post-0", 0),
-        std::make_shared<ownwership_t>("account-1", "post-1", 0),
-        std::make_shared<ownwership_t>("account-2", "post-20", 0),
-        std::make_shared<ownwership_t>("account-2", "post-21", 0),
+        std::make_shared<ownership_t>("account-0", "post-0", 0),
+        std::make_shared<ownership_t>("account-1", "post-1", 0),
+        std::make_shared<ownership_t>("account-2", "post-20", 0),
+        std::make_shared<ownership_t>("account-2", "post-21", 0),
         std::make_shared<upvote_t>("account-0", "post-1", 516000),
         std::make_shared<upvote_t>("account-1", "post-0", 0),
         std::make_shared<upvote_t>("account-0", "post-20", 0),
@@ -185,12 +185,12 @@ std::vector<std::shared_ptr<relation_t> > get_relations_decayable()
 std::vector<std::shared_ptr<relation_t> > get_relations_4()
 {
     return {
-        std::make_shared<ownwership_t>("account-0", "post-0", 0),
-        std::make_shared<ownwership_t>("account-1", "post-1", 0),
-        std::make_shared<ownwership_t>("account-2", "post-2", 0),
-        std::make_shared<ownwership_t>("account-3", "post-3", 0),
-        std::make_shared<ownwership_t>("account-4", "post-4", 0),
-        std::make_shared<ownwership_t>("account-5", "post-5", 0),
+        std::make_shared<ownership_t>("account-0", "post-0", 0),
+        std::make_shared<ownership_t>("account-1", "post-1", 0),
+        std::make_shared<ownership_t>("account-2", "post-2", 0),
+        std::make_shared<ownership_t>("account-3", "post-3", 0),
+        std::make_shared<ownership_t>("account-4", "post-4", 0),
+        std::make_shared<ownership_t>("account-5", "post-5", 0),
         std::make_shared<upvote_t>("account-0", "post-1", 0),
         std::make_shared<upvote_t>("account-1", "post-0", 0),
         std::make_shared<upvote_t>("account-0", "post-2", 0),
@@ -212,12 +212,12 @@ std::vector<std::shared_ptr<relation_t> > get_trust_relations_4()
 std::vector<std::shared_ptr<relation_t> > get_relations_for_2_subnets()
 {
     return {
-        std::make_shared<ownwership_t>("account-10", "post-10-0", 0),
-        std::make_shared<ownwership_t>("account-11", "post-11-0", 0),
-        std::make_shared<ownwership_t>("account-12", "post-12-0", 0),
-        std::make_shared<ownwership_t>("account-20", "post-20-0", 0),
-        std::make_shared<ownwership_t>("account-21", "post-21-0", 0),
-        std::make_shared<ownwership_t>("account-22", "post-22-0", 0),
+        std::make_shared<ownership_t>("account-10", "post-10-0", 0),
+        std::make_shared<ownership_t>("account-11", "post-11-0", 0),
+        std::make_shared<ownership_t>("account-12", "post-12-0", 0),
+        std::make_shared<ownership_t>("account-20", "post-20-0", 0),
+        std::make_shared<ownership_t>("account-21", "post-21-0", 0),
+        std::make_shared<ownership_t>("account-22", "post-22-0", 0),
         std::make_shared<upvote_t>("account-10", "post-11-0", 0),
         std::make_shared<upvote_t>("account-11", "post-10-0", 0),
         std::make_shared<upvote_t>("account-10", "post-12-0", 0),

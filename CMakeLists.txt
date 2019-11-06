@@ -29,10 +29,12 @@ set(SOURCES ncd_aware_rank.cpp
             page_rank_alt.cpp
             activity_index_calculator.cpp
             social_index_calculator.cpp
+#            trust_calculator.cpp
             scan.cpp
             utils.cpp
             emission.cpp
             gravity_index_calculator.cpp
+            relations.cpp
    )
 
 set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -Wall" )

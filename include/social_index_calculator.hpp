@@ -61,10 +61,9 @@ namespace singularity {
             }
         }
         virtual void add_block(const std::vector<std::shared_ptr<relation_t> >& relations) override;
-        void skip_blocks(unsigned int blocks_count);
+        virtual void add_relation(const relation_t& relations) override;
         virtual std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate() override;
         std::shared_ptr<vector_t> calculate_priority_vector();
-        unsigned int get_total_handled_block_count();
         void set_parameters(parameters_t params);
         parameters_t get_parameters();
         void set_filter(std::shared_ptr<filter_interface> filter)
@@ -103,8 +102,6 @@ namespace singularity {
         
         exporter_t exporter;
         
-        unsigned int total_handled_blocks_count = 0;
-        unsigned int handled_blocks_count = 0;
         std::shared_ptr<matrix_t> p_ownership_matrix;
         std::shared_ptr<matrix_t> p_vote_matrix;
         std::shared_ptr<matrix_t> p_repost_matrix;
@@ -125,15 +122,13 @@ namespace singularity {
         std::shared_ptr<decay_manager_t> p_decay_manager;
         std::shared_ptr<filter_interface> p_filter;
 
-        std::vector<std::shared_ptr<relation_t> > filter_block(const std::vector<std::shared_ptr<relation_t> >& block);
-                
         std::map<node_type, std::shared_ptr<account_activity_index_map_t> > calculate_score(
             const vector_t& account_rank,
             const vector_t& content_rank
         );
         
         void collect_accounts(
-            const std::vector<std::shared_ptr<relation_t> >& relations
+            const relation_t& relation
         );
         void calculate_outlink_matrix(
             matrix_t& o,
@@ -144,9 +139,6 @@ namespace singularity {
         void calculate_content_matrix(
             matrix_t& o,
             matrix_t& weight_matrix
-        );
-        void update_weight_matrix(
-            const std::vector<std::shared_ptr<relation_t> >& relations
         );
         void normalize_columns(matrix_t &m, additional_matrices_vector& additional_matrices, const vector_t& weight_vector);
         vector_t create_default_initial_vector();

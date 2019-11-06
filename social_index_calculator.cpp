@@ -14,62 +14,68 @@ using namespace boost;
 using namespace singularity;
 
 void social_index_calculator::collect_accounts(
-    const std::vector<std::shared_ptr<relation_t> >& relations
+    const relation_t& relation
 ) {
     std::lock_guard<std::mutex> lock(accounts_lock);
-    for (unsigned int i=0; i<relations.size(); i++) {
-        std::shared_ptr<relation_t> relation = relations[i];
-        
-        if (relation->get_source_type() == node_type::ACCOUNT) {
-            get_account_id(relation->get_source(), true);
-        } else if (relation->get_source_type() == node_type::CONTENT) {
-            get_content_id(relation->get_source(), true);
-        }
 
-        if (relation->get_target_type() == node_type::ACCOUNT) {
-            get_account_id(relation->get_target(), true);
-        } else if (relation->get_target_type() == node_type::CONTENT) {
-            get_content_id(relation->get_target(), true);
-        }
+    if (relation.get_source_type() == node_type::ACCOUNT) {
+        get_account_id(relation.get_source(), true);
+    } else if (relation.get_source_type() == node_type::CONTENT) {
+        get_content_id(relation.get_source(), true);
     }
+
+    if (relation.get_target_type() == node_type::ACCOUNT) {
+        get_account_id(relation.get_target(), true);
+    } else if (relation.get_target_type() == node_type::CONTENT) {
+        get_content_id(relation.get_target(), true);
+    }
+
+    adjust_matrix_sizes();
 }
 
 void social_index_calculator::add_block(const std::vector<std::shared_ptr<relation_t> >& relations) {
-    std::vector<std::shared_ptr<relation_t> > filtered_transactions = filter_block(relations);
-    std::lock_guard<std::mutex> lock(weight_matrix_lock);
-    collect_accounts(filtered_transactions);
-    
-    total_handled_blocks_count++;
-    handled_blocks_count++;
-    
-    adjust_matrix_sizes();
-    
-    update_weight_matrix(filtered_transactions);
-}
-
-std::vector<std::shared_ptr<relation_t> > social_index_calculator::filter_block(const std::vector<std::shared_ptr<relation_t> >& block)
-{
-    if (!p_filter) {
-        return block;
-    } else {
-        
-        std::vector<std::shared_ptr<relation_t> > filtered_block;
-        
-        for (auto transaction: block) {
-            if (p_filter->check(transaction)) {
-                filtered_block.push_back(transaction);
-            }
-        }
-        
-        return filtered_block;
+    for (auto p_relation: relations) {
+        add_relation(*p_relation);
     }
 }
 
-void social_index_calculator::skip_blocks(unsigned int blocks_count)
+void social_index_calculator::add_relation(const relation_t& relation)
 {
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
-    total_handled_blocks_count += blocks_count;
-    handled_blocks_count += blocks_count;
+//    if (parameters.extended_logging) {
+//        exporter.export_relation(relation);
+//    }
+
+    if (p_filter && !p_filter->check(relation)) {
+        return;
+    }
+
+    collect_accounts(relation);
+
+    double_type decay_value =
+        relation.is_decayable() ?
+            p_decay_manager->get_decay_value(relation.get_height()) :
+            1;
+
+    if (relation.get_name() == ownership_t::NAME) {
+        (*p_ownership_matrix)(account_map[relation.get_source()], content_map[relation.get_target()]) = 1;
+    }
+
+    if (relation.get_name() == upvote_t::NAME) {
+        (*p_vote_matrix)(content_map[relation.get_target()], account_map[relation.get_source()]) = decay_value;
+    }
+
+    if (relation.get_name() == downvote_t::NAME) {
+        (*p_vote_matrix)(content_map[relation.get_target()], account_map[relation.get_source()]) = - decay_value;
+    }
+
+    if (relation.get_name() == repost_t::NAME) {
+        (*p_repost_matrix)(content_map[relation.get_target()], content_map[relation.get_source()]) = 1;
+        (*p_repost_matrix)(content_map[relation.get_source()], content_map[relation.get_source()]) = -1;
+    }
+    if (relation.get_name() == trust_t::NAME) {
+        (*p_trust_matrix)(account_map[relation.get_target()], account_map[relation.get_source()]) = 1;
+    }
 }
 
 std::shared_ptr<vector_t> social_index_calculator::calculate_priority_vector()
@@ -329,44 +335,6 @@ void social_index_calculator::calculate_content_matrix(
     }
 }
 
-
-void social_index_calculator::update_weight_matrix(const std::vector<std::shared_ptr<relation_t> >& relations) {
-    for (unsigned int i=0; i<relations.size(); i++) {
-        std::shared_ptr<relation_t> t = relations[i];
-        
-        if (parameters.extended_logging) {
-            exporter.export_relation(*t);
-        }
-        
-        double_type decay_value;
-        if (t->is_decayable()) {
-            decay_value = p_decay_manager->get_decay_value(t->get_height());
-        } else {
-            decay_value = 1;
-        }
-        
-        if (t->get_name() == "OWNERSHIP") {
-            (*p_ownership_matrix)(account_map[t->get_source()], content_map[t->get_target()]) = 1;
-        }
-        
-        if (t->get_name() == "UPVOTE") {
-            (*p_vote_matrix)(content_map[t->get_target()], account_map[t->get_source()]) = decay_value;
-        }
-
-        if (t->get_name() == "DOWNVOTE") {
-            (*p_vote_matrix)(content_map[t->get_target()], account_map[t->get_source()]) = - decay_value;
-        }
-
-        if (t->get_name() == "REPOST") {
-            (*p_repost_matrix)(content_map[t->get_target()], content_map[t->get_source()]) = 1;
-            (*p_repost_matrix)(content_map[t->get_source()], content_map[t->get_source()]) = -1;
-        }
-        if (t->get_name() == "TRUST") {
-            (*p_trust_matrix)(account_map[t->get_target()], account_map[t->get_source()]) = 1;
-        }
-    }
-}
-
 std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index_calculator::calculate_score(
     const vector_t& account_rank,
     const vector_t& content_rank
@@ -392,11 +360,6 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > social_index
     result[node_type::CONTENT] = content_rank_map;
 
     return result;
-}
-
-unsigned int social_index_calculator::get_total_handled_block_count() 
-{
-    return total_handled_blocks_count;
 }
 
 singularity::parameters_t singularity::social_index_calculator::get_parameters()

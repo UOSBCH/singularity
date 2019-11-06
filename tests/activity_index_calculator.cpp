@@ -132,8 +132,6 @@ BOOST_AUTO_TEST_CASE( test2 )
   
     
     BOOST_CHECK_CLOSE(static_cast<double>(r_sum), 1, 1e-6);
-    
-    BOOST_CHECK_EQUAL(calculator->get_total_handled_block_count(), 100);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

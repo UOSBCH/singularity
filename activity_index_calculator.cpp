@@ -14,60 +14,51 @@ using namespace boost;
 using namespace singularity;
 
 void activity_index_calculator::collect_accounts(
-    const std::vector<std::shared_ptr<relation_t> >& relations
+    const relation_t& relation
 ) {
     
     std::lock_guard<std::mutex> lock(accounts_lock);
-    for (unsigned int i=0; i<relations.size(); i++) {
-        std::shared_ptr<relation_t> relation = relations[i];
-        
-        if (relation->get_source_type() == node_type::ACCOUNT) {
-            get_account_id(relation->get_source(), true);
-        }
 
-        if (relation->get_target_type() == node_type::ACCOUNT) {
-            get_account_id(relation->get_target(), true);
-        }
+    if (relation.get_source_type() == node_type::ACCOUNT) {
+        get_account_id(relation.get_source(), true);
     }
-}
 
-void activity_index_calculator::add_block(const std::vector<std::shared_ptr<relation_t> >& transactions) {
-    std::vector<std::shared_ptr<relation_t> > filtered_transactions = filter_block(transactions);
-    std::lock_guard<std::mutex> lock(weight_matrix_lock);
-    
-    collect_accounts(filtered_transactions);
-    
-    total_handled_blocks_count++;
-    handled_blocks_count++;
-    
+    if (relation.get_target_type() == node_type::ACCOUNT) {
+        get_account_id(relation.get_target(), true);
+    }
+
     p_weight_matrix->set_real_size(nodes_count, nodes_count);
-
-    update_weight_matrix(filtered_transactions);
 }
 
-std::vector<std::shared_ptr<relation_t> > singularity::activity_index_calculator::filter_block(const std::vector<std::shared_ptr<relation_t> >& block)
-{
-    if (!p_filter) {
-        return block;
-    } else {
-        
-        std::vector<std::shared_ptr<relation_t> > filtered_block;
-        
-        for (auto transaction: block) {
-            if (p_filter->check(transaction)) {
-                filtered_block.push_back(transaction);
-            }
-        }
-        
-        return filtered_block;
+void activity_index_calculator::add_block(const std::vector<std::shared_ptr<relation_t> >& relations) {
+
+    for (auto p_relation: relations) {
+        add_relation(*p_relation);
     }
 }
 
-void activity_index_calculator::skip_blocks(unsigned int blocks_count)
+void activity_index_calculator::add_relation(const relation_t& relation)
 {
     std::lock_guard<std::mutex> lock(weight_matrix_lock);
-    total_handled_blocks_count += blocks_count;
-    handled_blocks_count += blocks_count;
+//    if (parameters.extended_logging) {
+//        exporter.export_relation(relation);
+//    }
+
+    if (p_filter && !p_filter->check(relation)) {
+        return;
+    }
+
+    collect_accounts(relation);
+
+    double_type decay_value =
+        relation.is_decayable() ?
+            p_decay_manager->get_decay_value(relation.get_height()) :
+            1;
+
+    if (relation.get_name() == transaction_t::NAME) {
+        (*p_weight_matrix)(account_map[relation.get_target()], account_map[relation.get_source()]) +=   decay_value * relation.get_weight();
+        (*p_weight_matrix)(account_map[relation.get_source()], account_map[relation.get_target()]) += - decay_value * relation.get_weight();
+    }
 }
 
 std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_index_calculator::calculate()
@@ -129,23 +120,6 @@ void activity_index_calculator::calculate_outlink_matrix(
     normalize_columns(o, additional_matrices);
 }
 
-void activity_index_calculator::update_weight_matrix(const std::vector<std::shared_ptr<relation_t> >& transactions) {
-    for (unsigned int i=0; i<transactions.size(); i++) {
-        std::shared_ptr<relation_t> t = transactions[i];
-        double_type decay_value;
-        if (t->is_decayable()) {
-            decay_value = p_decay_manager->get_decay_value(t->get_height());
-        } else {
-            decay_value = 1;
-        }
-
-        if (t->get_name() == "TRANSFER") {
-            (*p_weight_matrix)(account_map[t->get_target()], account_map[t->get_source()]) +=   decay_value * t->get_weight();
-            (*p_weight_matrix)(account_map[t->get_source()], account_map[t->get_target()]) += - decay_value * t->get_weight();
-        }
-    }
-}
-
 std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_index_calculator::calculate_score(
         const vector_t& rank
 )
@@ -162,11 +136,6 @@ std::map<node_type, std::shared_ptr<account_activity_index_map_t> > activity_ind
 
     return result;
     
-}
-
-unsigned int activity_index_calculator::get_total_handled_block_count() 
-{
-    return total_handled_blocks_count;
 }
 
 singularity::parameters_t singularity::activity_index_calculator::get_parameters()
