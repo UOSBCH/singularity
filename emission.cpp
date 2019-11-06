@@ -61,8 +61,8 @@ void activity_period_new::add_block(
         if(transaction) {
             uint64_t period_index = transaction->get_height() / period_length;
             if (period_index < period_count) {
-                (*p_account_keepers)[period_index].get_account_id(transaction->get_source(), true);
-                (*p_account_keepers)[period_index].get_account_id(transaction->get_target(), true);
+                (*p_account_keepers)[period_index].get_id(transaction->get_source(), true);
+                (*p_account_keepers)[period_index].get_id(transaction->get_target(), true);
             }
         }
     }
@@ -73,7 +73,7 @@ double_type activity_period_new::get_activity() const
     double_type result;
     
     for(uint32_t period_index=0; period_index < period_count; period_index++) {
-        result += (*p_account_keepers)[period_index].get_account_count();
+        result += (*p_account_keepers)[period_index].get_count();
     }
     
     result /= period_count;

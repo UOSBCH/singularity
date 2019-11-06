@@ -140,8 +140,8 @@ namespace singularity {
     class id_registry
     {
     public:
-        boost::optional<account_id_map_t::mapped_type> get_account_id(std::string name, bool allow_create);
-        std::size_t get_account_count();
+        boost::optional<account_id_map_t::mapped_type> get_id(std::string name, bool allow_create);
+        std::size_t get_count();
     private:
         std::mutex accounts_lock;
         account_id_map_t account_map;
