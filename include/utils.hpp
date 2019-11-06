@@ -141,6 +141,7 @@ namespace singularity {
     {
     public:
         virtual void on_count_increase(std::size_t new_count) = 0;
+        virtual ~id_registry_observer() {}
     };
 
     class id_registry
