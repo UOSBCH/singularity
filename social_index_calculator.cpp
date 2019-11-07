@@ -301,18 +301,19 @@ void social_index_calculator::calculate_content_matrix(
     matrix_t& weight_matrix
 )
 {
-    matrix_t::size_type size = o.size1();
+    matrix_t::size_type size1 = o.size1();
+    matrix_t::size_type size2 = o.size2();
     {
         std::lock_guard<std::mutex> lock(weight_matrix_lock);
 
         for (matrix_t::iterator1 i = weight_matrix.begin1(); i != weight_matrix.end1(); i++)
         {
-            if (i.index1() >= size) {
+            if (i.index1() >= size1) {
                 break;
             }
             for (matrix_t::iterator2 j = i.begin(); j != i.end(); j++)
             {
-                if (j.index2() >= size) {
+                if (j.index2() >= size2) {
                     break;
                 }
 
